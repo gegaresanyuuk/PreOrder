@@ -83,6 +83,53 @@ tfoot td{font-weight:700;background:#f1e8dc}
 .code{font-family:ui-monospace,monospace;background:var(--brand-soft);color:var(--brand);padding:4px 10px;border-radius:8px;font-weight:700;font-size:18px}
 .empty{text-align:center;padding:30px;color:var(--muted)}
 @media (max-width:560px){.seg{flex-direction:column}header h1{font-size:20px}}
+/* ===== owner tahap 1 ===== */
+:root{--red:#8e3b2e;--red-soft:#f6e3de}
+.otabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.otabs button{flex-shrink:0;white-space:nowrap}
+.kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+@media(min-width:640px){.kpi{grid-template-columns:repeat(4,1fr)}}
+.kpi.k3{grid-template-columns:repeat(3,1fr)}
+.kpi>div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.kpi.k3>div{padding:10px}
+.kpi.k3 small{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi small{display:block;color:var(--muted);font-size:12px}
+.kpi b{display:block;font-family:"Playfair Display",serif;font-size:21px;color:var(--brand);line-height:1.25;margin-top:2px}
+.kpi.k3 b{font-size:15px;white-space:nowrap}
+.kpi .g b{color:var(--ok)} .kpi .r b{color:var(--red)}
+.kpi em{font-style:normal;font-size:12px;color:var(--muted)}
+.money{height:14px;border-radius:8px;overflow:hidden;display:flex;background:var(--line);margin:12px 0 6px}
+.money i{display:block;height:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.legend span::before{content:'';display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.batch{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:10px;background:#fff}
+.pbar{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:6px}
+.pbar i{display:block;height:100%;background:var(--ok)}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;font-size:13px}
+.mini b{display:block;font-size:15px}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.chips button{flex-shrink:0;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font-size:13px;cursor:pointer;white-space:nowrap}
+.chips button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.prodgrp{border:1px solid var(--line);border-radius:14px;background:#fff;margin-top:10px;overflow:hidden;break-inside:avoid}
+.prodgrp .hd{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--brand-soft)}
+.prodgrp .hd b{font-family:"Playfair Display",serif;font-size:17px;color:var(--accent)}
+.prodgrp .tot{font-family:"Playfair Display",serif;font-size:26px;font-weight:800;color:var(--brand)}
+.vr{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px dashed var(--line)}
+.vr .nm{flex:1}.vr .q{font-weight:800;font-size:20px;min-width:44px;text-align:right}
+.vr .src{font-size:12px;color:var(--muted)}
+.chk{width:24px;height:24px;border:2px solid var(--brand-2);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;flex-shrink:0}
+.vr.done .chk{background:var(--ok);border-color:var(--ok)}
+.vr.done .nm,.vr.done .q{color:var(--muted);text-decoration:line-through}
+.pay{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:12px 0 4px;border-top:1px solid var(--line);flex-wrap:wrap}
+.pay:first-child{border-top:0}
+.pay .amt{text-align:right;font-weight:700}
+.pay .amt small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.pay .acts{flex-basis:100%;display:flex;gap:8px;padding-bottom:8px}
+.pay .acts .btn{flex:1;text-align:center}
+.pill.red{background:var(--red-soft);color:var(--red)}
+.exp{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;margin-top:10px}
+.exp .ic{font-size:26px;line-height:1}.exp .tx{flex:1}.exp b{display:block}
+@media print{header,.noprint,.sticky,#loading{display:none!important}main{margin:0}.card{box-shadow:none;border:0}body{background:#fff}}
 </style>
 <style>
 .badge{background:rgba(255,255,255,.2);padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600}
@@ -90,6 +137,11 @@ tfoot td{font-weight:700;background:#f1e8dc}
 #loading.on{display:flex}
 .spin{width:38px;height:38px;border:4px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:sp .8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
+.po-img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;margin-bottom:12px;background:var(--brand-soft)}
+.po-card{padding:12px}
+.po-thumb{width:64px;height:64px;object-fit:cover;border-radius:10px;flex-shrink:0;background:var(--brand-soft)}
+.photo-edit{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.photo-edit .po-img{width:160px;margin:0}
 .btn.wa{background:#25D366;color:#fff;display:inline-block;text-decoration:none;padding:13px 22px;font-size:15px;margin:6px 0 10px}
 .qris{text-align:center}.qris .amt{font-family:'Playfair Display',serif;font-size:26px;font-weight:800;color:var(--brand)}
 .qris img{width:100%;max-width:280px;border-radius:14px;border:1px solid var(--line);margin-top:6px;background:#fff}
@@ -193,7 +245,7 @@ const METODE = {kantor:'Antar ke Kantor',antar:'Kirim/Antar',gosend:'Kirim/Antar
 const S = {
   loaded:false,
   cust:{tab:'pesan',step:1,poId:null,qty:{},form:{metode:'kantor'},editingId:null,origQty:null,done:null,lookupWA:'',lookupDone:false,myOrders:[]},
-  owner:{authed:false,pin:'',tab:'ringkasan',rekapPO:null,rekapView:'varian',ringPO:'all'},
+  owner:{authed:false,pin:'',tab:'dash',rekapPO:null,rekapView:'varian',ringPO:'all',dashPO:'all',prodDate:null,payPO:'all',payFilter:'tagih',expPO:null},
 };
 
 function render(){
@@ -242,6 +294,7 @@ function cStep1(){
   const closed=DB.pos.filter(p=>!API.isOpen(p)).sort((a,b)=>b.closeDate.localeCompare(a.closeDate)).slice(0,3);
   const card=po=>{const o=API.isOpen(po);
     return `<div class="po-card ${S.cust.poId===po.id?'sel':''} ${o?'':'dis'}" ${o?`onclick="pickPO('${po.id}')"`:''}>
+      ${po.photo?imgTag(po.photo).replace(' alt=""',' class="po-img" alt="'+esc(po.name)+'"'):''}
       <div class="row between"><b>${esc(po.name)}</b><span class="pill ${o?'open':'closed'}">${o?'Buka':'Sudah close'}</span></div>
       <div class="muted">Close PO: <b>${fd(po.closeDate)}</b><br>Ready: <b>${fd(po.readyDate)}</b></div>
       ${po.note?`<div class="muted" style="margin-top:6px">${esc(po.note)}</div>`:''}
@@ -462,10 +515,13 @@ function renderOwner(){
   const o=S.owner;
   if(!o.authed) return `<div class="card" style="max-width:380px;margin:0 auto"><h2 style="font-size:20px">Masuk Owner</h2><p class="muted">Masukkan PIN owner.</p>
     <input type="password" id="pin" placeholder="PIN" onkeydown="if(event.key==='Enter')login()"><div style="margin-top:10px"><button class="btn" onclick="login()">Masuk</button></div></div>`;
-  const tabs=[['ringkasan','📊 Ringkasan & Omzet'],['po','📦 Kelola PO & Slot'],['produk','🍰 Produk & Pengaturan'],['rekap','🧾 Rekap Pesanan']];
-  let h=`<div class="row between" style="margin-bottom:14px"><div class="tabs" style="margin:0">${tabs.map(([k,l])=>`<button class="${o.tab===k?'on':''}" onclick="oTab('${k}')">${l}</button>`).join('')}</div>
-    <button class="btn sm ghost" onclick="ownerCall('ownerGetAll')">↻ Muat ulang</button></div>`;
-  if(o.tab==='ringkasan')h+=oRingkasan();
+  const tabs=[['dash','📊 Dashboard'],['prod','🧁 Produksi'],['pay','💰 Pembayaran'],['exp','⬇ Ekspor'],['rekap','🧾 Rekap Pesanan'],['po','📦 Kelola PO'],['produk','🍰 Produk & Pengaturan']];
+  let h=`<div class="row between noprint" style="margin-bottom:12px;flex-wrap:nowrap"><div class="tabs otabs" style="margin:0">${tabs.map(([k,l])=>`<button class="${o.tab===k?'on':''}" onclick="oTab('${k}')">${l}</button>`).join('')}</div>
+    <button class="btn sm ghost" style="flex-shrink:0" onclick="ownerCall('ownerGetAll')">↻</button></div>`;
+  if(o.tab==='ringkasan'||o.tab==='dash')h+=oDash();
+  if(o.tab==='prod')h+=oProd();
+  if(o.tab==='pay')h+=oPay();
+  if(o.tab==='exp')h+=oExp();
   if(o.tab==='po')h+=oPO();
   if(o.tab==='produk')h+=oProduk()+oWilayah()+oSettings();
   if(o.tab==='rekap')h+=oRekap();
@@ -513,11 +569,165 @@ function oRingkasan(){
   </table></div></div>`;
 }
 
+/* =========================================================
+   TAHAP 1 — Dashboard · Produksi · Pembayaran · Ekspor
+   (hanya membaca data yang sudah ada; tidak mengubah server)
+   ========================================================= */
+const rpK=n=>n>=1e6?'Rp '+(n/1e6).toLocaleString('id-ID',{maximumFractionDigits:2})+' jt':rp(n);
+const oVal=o=>API.orderGrand(o);
+const isLunas=o=>o.statusBayar==='lunas';
+const oPcs=o=>Object.values(o.items||{}).reduce((a,b)=>a+b,0);
+function poSelect(key,withAll){
+  const cur=S.owner[key];
+  return `<select style="width:auto;max-width:100%" onchange="S.owner.${key}=this.value;render()">${withAll?`<option value="all">Semua batch</option>`:''}${
+    [...DB.pos].sort((a,b)=>b.closeDate.localeCompare(a.closeDate)).map(p=>`<option value="${p.id}" ${cur===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`;
+}
+const ordersFor=key=>S.owner[key]==='all'?DB.orders:API.ordersOf(S.owner[key]);
+
+/* ---------- 📊 Dashboard ---------- */
+function oDash(){
+  const os=ordersFor('dashPO');
+  const V=os.reduce((s,o)=>s+oVal(o),0),P=os.filter(isLunas).reduce((s,o)=>s+oVal(o),0),D=V-P;
+  const nL=os.filter(isLunas).length,nB=os.length-nL,pcs=os.reduce((s,o)=>s+oPcs(o),0);
+  const pct=x=>V?Math.round(x/V*100):0;
+  return `<div class="card">
+    <div class="row between"><h2 style="font-size:20px">Dashboard</h2>${poSelect('dashPO',true)}</div>
+    <div class="kpi">
+      <div><small>Total order</small><b>${os.length}</b><em>${pcs} pcs</em></div>
+      <div><small>Nilai pesanan</small><b>${rpK(V)}</b><em>rata-rata ${rpK(os.length?V/os.length:0)}</em></div>
+      <div class="g"><small>Sudah dibayar</small><b>${rpK(P)}</b><em>${pct(P)}% · ${nL} order</em></div>
+      <div class="r"><small>Belum dibayar</small><b>${rpK(D)}</b><em>${nB} order</em></div>
+    </div>
+    <div class="money"><i style="width:${pct(P)}%;background:var(--ok)"></i><i style="width:${pct(D)}%;background:#d9a99d"></i></div>
+    <div class="legend"><span style="--c:var(--ok)">Lunas ${nL}</span><span style="--c:#d9a99d">Belum bayar ${nB}</span>
+      <span style="--c:var(--brand-2)">🏢 Kantor ${os.filter(o=>o.metode==='kantor').length} · 🚚 Kirim/Antar ${os.filter(o=>o.metode!=='kantor').length}</span></div>
+  </div>
+  <div class="card"><h3 style="font-size:17px">Per batch</h3>
+    ${DB.pos.length?[...DB.pos].sort((a,b)=>b.closeDate.localeCompare(a.closeDate)).map(p=>{
+      const bo=API.ordersOf(p.id),v=bo.reduce((s,o)=>s+oVal(o),0),pd=bo.filter(isLunas).reduce((s,o)=>s+oVal(o),0),open=API.isOpen(p);
+      return `<div class="batch"><div class="row between"><b>${esc(p.name)}</b><span class="pill ${open?'open':'closed'}">${open?'Buka':'Close'}</span></div>
+        <div class="muted">Close ${fd(p.closeDate)} · Ready ${fd(p.readyDate)}</div>
+        <div class="mini"><div><span class="muted">Order</span><b>${bo.length}</b></div><div><span class="muted">Nilai</span><b>${rpK(v)}</b></div><div><span class="muted">Belum dibayar</span><b style="color:var(--red)">${rpK(v-pd)}</b></div></div>
+        <div class="pbar"><i style="width:${v?pd/v*100:0}%"></i></div><div class="muted" style="font-size:12px;margin-top:3px">${v?Math.round(pd/v*100):0}% sudah dibayar</div></div>`}).join('')
+    :`<div class="empty">Belum ada PO.</div>`}
+  </div>`;
+}
+
+/* ---------- 🧁 Produksi ---------- */
+function prodDoneGet(){try{return JSON.parse(localStorage.getItem('gy_prod_done')||'{}');}catch(e){return {};}}
+function prodToggle(key){const d=prodDoneGet();d[key]=!d[key];try{localStorage.setItem('gy_prod_done',JSON.stringify(d));}catch(e){}render();}
+function oProd(){
+  const dates=[...new Set(DB.pos.map(p=>p.readyDate))].sort();
+  if(!dates.length)return `<div class="card empty">Belum ada PO.</div>`;
+  if(!S.owner.prodDate||dates.indexOf(S.owner.prodDate)<0)S.owner.prodDate=dates.find(d=>d>=DB.today)||dates[dates.length-1];
+  const day=S.owner.prodDate,pos=DB.pos.filter(p=>p.readyDate===day),ids=pos.map(p=>p.id);
+  const os=DB.orders.filter(o=>ids.indexOf(o.poId)>=0);
+  // jumlahkan per produk → varian (lintas batch, pakai nama produk & varian)
+  const g={};
+  os.forEach(o=>{const po=API.po(o.poId);Object.entries(o.items).forEach(([iid,q])=>{const it=po.items.find(x=>x.id===iid);if(!it)return;
+    const prod=API.product(it.productId)?.name||'?';g[prod]=g[prod]||{};const v=g[prod][it.variant]=g[prod][it.variant]||{q:0,n:0};v.q+=q;v.n++;});});
+  const done=prodDoneGet(),pcs=os.reduce((s,o)=>s+oPcs(o),0);
+  return `<div class="card">
+    <div class="row between"><h2 style="font-size:20px">Rekap Produksi</h2><button class="btn sm ghost noprint" onclick="window.print()">🖨 Cetak</button></div>
+    <p class="muted noprint" style="margin:4px 0 10px">Pilih tanggal ready, semua varian dari semua batch di tanggal itu dijumlahkan otomatis.</p>
+    <div class="chips noprint">${dates.map(d=>`<button class="${day===d?'on':''}" onclick="S.owner.prodDate='${d}';render()">📅 ${fd(d)}</button>`).join('')}</div>
+    <div class="row between" style="margin-top:12px"><b>Ready ${fd(day)}</b><span class="muted">${os.length} order · <b style="color:var(--ink)">${pcs} pcs</b></span></div>
+    <div class="muted" style="font-size:12px">Batch: ${pos.map(p=>esc(p.name)).join(', ')}</div>
+    ${Object.keys(g).length?Object.keys(g).sort().map(prod=>{const vs=g[prod],tot=Object.values(vs).reduce((s,v)=>s+v.q,0);
+      return `<div class="prodgrp"><div class="hd"><b>${esc(prod)}</b><span class="tot">${tot}</span></div>
+      ${Object.keys(vs).sort().map(vn=>{const v=vs[vn],key=day+'|'+prod+'|'+vn,d=done[key];
+        return `<div class="vr ${d?'done':''}"><div class="chk" onclick="prodToggle(${esc(JSON.stringify(key))})">${d?'✓':''}</div>
+          <div class="nm">${esc(vn)}<div class="src">dari ${v.n} order</div></div><div class="q">${v.q}</div></div>`}).join('')}</div>`}).join('')
+    :`<div class="empty">Belum ada pesanan untuk tanggal ini.</div>`}
+    <p class="muted noprint" style="margin-top:10px">✓ Centang kalau varian itu sudah selesai dibuat. Centangan tersimpan di HP/laptop ini saja.</p>
+  </div>`;
+}
+
+/* ---------- 💰 Pembayaran ---------- */
+function tagihText(o){
+  const po=API.po(o.poId);
+  const lines=Object.entries(o.items).map(([iid,q])=>{const it=po&&po.items.find(x=>x.id===iid);return it?`- ${API.itemLabel(it)} x${q}`:''}).filter(Boolean);
+  return ['Halo Kak '+o.nama+'! 🍰','Mau mengingatkan pembayaran pesanan *'+o.id+'*'+(po?' ('+po.name+', ready '+fd(po.readyDate)+')':'')+':','']
+    .concat(lines).concat(['','*Total: '+rp(oVal(o))+'*','Pembayaran bisa via QRIS / transfer, lalu kirim bukti bayarnya di chat ini ya 🙏','Terima kasih! — GegaresanYuuk 🤎'])
+    .join(String.fromCharCode(10));
+}
+function tagihUrl(o){return 'ht'+'tps://wa.me/'+toIntl(o.wa)+'?text='+encodeURIComponent(tagihText(o));}
+function oPay(){
+  const os=ordersFor('payPO');
+  const V=os.reduce((s,o)=>s+oVal(o),0),P=os.filter(isLunas).reduce((s,o)=>s+oVal(o),0);
+  const F={tagih:o=>!isLunas(o),lunas:isLunas,semua:()=>true},f=S.owner.payFilter;
+  const list=os.filter(F[f]).sort((a,b)=>oVal(b)-oVal(a));
+  return `<div class="card">
+    <div class="row between"><h2 style="font-size:20px">Rekap Pembayaran</h2>${poSelect('payPO',true)}</div>
+    <div class="kpi k3">
+      <div><small>Nilai order</small><b>${rpK(V)}</b></div>
+      <div class="g"><small>Sudah diterima</small><b>${rpK(P)}</b></div>
+      <div class="r"><small>Saldo ditagih</small><b>${rpK(V-P)}</b></div>
+    </div>
+    <div class="money"><i style="width:${V?P/V*100:0}%;background:var(--ok)"></i></div>
+  </div>
+  <div class="card">
+    <div class="chips">${[['tagih','💸 Perlu ditagih'],['lunas','✅ Lunas'],['semua','Semua']].map(([k,l])=>`<button class="${f===k?'on':''}" onclick="S.owner.payFilter='${k}';render()">${l} (${os.filter(F[k]).length})</button>`).join('')}</div>
+    <div style="margin-top:8px">${list.length?list.map(o=>{const po=API.po(o.poId),l=isLunas(o);
+      return `<div class="pay"><div><b>${esc(o.nama)}</b> <span class="muted">${esc(o.id)}</span>
+          <div class="muted">${esc(po?po.name:'-')} · ${o.bayar==='qris'?'QRIS':'Bayar nanti'}${o.ongkir?' · termasuk ongkir':''}</div>
+          <span class="pill ${l?'open':'red'}">${l?'Lunas':'Belum bayar'}</span></div>
+        <div class="amt">${rp(oVal(o))}<small>${l?'diterima':'belum dibayar'}</small></div>
+        <div class="acts">${l?`<button class="btn sm ghost" onclick="ownerCall('ownerSetPaid','${o.id}',false)">Batal lunas</button>`
+          :`${linkTag(tagihUrl(o),'btn wa','💬 Tagih via WA')}<button class="btn ghost" onclick="ownerCall('ownerSetPaid','${o.id}',true)">✓ Tandai lunas</button>`}</div></div>`}).join('')
+    :`<div class="empty">${f==='tagih'?'Semua sudah lunas 🎉':'Belum ada data.'}</div>`}</div>
+  </div>`;
+}
+
+/* ---------- ⬇ Ekspor ---------- */
+// nilai yang diawali = + - @ diberi tanda kutip supaya tidak dijalankan sebagai rumus di Excel
+function csvSafe(v){v=String(v==null?'':v);if(/^[=+\-@]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"';}
+function downloadCSV(name,rows){
+  const csv='﻿'+rows.map(r=>r.map(csvSafe).join(',')).join(String.fromCharCode(10));
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;document.body.appendChild(a);a.click();a.remove();
+  toast('⬇ '+name);
+}
+function shipDest(o){return o.metode==='kantor'?o.pt+' · '+o.divisi:o.metode==='antar'?API.areaName(o):'GoSend';}
+function doExport(kind){
+  const po=API.po(S.owner.expPO);if(!po)return;
+  const os=API.ordersOf(po.id),slug=po.name.replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const itemsTxt=o=>Object.entries(o.items).map(([iid,q])=>{const it=po.items.find(x=>x.id===iid);return it?API.itemLabel(it)+' x'+q:''}).filter(Boolean).join('; ');
+  if(kind==='prod'){
+    downloadCSV('produksi-'+slug+'.csv',[['Produk','Varian','Jumlah','Jumlah order']].concat(po.items.map(it=>{
+      const q=API.sold(po.id,it.id),n=os.filter(o=>o.items[it.id]).length;return [API.product(it.productId)?.name||'?',it.variant,q,n];}).filter(r=>r[2]>0)));
+  }
+  if(kind==='kirim'){
+    const ord={kantor:0,antar:1,gosend:2};
+    downloadCSV('pengiriman-'+slug+'.csv',[['Metode','Tujuan','Alamat','Nama','No. WA','Kode','Pesanan','Catatan','Status bayar']].concat(
+      [...os].sort((a,b)=>(ord[a.metode]-ord[b.metode])||shipDest(a).localeCompare(shipDest(b))||a.nama.localeCompare(b.nama))
+      .map(o=>[METODE[o.metode],shipDest(o),o.alamat,o.nama,toIntl(o.wa),o.id,itemsTxt(o),o.catatan,isLunas(o)?'Lunas':'Belum'])));
+  }
+  if(kind==='arsip'){
+    downloadCSV('arsip-'+slug+'.csv',[['Kode','Tanggal pesan','Nama','No. WA','Metode','PT','Divisi','Wilayah','Alamat','Catatan'].concat(po.items.map(API.itemLabel)).concat(['Subtotal','Ongkir','Total','Pembayaran','Status bayar'])]
+      .concat(os.map(o=>[o.id,o.createdAt,o.nama,toIntl(o.wa),METODE[o.metode],o.pt,o.divisi,o.metode==='antar'?API.areaName(o):'',o.alamat,o.catatan]
+        .concat(po.items.map(it=>o.items[it.id]||0)).concat([o.subtotal,o.ongkir||0,o.total,o.bayar==='qris'?'QRIS':'Bayar nanti',isLunas(o)?'Lunas':'Belum']))));
+  }
+}
+function oExp(){
+  if(!DB.pos.length)return `<div class="card empty">Belum ada PO.</div>`;
+  if(!S.owner.expPO||!API.po(S.owner.expPO))S.owner.expPO=[...DB.pos].sort((a,b)=>b.closeDate.localeCompare(a.closeDate))[0].id;
+  const po=API.po(S.owner.expPO),os=API.ordersOf(po.id);
+  return `<div class="card">
+    <h2 style="font-size:20px">Ekspor Rekap</h2>
+    <p class="muted" style="margin:4px 0 10px">File CSV bisa dibuka di Excel / Google Sheets.</p>
+    ${poSelect('expPO',false)}
+    <div class="muted" style="margin-top:6px">${os.length} order · ${os.reduce((s,o)=>s+oPcs(o),0)} pcs · Ready ${fd(po.readyDate)}</div>
+    <div class="exp"><div class="ic">🧁</div><div class="tx"><b>Produksi</b><span class="muted">Total per varian, buat daftar belanja & jadwal baking.</span></div><button class="btn sm" onclick="doExport('prod')">⬇ CSV</button></div>
+    <div class="exp"><div class="ic">🚚</div><div class="tx"><b>Pengiriman</b><span class="muted">Urut per tujuan (kantor / wilayah / GoSend), alamat, isi pesanan & status bayar.</span></div><button class="btn sm" onclick="doExport('kirim')">⬇ CSV</button></div>
+    <div class="exp"><div class="ic">🗂</div><div class="tx"><b>Arsip lengkap</b><span class="muted">Semua kolom: pemesan, varian, nilai, ongkir, pembayaran. Untuk pembukuan.</span></div><button class="btn sm" onclick="doExport('arsip')">⬇ CSV</button></div>
+  </div>`;
+}
+
 function oPO(){
   return `<div class="card"><div class="row between"><h2 style="font-size:20px">Kelola PO & Slot</h2><button class="btn" onclick="openPOEditor()">+ Buat PO</button></div></div>
   ${DB.pos.length?'':`<div class="card empty">Belum ada PO. Klik “+ Buat PO”.</div>`}
   ${[...DB.pos].sort((a,b)=>b.closeDate.localeCompare(a.closeDate)).map(p=>{const open=API.isOpen(p);
-    return `<div class="card"><div class="row between"><div><h3 style="font-size:18px">${esc(p.name)}</h3><div class="muted">Close ${fd(p.closeDate)} · Ready ${fd(p.readyDate)}</div></div>
+    return `<div class="card"><div class="row between"><div class="row" style="flex-wrap:nowrap">${p.photo?imgTag(p.photo).replace(' alt=""',' class="po-thumb" alt=""'):''}<div><h3 style="font-size:18px">${esc(p.name)}</h3><div class="muted">Close ${fd(p.closeDate)} · Ready ${fd(p.readyDate)}</div></div></div>
     <div class="row"><span class="pill ${open?'open':'closed'}">${open?'Buka':p.status==='closed'?'Ditutup manual':'Lewat tgl close'}</span>
     <button class="btn sm ghost" onclick="openPOEditor('${p.id}')">Edit</button><button class="btn sm danger" onclick="delPO('${p.id}')">Hapus</button></div></div>
     <div class="scroll" style="margin-top:12px"><table><thead><tr><th>Produk – Varian</th><th class="num">Harga</th><th class="num">Slot</th><th class="num">Terjual</th><th class="num">Sisa</th><th></th></tr></thead>
@@ -540,6 +750,12 @@ function renderModal(){
   <div><label>Tanggal Ready</label><input type="date" value="${d.readyDate}" onchange="draft.readyDate=this.value"></div>
   <div><label>Status</label><select onchange="draft.status=this.value"><option value="open" ${d.status==='open'?'selected':''}>Buka</option><option value="closed" ${d.status==='closed'?'selected':''}>Tutup manual</option></select></div></div>
   <label>Catatan untuk customer</label><input value="${esc(d.note)}" oninput="draft.note=this.value">
+  <label>Foto PO <span class="muted">(opsional, tampil di halaman depan)</span></label>
+  <div class="photo-edit">
+    ${d.photo?imgTag(d.photo).replace(' alt=""',' class="po-img" alt=""'):`<div class="po-img" style="width:160px;margin:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px">Belum ada foto</div>`}
+    <div><div class="row">${fileInput('poPhoto').replace('style="flex:1;min-width:200px"','style="max-width:240px" onchange="pickPOPhoto(this)"')}</div>
+    ${d.photo?`<button class="btn sm danger" style="margin-top:8px" onclick="draft.photo='';draft.photoChanged=true;renderModal()">Hapus foto</button>`:''}</div>
+  </div>
   <div class="row between" style="margin-top:16px"><h3 style="font-size:16px">Produk, varian & slot</h3><button class="btn sm" onclick="addItem()">+ Tambah varian</button></div>
   <div class="scroll tbl-input" style="margin-top:8px"><table><thead><tr><th>Produk</th><th>Varian</th><th class="num">Harga</th><th class="num">Slot</th><th class="num">Terjual</th><th class="num">Sisa</th><th></th></tr></thead>
   <tbody>${d.items.length?d.items.map((it,i)=>{const sold=d.id&&it.id?API.sold(d.id,it.id):0;return `<tr>
@@ -552,6 +768,25 @@ function renderModal(){
   <div class="row" style="justify-content:flex-end;margin-top:16px"><button class="btn ghost" onclick="draft=null;renderModal()">Batal</button><button class="btn" onclick="savePO()">Simpan PO</button></div>
   </div></div>`;
 }
+// foto PO: dikecilkan (maks 900px, JPEG) supaya ringan dimuat customer
+function pickPOPhoto(inp){
+  const f=inp.files&&inp.files[0];
+  if(!f)return;
+  if(!/^image\//.test(f.type))return toast('File harus gambar');
+  const rd=new FileReader();
+  rd.onload=()=>{const im=new Image();
+    im.onload=()=>{
+      const k=Math.min(1,900/Math.max(im.width,im.height));
+      const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+      const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);
+      let q=0.8,url=c.toDataURL('image/jpeg',q);
+      while(url.length>250000&&q>0.4){q-=0.1;url=c.toDataURL('image/jpeg',q);}
+      draft.photo=url;draft.photoChanged=true;renderModal();toast('Foto siap, klik Simpan PO');
+    };
+    im.onerror=()=>toast('Gambar tidak bisa dibaca');
+    im.src=rd.result;};
+  rd.readAsDataURL(f);
+}
 function renderSisa(i,sold){const el=document.getElementById('sisa-'+i);if(el)el.textContent=draft.items[i].slot-sold;}
 function addItem(){if(!DB.products.length)return toast('Tambah produk dulu di tab Produk & Wilayah');draft.items.push({id:'',productId:DB.products[0].id,variant:'',price:0,slot:10});renderModal();}
 function rmItem(i,sold){if(sold>0)return toast('Varian ini sudah ada pesanan, tidak bisa dihapus');draft.items.splice(i,1);renderModal();}
@@ -562,7 +797,10 @@ async function savePO(){
   if(d.readyDate<d.closeDate)return toast('Tanggal ready harus setelah tanggal close');
   if(!d.items.length)return toast('Minimal 1 varian');
   for(const it of d.items){if(!it.variant.trim())return toast('Nama varian belum diisi');if(!(it.price>0))return toast('Harga belum diisi');}
-  if(await ownerCall('ownerSavePO',d)){draft=null;renderModal();toast('PO tersimpan');}
+  const payload=Object.assign({},d);
+  if(!d.photoChanged)delete payload.photo;   // foto tidak diubah → tidak dikirim ulang
+  delete payload.photoChanged;
+  if(await ownerCall('ownerSavePO',payload)){draft=null;renderModal();toast('PO tersimpan');}
 }
 function delPO(id){if(API.ordersOf(id).length)return toast('PO sudah ada pesanan — tutup manual saja');if(confirm('Hapus PO ini?'))ownerCall('ownerDeletePO',id);}
 
@@ -699,7 +937,7 @@ function exportCSV(){
   const po=API.po(S.owner.rekapPO);const os=API.ordersOf(po.id);
   const head=['Kode','Nama','WA','Metode','PT','Divisi','Wilayah','Alamat','Catatan',...po.items.map(API.itemLabel),'Subtotal','Ongkir','Total','Pembayaran','Status Bayar'];
   const rows=os.map(o=>[o.id,o.nama,o.wa,METODE[o.metode],o.pt,o.divisi,o.metode==='antar'?API.areaName(o):'',o.alamat,o.catatan,...po.items.map(it=>o.items[it.id]||0),o.subtotal,o.ongkir||0,o.total,o.bayar==='qris'?'QRIS':'Bayar nanti',o.statusBayar==='lunas'?'Lunas':'Belum']);
-  const csv=[head,...rows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const csv=[head,...rows].map(r=>r.map(csvSafe).join(',')).join(String.fromCharCode(10));
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'}));a.download=`rekap-${po.name}.csv`;document.body.appendChild(a);a.click();a.remove();
 }
 
