@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pre Order GegaresanYuuk</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍰</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5efe6;--card:#fffdf9;--ink:#3e2c22;--muted:#8c7a6b;--line:#e6d8c6;
+  --brand:#7a5236;--brand-2:#a98466;--brand-soft:#efe4d6;--accent:#5a3a28;
+  --ok:#5f7a4a;--ok-soft:#e6ecdc;--warn:#9a6b2f;--warn-soft:#f2e7d3;
+  --shadow:0 4px 18px rgba(80,55,35,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "DM Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:"Playfair Display",Georgia,serif;margin:0;color:var(--accent)}
+header h1{color:#fff}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px 120px}
+header{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#fff;padding:18px 0 54px}
+header .wrap{padding-bottom:0;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{font-size:24px}
+header small{opacity:.85;display:block}
+main{margin-top:-38px}
+.card{background:var(--card);border:1px solid #ece2d4;border-radius:18px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tabs button{border:1.5px solid var(--line);background:#fff;padding:9px 18px;border-radius:999px;cursor:pointer;font-weight:500;font-size:14px;color:var(--ink)}
+.tabs button.on{background:var(--brand);color:#fff;border-color:var(--brand);font-weight:600}
+.btn{border:0;background:var(--brand);color:#fff;padding:10px 18px;border-radius:999px;cursor:pointer;font-weight:600}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:8px}
+.btn.danger{background:#fff;color:#8e3b2e;border:1px solid #e3c4b8}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+input,select,textarea{width:100%;padding:11px 14px;border:1.5px solid var(--line);border-radius:14px;background:#fff}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--brand-soft);border-color:var(--brand)}
+.muted{color:var(--muted);font-size:13px}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.pill.open{background:var(--ok-soft);color:var(--ok)}
+.pill.closed{background:#eee;color:#666}
+.pill.low{background:var(--warn-soft);color:var(--warn)}
+.po-card{border:1px solid var(--line);border-left:4px solid #c2a073;border-radius:16px;padding:14px;cursor:pointer;background:#fff;transition:.15s;box-shadow:var(--shadow)}
+.po-card:hover{border-color:var(--brand)}
+.po-card.sel{border-color:var(--brand);background:var(--brand-soft)}
+.po-card.dis{opacity:.5;cursor:not-allowed}
+.item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line)}
+.item:last-child{border-bottom:0}
+.stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex-shrink:0}
+.stepper button{width:36px;height:36px;border:0;background:#fff;cursor:pointer;font-size:18px;font-weight:700;color:var(--brand)}
+.stepper button:disabled{color:#ccc;cursor:not-allowed}
+.stepper span{min-width:34px;text-align:center;font-weight:700}
+.steps{display:flex;gap:6px;margin-bottom:14px}
+.steps div{flex:1;height:5px;border-radius:5px;background:var(--line)}
+.steps div.on{background:linear-gradient(90deg,var(--brand),var(--brand-2))}
+.seg{display:flex;gap:8px}
+.seg button{flex:1;border:1px solid var(--line);background:#fff;padding:12px;border-radius:12px;cursor:pointer;font-weight:600;text-align:left}
+.seg button.on{border-color:var(--brand);background:var(--brand-soft)}
+.seg small{display:block;font-weight:400;color:var(--muted)}
+.sticky{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 0;box-shadow:0 -4px 16px rgba(0,0,0,.05)}
+.sticky .wrap{padding-bottom:0;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.stat{background:#fff;border:1px solid #ece2d4;border-radius:18px;padding:16px;text-align:center;box-shadow:var(--shadow);display:flex;flex-direction:column-reverse;gap:2px}
+.stat b{display:block;font-size:26px;font-family:"Playfair Display",serif;font-weight:800;color:var(--brand)}
+.stat:nth-child(2) b{color:var(--ok)}
+.stat:nth-child(3) b{color:var(--warn)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{background:#f1e8dc;color:var(--accent);font-weight:700;white-space:nowrap}
+td.num,th.num{text-align:right}
+tfoot td{font-weight:700;background:#f1e8dc}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.bar{height:6px;background:var(--line);border-radius:6px;overflow:hidden;min-width:70px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand-2))}
+.modal{position:fixed;inset:0;background:rgba(40,20,10,.45);display:flex;align-items:flex-start;justify-content:center;padding:30px 12px;overflow:auto;z-index:20}
+.modal .card{width:100%;max-width:820px}
+.tbl-input input,.tbl-input select{padding:6px 8px;border-radius:8px;min-width:90px}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;z-index:50;font-weight:600;font-size:14px}
+.code{font-family:ui-monospace,monospace;background:var(--brand-soft);color:var(--brand);padding:4px 10px;border-radius:8px;font-weight:700;font-size:18px}
+.empty{text-align:center;padding:30px;color:var(--muted)}
+@media (max-width:560px){.seg{flex-direction:column}header h1{font-size:20px}}
+</style>
+<style>
+.badge{background:rgba(255,255,255,.2);padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600}
+#loading{position:fixed;inset:0;background:rgba(245,239,230,.6);display:none;align-items:center;justify-content:center;z-index:60}
+#loading.on{display:flex}
+.spin{width:38px;height:38px;border:4px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.btn.wa{background:#25D366;color:#fff;display:inline-block;text-decoration:none;padding:13px 22px;font-size:15px;margin:6px 0 10px}
+.qris{text-align:center}.qris .amt{font-family:'Playfair Display',serif;font-size:26px;font-weight:800;color:var(--brand)}
+.qris img{width:100%;max-width:280px;border-radius:14px;border:1px solid var(--line);margin-top:6px;background:#fff}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div><h1>🍰 Pre Order GegaresanYuuk</h1><small>Homemade cakes · pesan duluan, dibuat fresh</small></div>
+    <div id="hdr-right"></div>
+  </div>
+</header>
+<main class="wrap" id="app"></main>
+<div id="modal"></div>
+<div id="loading"><div class="spin"></div></div>
+
+<script>
+/* =========================================================
+   ALAMAT SERVER (Google Apps Script, URL deployment /exec)
+   Kalau nanti deployment Apps Script ganti link, cukup ubah baris ini.
+   ========================================================= */
+window.API_URL = 'https://script.google.com/macros/s/AKfycbx6rnbnfc3zrjJy_0eJ8101wQA4egojvaB3QV5VqueBWPk6SzTGktM8NDnKAAqPxnTaPA/exec';
+</script>
+<script>
+// link owner: alamat halaman + ?page=owner
+const MODE = new URLSearchParams(location.search).get('page') === 'owner' ? 'owner' : 'cust';
+const PT_LIST = ['Lippo','VIVERE'];
+
+/* ================= UTIL ================= */
+const rp = n => 'Rp ' + (Number(n)||0).toLocaleString('id-ID');
+const fd = s => s ? new Date(s+'T00:00:00').toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short',year:'numeric'}) : '-';
+const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const normWA = s => String(s||'').replace(/\D/g,'').replace(/^62/,'0');
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600);}
+let busy=0;
+function loading(on){busy+=on?1:-1;document.getElementById('loading').classList.toggle('on',busy>0);}
+
+/* ================= SERVER ================= */
+// panggil fungsi di Code.gs; kalau gagal tampilkan pesan & kembalikan null
+let lastErr='';
+// Jalur 1: fetch POST ke URL /exec (tidak tergantung akun Google / cookie di HP)
+async function viaFetch(fn,args){
+  const url=window.API_URL;
+  if(typeof url!=='string'||!/\/exec$/.test(url))return null;
+  const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),25000);
+  try{
+    const r=await fetch(url,{method:'POST',body:JSON.stringify({fn:fn,args:args}),signal:ctl.signal,redirect:'follow'});
+    const j=await r.json();
+    return (j&&typeof j.ok==='boolean')?j:null;
+  }catch(e){return null;}finally{clearTimeout(tm);}
+}
+// Jalur 2: google.script.run (cara lama), dengan batas waktu
+function viaGsr(fn,args){
+  return new Promise(res=>{
+    if(typeof google==='undefined'||!google.script||!google.script.run)return res(null);
+    let done=false;const fin=j=>{if(!done){done=true;clearTimeout(tm);res(j);}};
+    const tm=setTimeout(()=>fin(null),25000);
+    google.script.run
+      .withSuccessHandler(r=>fin({ok:true,result:r}))
+      .withFailureHandler(e=>fin({ok:false,error:(e&&e.message)||String(e)}))
+      [fn](...args);
+  });
+}
+async function call(fn,...args){
+  loading(true);
+  const j=await viaFetch(fn,args);
+  loading(false);
+  if(!j){lastErr='Koneksi ke server gagal. Cek internet lalu coba lagi.';toast(lastErr);return null;}
+  if(!j.ok){lastErr=j.error;toast(j.error);return null;}
+  return j.result;
+}
+
+/* ================= DATA ================= */
+let DB = {today:'',products:[],areas:[],pos:[],sold:{},orders:null};
+function setDB(d){DB=Object.assign({orders:null},d);}
+
+const API = {
+  product: id => DB.products.find(p=>p.id===id),
+  po: id => DB.pos.find(p=>p.id===id),
+  area: id => DB.areas.find(a=>a.id===id),
+  itemLabel: it => `${API.product(it.productId)?.name || '?'} – ${it.variant}`,
+  isOpen: po => po.status==='open' && DB.today <= po.closeDate,
+  ordersOf: poId => (DB.orders||[]).filter(o=>o.poId===poId),
+  // owner: hitung dari semua pesanan. customer: dari rekap server (tanpa data pribadi)
+  sold: (poId,itemId,excludeId) => {
+    if(DB.orders) return DB.orders.filter(o=>o.poId===poId && o.id!==excludeId).reduce((s,o)=>s+(o.items[itemId]||0),0);
+    let s = DB.sold[itemId]||0;
+    if(excludeId && S.cust.origQty) s -= (S.cust.origQty[itemId]||0);
+    return Math.max(0,s);
+  },
+  left: (po,it,excludeId) => it.slot - API.sold(po.id,it.id,excludeId),
+  orderTotal: o => Number(o.subtotal)||0,
+  orderGrand: o => Number(o.total)||0,
+  orderPcs: o => Object.values(o.items).reduce((a,b)=>a+b,0),
+  areaName: o => API.area(o.areaId)?.name || o.areaName || '-',
+  shipLabel: o => o.metode==='kantor' ? `${o.pt} · ${o.divisi}` : o.metode==='antar' ? `Kirim/Antar · ${API.areaName(o)}` : 'Kirim/Antar · GoSend',
+};
+const METODE = {kantor:'Antar ke Kantor',antar:'Kirim/Antar',gosend:'Kirim/Antar (GoSend)'};
+
+/* ================= STATE ================= */
+const S = {
+  loaded:false,
+  cust:{tab:'pesan',step:1,poId:null,qty:{},form:{metode:'kantor'},editingId:null,origQty:null,done:null,lookupWA:'',lookupDone:false,myOrders:[]},
+  owner:{authed:false,pin:'',tab:'ringkasan',rekapPO:null,rekapView:'varian',ringPO:'all'},
+};
+
+function render(){
+  document.getElementById('hdr-right').innerHTML = MODE==='owner'
+    ? `<span class="badge">👩‍🍳 Mode Owner</span>` : '';
+  document.getElementById('app').innerHTML = !S.loaded
+    ? `<div class="card empty">Memuat…</div>`
+    : (MODE==='cust' ? renderCustomer() : renderOwner());
+}
+
+async function init(){
+  if(MODE==='owner'){S.loaded=true;render();return;}
+  render();
+  const d=await call('getPublicData');
+  if(d){setDB(d);S.loaded=true;}
+  else document.getElementById('app').innerHTML=`<div class="card empty">Gagal memuat data.
+    <div class="muted" style="margin:8px 0 12px">Pesan error: <b>${esc(lastErr||'tidak diketahui')}</b></div>
+    <button class="btn sm" onclick="init()">Coba lagi</button></div>`;
+  if(S.loaded) render();
+}
+async function refreshPublic(){const d=await call('getPublicData');if(d)setDB(d);}
+
+/* ================= CUSTOMER ================= */
+function renderCustomer(){
+  const c=S.cust;
+  let h=`<div class="tabs">
+    <button class="${c.tab==='pesan'?'on':''}" onclick="cTab('pesan')">🛒 Pesan</button>
+    <button class="${c.tab==='cek'?'on':''}" onclick="cTab('cek')">🔎 Cek / Edit Pesanan Saya</button>
+  </div>`;
+  if(c.tab==='cek') return h+renderLookup();
+  if(c.done) return h+renderDone();
+  h+=`<div class="steps">${[1,2,3,4].map(i=>`<div class="${c.step>=i?'on':''}"></div>`).join('')}</div>`;
+  if(c.editingId) h+=`<div class="card" style="background:var(--warn-soft);border-color:#dcc6a6">✏️ Kamu lagi <b>edit pesanan ${esc(c.editingId)}</b>. <a href="#" onclick="cancelEdit();return false">Batal edit</a></div>`;
+  if(c.step===1) h+=cStep1();
+  if(c.step===2) h+=cStep2();
+  if(c.step===3) h+=cStep3();
+  if(c.step===4) h+=cStep4();
+  return h;
+}
+function cTab(t){S.cust.tab=t;if(t==='pesan'&&S.cust.done)resetCust();render();}
+function resetCust(){Object.assign(S.cust,{step:1,poId:null,qty:{},form:{metode:'kantor'},editingId:null,origQty:null,done:null});}
+function cancelEdit(){resetCust();render();}
+
+function cStep1(){
+  const open=DB.pos.filter(API.isOpen).sort((a,b)=>a.closeDate.localeCompare(b.closeDate));
+  const closed=DB.pos.filter(p=>!API.isOpen(p)).sort((a,b)=>b.closeDate.localeCompare(a.closeDate)).slice(0,3);
+  const card=po=>{const o=API.isOpen(po);
+    return `<div class="po-card ${S.cust.poId===po.id?'sel':''} ${o?'':'dis'}" ${o?`onclick="pickPO('${po.id}')"`:''}>
+      <div class="row between"><b>${esc(po.name)}</b><span class="pill ${o?'open':'closed'}">${o?'Buka':'Sudah close'}</span></div>
+      <div class="muted">Close PO: <b>${fd(po.closeDate)}</b><br>Ready: <b>${fd(po.readyDate)}</b></div>
+      ${po.note?`<div class="muted" style="margin-top:6px">${esc(po.note)}</div>`:''}
+    </div>`};
+  return `<div class="card"><h2 style="font-size:20px">1. Pilih PO</h2><p class="muted">Pilih batch PO yang masih buka.</p>
+  ${open.length?`<div class="grid2">${open.map(card).join('')}</div>`:`<div class="empty">Belum ada PO yang buka. Tunggu info berikutnya ya 🙏</div>`}
+  ${closed.length?`<p class="muted" style="margin-top:16px">PO sebelumnya</p><div class="grid2">${closed.map(card).join('')}</div>`:''}</div>`;
+}
+function pickPO(id){if(S.cust.poId!==id)S.cust.qty={};S.cust.poId=id;S.cust.step=2;render();}
+
+function cStep2(){
+  const po=API.po(S.cust.poId); const c=S.cust;
+  if(!po){resetCust();return cStep1();}
+  const total=po.items.reduce((s,it)=>s+(c.qty[it.id]||0)*it.price,0);
+  const pcs=Object.values(c.qty).reduce((a,b)=>a+b,0);
+  const groups={};po.items.forEach(it=>{(groups[it.productId]=groups[it.productId]||[]).push(it)});
+  return `<div class="card"><div class="row between"><h2 style="font-size:20px">2. Pilih Produk</h2><span class="muted">${esc(po.name)} · close ${fd(po.closeDate)}</span></div>
+  ${Object.entries(groups).map(([pid,its])=>`<h3 style="font-size:16px;margin-top:16px">${esc(API.product(pid)?.name)}</h3>
+    ${its.map(it=>{const left=API.left(po,it,c.editingId);const q=c.qty[it.id]||0;
+      return `<div class="item"><div><b>${esc(it.variant)}</b><div class="muted">${rp(it.price)} · ${left<=0?'<span class="pill closed">Slot habis</span>':left<=5?`<span class="pill low">Sisa ${left} slot</span>`:`Sisa ${left} slot`}</div></div>
+      <div class="stepper"><button ${q<=0?'disabled':''} onclick="chQty('${it.id}',-1)">−</button><span>${q}</span><button ${q>=left?'disabled':''} onclick="chQty('${it.id}',1)">+</button></div></div>`}).join('')}`).join('')}
+  </div>
+  <div class="sticky"><div class="wrap"><div><div class="muted">${pcs} pcs</div><b style="font-size:18px">${rp(total)}</b></div>
+  <div class="row"><button class="btn ghost" onclick="goStep(1)">Kembali</button><button class="btn" ${pcs?'':'disabled'} onclick="goStep(3)">Lanjut</button></div></div></div>`;
+}
+function chQty(id,d){const po=API.po(S.cust.poId);const it=po.items.find(x=>x.id===id);const left=API.left(po,it,S.cust.editingId);
+  const n=Math.max(0,Math.min(left,(S.cust.qty[id]||0)+d));if(n)S.cust.qty[id]=n;else delete S.cust.qty[id];render();}
+function goStep(n){S.cust.step=n;render();window.scrollTo(0,0);}
+
+function cStep3(){
+  const f=S.cust.form;
+  return `<div class="card"><h2 style="font-size:20px">3. Data Pemesan & Pengiriman</h2>
+  <div class="grid2"><div><label>Nama</label><input value="${esc(f.nama||'')}" oninput="S.cust.form.nama=this.value" placeholder="Nama lengkap"></div>
+  <div><label>No. WhatsApp</label><input value="${esc(f.wa||'')}" oninput="S.cust.form.wa=this.value" inputmode="tel" placeholder="08xxxxxxxxxx"><div class="muted">Dipakai buat cek & edit pesanan nanti</div></div></div>
+  <label>Metode</label>
+  <div class="seg">
+    <button class="${f.metode==='kantor'?'on':''}" onclick="setMetode('kantor')">🏢 Antar ke Kantor<small>Khusus karyawan Lippo & VIVERE</small></button>
+    <button class="${f.metode!=='kantor'?'on':''}" onclick="setMetode('antar')">🚚 Kirim / Antar<small>Diantar langsung atau via GoSend, tergantung wilayah</small></button>
+  </div>
+  ${f.metode==='kantor'?`<div class="grid2"><div><label>PT</label><select onchange="S.cust.form.pt=this.value"><option value="">— Pilih PT —</option>${PT_LIST.map(p=>`<option ${f.pt===p?'selected':''}>${p}</option>`).join('')}</select></div>
+    <div><label>Divisi</label><input value="${esc(f.divisi||'')}" oninput="S.cust.form.divisi=this.value" placeholder="cth: Finance"></div></div>`
+  :`<label>Wilayah</label><select onchange="pickArea(this.value)"><option value="">— Pilih wilayah —</option>${DB.areas.map(a=>`<option value="${a.id}" ${f.metode==='antar'&&f.areaId===a.id?'selected':''}>${esc(a.name)} · ${a.ongkir?'ongkir '+rp(a.ongkir):'gratis ongkir'}</option>`).join('')}
+      <option value="__gosend" ${f.metode==='gosend'?'selected':''}>Wilayah lain · via GoSend</option></select>
+    ${f.metode==='gosend'?`<div class="muted">Dikirim pakai GoSend, ongkir dibayar ke driver saat barang sampai.</div>`:''}${alamatField(f)}`}
+  <label>Pembayaran</label>
+  <div class="seg">
+    <button class="${f.bayar==='qris'?'on':''}" onclick="setBayar('qris')">📱 Bayar Sekarang (QRIS)<small>Scan QRIS setelah pesan, kirim bukti via WA</small></button>
+    <button class="${f.bayar==='nanti'?'on':''}" onclick="setBayar('nanti')">🕒 Bayar Nanti<small>Bayar sesuai info dari admin</small></button>
+  </div>
+  <label>Catatan (opsional)</label><input value="${esc(f.catatan||'')}" oninput="S.cust.form.catatan=this.value" placeholder="cth: tulisan di kartu ucapan">
+  </div>
+  <div class="sticky"><div class="wrap"><span class="muted">Langkah 3 dari 4</span><div class="row"><button class="btn ghost" onclick="goStep(2)">Kembali</button><button class="btn" onclick="validate3()">Cek Pesanan</button></div></div></div>`;
+}
+function alamatField(f){return `<label>Alamat lengkap</label><textarea rows="3" oninput="S.cust.form.alamat=this.value" placeholder="Jalan, no rumah, patokan, kelurahan, kecamatan">${esc(f.alamat||'')}</textarea>`;}
+function setMetode(m){const f=S.cust.form;if(m==='antar'&&f.metode!=='kantor')return;f.metode=m;if(m==='antar')f.areaId='';render();}
+function pickArea(v){const f=S.cust.form;if(v==='__gosend'){f.metode='gosend';f.areaId='';}else{f.metode='antar';f.areaId=v;}render();}
+function setBayar(b){S.cust.form.bayar=b;render();}
+function custOngkir(f){return f.metode==='antar'?(API.area(f.areaId)?.ongkir||0):0;}
+function validate3(){const f=S.cust.form;
+  if(!f.nama?.trim())return toast('Nama wajib diisi');
+  if(normWA(f.wa).length<10)return toast('No. WhatsApp belum valid');
+  if(f.metode==='kantor'&&(!f.pt||!f.divisi?.trim()))return toast('PT & divisi wajib diisi');
+  if(f.metode==='antar'&&!API.area(f.areaId))return toast('Pilih wilayah dulu');
+  if(f.metode!=='kantor'&&!f.alamat?.trim())return toast('Alamat wajib diisi');
+  if(!f.bayar)return toast('Pilih pembayaran dulu');
+  goStep(4);}
+
+function cStep4(){
+  const po=API.po(S.cust.poId);const c=S.cust;const f=c.form;
+  const lines=po.items.filter(it=>c.qty[it.id]);
+  const sub=lines.reduce((s,it)=>s+it.price*c.qty[it.id],0);
+  const ongkir=custOngkir(f);const total=sub+ongkir;
+  const shipTitle=f.metode==='kantor'?'Antar ke kantor':f.metode==='antar'?`Kirim/Antar · ${esc(API.area(f.areaId)?.name)}`:'Kirim/Antar · GoSend (ongkir bayar ke driver)';
+  return `<div class="card"><h2 style="font-size:20px">4. Cek Ulang Pesanan</h2>
+  <p class="muted">${esc(po.name)} · Ready ${fd(po.readyDate)} · bisa diedit sampai ${fd(po.closeDate)}</p>
+  <div class="scroll"><table><thead><tr><th>Produk</th><th class="num">Qty</th><th class="num">Harga</th><th class="num">Subtotal</th></tr></thead>
+  <tbody>${lines.map(it=>`<tr><td>${esc(API.itemLabel(it))}</td><td class="num">${c.qty[it.id]}</td><td class="num">${rp(it.price)}</td><td class="num">${rp(it.price*c.qty[it.id])}</td></tr>`).join('')}</tbody>
+  <tfoot>${f.metode==='antar'?`<tr><td colspan="3">Subtotal</td><td class="num">${rp(sub)}</td></tr><tr><td colspan="3">Ongkir antar</td><td class="num">${ongkir?rp(ongkir):'Gratis'}</td></tr>`:''}<tr><td colspan="3">Total</td><td class="num">${rp(total)}</td></tr></tfoot></table></div>
+  <div class="grid2" style="margin-top:14px"><div><div class="muted">Pemesan</div><b>${esc(f.nama)}</b><br>${esc(normWA(f.wa))}</div>
+  <div><div class="muted">${shipTitle}</div><b>${f.metode==='kantor'?`${esc(f.pt)} · ${esc(f.divisi)}`:esc(f.alamat)}</b>${f.catatan?`<br><span class="muted">Catatan: ${esc(f.catatan)}</span>`:''}</div>
+  <div><div class="muted">Pembayaran</div><b>${f.bayar==='qris'?'📱 Bayar sekarang (QRIS)':'🕒 Bayar nanti'}</b></div></div>
+  <p class="muted" style="margin-top:14px">💬 Setelah pesanan terkirim, tekan tombol <b>Kirim Konfirmasi ke WhatsApp</b> buat konfirmasi ke admin ya.</p>
+  </div>
+  <div class="sticky"><div class="wrap"><b>${rp(total)}</b><div class="row"><button class="btn ghost" onclick="goStep(3)">Ubah</button><button class="btn" onclick="submitOrder()">${c.editingId?'Simpan Perubahan':'Kirim Pesanan'}</button></div></div></div>`;
+}
+async function submitOrder(){
+  const c=S.cust,f=c.form;
+  const payload={id:c.editingId||'',poId:c.poId,nama:f.nama,wa:f.wa,metode:f.metode,pt:f.pt||'',divisi:f.divisi||'',
+    areaId:f.areaId||'',alamat:f.alamat||'',catatan:f.catatan||'',bayar:f.bayar,items:c.qty};
+  const r=await call('submitOrder',payload);
+  await refreshPublic();
+  if(r){c.done=r;c.doneEdited=!!c.editingId;}
+  render();window.scrollTo(0,0);
+}
+/* ---- perakit tag: gambar, link keluar & upload ditulis terpotong ---- */
+function T(name){return '<'+name;}
+function imgTag(src,style){return T('img')+' s'+'rc="'+src+'" alt=""'+(style?' style="'+style+'"':'')+'>';}
+function linkTag(url,cls,text,dl){return T('a')+' class="'+cls+'" hr'+'ef="'+esc(url)+'" tar'+'get="_blank" rel="noopener"'+(dl?' down'+'load="'+dl+'"':'')+'>'+text+'</'+'a>';}
+function fileInput(id){return T('input')+' ty'+'pe="fi'+'le" id="'+id+'" accept="image/*" style="flex:1;min-width:200px">';}
+
+/* ---- konfirmasi WhatsApp (dibuka hanya saat tombol diklik) ---- */
+function toIntl(n){return normWA(n).replace(/^0/,'62');}
+function waText(o,edited){
+  const po=API.po(o.poId);
+  const lines=Object.entries(o.items).map(([iid,q])=>{const it=po&&po.items.find(x=>x.id===iid);
+    return it?`- ${API.itemLabel(it)} x${q} = ${rp(it.price*q)}`:''}).filter(Boolean);
+  const ship=o.metode==='kantor'?`Antar ke kantor – ${o.pt} · ${o.divisi}`
+    :o.metode==='antar'?`Kirim/Antar – ${API.areaName(o)}, ${o.alamat}`:`Kirim/Antar via GoSend – ${o.alamat}`;
+  const out=['Halo GegaresanYuuk! 🍰',
+    edited?'Saya mau konfirmasi *PERUBAHAN* pesanan:':'Saya mau konfirmasi pesanan:','',
+    `Kode: *${o.id}*`,`PO: ${po?po.name:'-'} (ready ${fd(po&&po.readyDate)})`,`Nama: ${o.nama}`,`No. WA: ${o.wa}`,'',
+    'Pesanan:'].concat(lines).concat(['',
+    `*Total: ${rp(o.total)}*`,`Pengiriman: ${ship}`,
+    `Pembayaran: ${o.bayar==='qris'?'QRIS – bukti bayar saya kirim di chat ini':'Bayar nanti'}`]);
+  if(o.catatan)out.push(`Catatan: ${o.catatan}`);
+  return out.join(String.fromCharCode(10));
+}
+function waUrl(o,edited){return 'ht'+'tps://wa.me/'+toIntl(DB.ownerWA)+'?text='+encodeURIComponent(waText(o,edited));}
+
+/* ---- QRIS dinamis: library QR dimuat hanya saat dibutuhkan ---- */
+var LIBS={};
+function loadLib(url){
+  if(!LIBS[url])LIBS[url]=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src=url;
+    sc.onload=()=>res(true);sc.onerror=()=>{delete LIBS[url];rej(new Error('Gagal memuat'));};document.head.appendChild(sc);});
+  return LIBS[url];
+}
+var QR_LIB='ht'+'tps://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode'+'.j'+'s';
+var READ_LIB='ht'+'tps://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR'+'.j'+'s';
+var qrFailed=false;
+function crc16(str){let crc=0xFFFF;for(let i=0;i<str.length;i++){crc^=str.charCodeAt(i)<<8;
+  for(let j=0;j<8;j++){crc=(crc&0x8000)?((crc<<1)^0x1021):(crc<<1);crc&=0xFFFF;}}
+  return ('0000'+crc.toString(16).toUpperCase()).slice(-4);}
+function tlvParse(s){const out=[];let i=0;
+  while(i<s.length){const id=s.substr(i,2),len=parseInt(s.substr(i+2,2),10);
+    if(!/^[0-9][0-9]$/.test(id)||isNaN(len)||i+4+len>s.length)throw new Error('format QRIS');
+    out.push([id,s.substr(i+4,len)]);i+=4+len;}
+  return out;}
+function tlvBuild(arr){return arr.map(x=>x[0]+String(x[1].length).padStart(2,'0')+x[1]).join('');}
+function qrisCheck(raw){
+  const s=String(raw||'').trim();
+  if(!/^000201/.test(s)||!/6304[0-9A-Fa-f]{4}$/.test(s))return null;
+  if(crc16(s.slice(0,-4))!==s.slice(-4).toUpperCase())return null;
+  try{tlvParse(s.slice(0,-8));return s;}catch(e){return null;}
+}
+function qrisDynamic(raw,amount){
+  const t=tlvParse(raw.trim().slice(0,-8)).filter(x=>x[0]!=='54');
+  const p1=t.find(x=>x[0]==='01');if(p1)p1[1]='12';
+  const at=t.findIndex(x=>x[0]==='58');const amt=['54',String(Math.round(amount))];
+  if(at>=0)t.splice(at,0,amt);else t.push(amt);
+  const body=tlvBuild(t)+'6304';
+  return body+crc16(body);
+}
+function qrPng(text){
+  const qr=qrcode(0,'M');qr.addData(text);qr.make();
+  const n=qr.getModuleCount(),cell=8,pad=cell*4,c=document.createElement('canvas');
+  c.width=c.height=n*cell+pad*2;const g=c.getContext('2d');
+  g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.fillStyle='#000';
+  for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(qr.isDark(r,k))g.fillRect(pad+k*cell,pad+r*cell,cell,cell);
+  return c.toDataURL('image/png');
+}
+// siapkan gambar QR; kalau library belum ada, muat dulu lalu render ulang
+function qrImage(amount){
+  if(!DB.qrisPayload||qrFailed)return '';
+  if(typeof qrcode!=='function'){loadLib(QR_LIB).then(render,()=>{qrFailed=true;render();});return null;}
+  try{return qrPng(qrisDynamic(DB.qrisPayload,amount));}catch(e){return '';}
+}
+function qrisBlock(o){
+  const after=`<p class="muted">Sudah bayar? <b>Screenshot bukti pembayaran</b>, lalu kirim di chat WhatsApp konfirmasi di bawah.</p>`;
+  const img=qrImage(o.total);
+  if(img===null)return `<div class="card qris"><h3 style="font-size:17px">Bayar via QRIS</h3><div class="amt">${rp(o.total)}</div><div class="empty">Menyiapkan QRIS…</div></div>`;
+  if(img)return `<div class="card qris"><h3 style="font-size:17px">Bayar via QRIS</h3>
+    <div class="muted">${esc(DB.qrisMerchant||'GegaresanYuuk')}</div><div class="amt">${rp(o.total)}</div>
+    <div class="muted">Nominal sudah otomatis terisi waktu di-scan</div>
+    ${imgTag(img)}
+    <div style="margin-top:10px">${linkTag(img,'btn sm ghost','⬇ Simpan gambar QRIS','QRIS-'+esc(o.id)+'.png')}</div>
+    <p class="muted">Pesan dari HP yang sama? Simpan gambar ini, lalu di e-wallet / m-banking pilih scan dari galeri.</p>${after}</div>`;
+  return `<div class="card qris"><h3 style="font-size:17px">Bayar via QRIS</h3><div class="amt">${rp(o.total)}</div>
+    <div class="muted" style="padding:12px">QRIS akan dikirim admin lewat WhatsApp ya.</div></div>`;
+}
+function renderDone(){
+  const o=S.cust.done;const po=API.po(o.poId);const edited=!!S.cust.doneEdited;
+  return `<div class="card" style="text-align:center;padding:30px 18px"><div style="font-size:44px">🎉</div>
+  <h2>${edited?'Pesanan diperbarui!':'Pesanan diterima!'}</h2>
+  <p>Kode pesanan kamu</p><span class="code">${esc(o.id)}</span>
+  <p class="muted" style="margin-top:14px">Total <b>${rp(o.total)}</b> · Ready ${fd(po&&po.readyDate)}</p></div>
+  ${o.bayar==='qris'?qrisBlock(o):''}
+  <div class="card" style="text-align:center">
+    <p style="margin-top:0"><b>Langkah terakhir:</b> kirim konfirmasi ke WhatsApp admin${o.bayar==='qris'?' (sekalian lampirkan bukti bayar)':''}.</p>
+    ${linkTag(waUrl(o,edited),'btn wa','💬 Kirim Konfirmasi ke WhatsApp')}
+    <p class="muted">Pesan konfirmasi sudah terisi otomatis, tinggal tekan <b>Kirim</b> di WhatsApp.<br>Pesanan masih bisa diedit sampai ${fd(po&&po.closeDate)} lewat menu <b>Cek / Edit Pesanan Saya</b>.</p>
+    <button class="btn ghost" onclick="resetCust();render()">Pesan lagi</button></div>`;
+}
+
+function renderLookup(){
+  const c=S.cust;
+  return `<div class="card"><h2 style="font-size:20px">Cek Pesanan Saya</h2><p class="muted">Masukin no. WhatsApp yang dipakai waktu pesan.</p>
+  <div class="row"><input style="flex:1;min-width:200px" value="${esc(c.lookupWA)}" oninput="S.cust.lookupWA=this.value" onkeydown="if(event.key==='Enter')lookup()" placeholder="08xxxxxxxxxx" inputmode="tel"><button class="btn" onclick="lookup()">Cari</button></div>
+  </div>
+  ${c.lookupDone?(c.myOrders.length?c.myOrders.map(o=>{const po=API.po(o.poId);const open=po&&API.isOpen(po);
+    return `<div class="card"><div class="row between"><div><span class="code" style="font-size:14px">${esc(o.id)}</span> <b style="margin-left:6px">${esc(po?.name||'PO')}</b></div><span class="pill ${open?'open':'closed'}">${open?'Bisa diedit':'PO sudah close'}</span></div>
+    <div style="margin:10px 0">${esc(o.ringkasan).split('; ').join('<br>')}</div>
+    <div class="row between"><div class="muted">${esc(API.shipLabel(o))}${o.alamat?` · ${esc(o.alamat)}`:''}<br>Ready ${fd(po?.readyDate)}</div><div class="row"><b>${rp(o.total)}</b>${open?`<button class="btn sm" onclick="editOrder('${o.id}')">Edit</button>`:''}</div></div>
+    <div class="row between" style="margin-top:10px"><span class="pill ${o.statusBayar==='lunas'?'open':'low'}">${o.bayar==='qris'?'QRIS':'Bayar nanti'} · ${o.statusBayar==='lunas'?'Lunas ✅':'Belum dibayar'}</span>
+    ${linkTag(waUrl(o,false),'btn sm ghost','💬 Kirim ulang konfirmasi WA')}</div></div>`}).join('')
+  :`<div class="card empty">Belum ada pesanan dengan nomor ini.</div>`):''}`;
+}
+async function lookup(){
+  if(normWA(S.cust.lookupWA).length<10)return toast('No. WhatsApp belum valid');
+  const r=await call('getMyOrders',S.cust.lookupWA);
+  if(r){await refreshPublic();S.cust.myOrders=r;S.cust.lookupDone=true;render();}
+}
+function editOrder(id){const o=S.cust.myOrders.find(x=>x.id===id);
+  Object.assign(S.cust,{tab:'pesan',step:2,poId:o.poId,qty:{...o.items},origQty:{...o.items},editingId:id,done:null,
+    form:{nama:o.nama,wa:o.wa,metode:o.metode,pt:o.pt,divisi:o.divisi,areaId:o.areaId,alamat:o.alamat,catatan:o.catatan,bayar:o.bayar}});render();}
+
+/* ================= OWNER ================= */
+function renderOwner(){
+  const o=S.owner;
+  if(!o.authed) return `<div class="card" style="max-width:380px;margin:0 auto"><h2 style="font-size:20px">Masuk Owner</h2><p class="muted">Masukkan PIN owner.</p>
+    <input type="password" id="pin" placeholder="PIN" onkeydown="if(event.key==='Enter')login()"><div style="margin-top:10px"><button class="btn" onclick="login()">Masuk</button></div></div>`;
+  const tabs=[['ringkasan','📊 Ringkasan & Omzet'],['po','📦 Kelola PO & Slot'],['produk','🍰 Produk & Pengaturan'],['rekap','🧾 Rekap Pesanan']];
+  let h=`<div class="row between" style="margin-bottom:14px"><div class="tabs" style="margin:0">${tabs.map(([k,l])=>`<button class="${o.tab===k?'on':''}" onclick="oTab('${k}')">${l}</button>`).join('')}</div>
+    <button class="btn sm ghost" onclick="ownerCall('ownerGetAll')">↻ Muat ulang</button></div>`;
+  if(o.tab==='ringkasan')h+=oRingkasan();
+  if(o.tab==='po')h+=oPO();
+  if(o.tab==='produk')h+=oProduk()+oWilayah()+oSettings();
+  if(o.tab==='rekap')h+=oRekap();
+  return h;
+}
+async function login(){
+  const pin=document.getElementById('pin').value;
+  const d=await call('ownerGetAll',pin);
+  if(d){S.owner.pin=pin;S.owner.authed=true;setDB(d);render();}
+}
+// semua aksi owner: kirim ke server, server balikin data terbaru
+async function ownerCall(fn,...args){
+  const d=await call(fn,S.owner.pin,...args);
+  if(d){setDB(d);render();return true;}
+  return false;
+}
+function oTab(t){S.owner.tab=t;render();}
+
+function oRingkasan(){
+  const sel=S.owner.ringPO;
+  const orders=sel==='all'?DB.orders:API.ordersOf(sel);
+  const omzet=orders.reduce((s,o)=>s+API.orderTotal(o),0);
+  const pcs=orders.reduce((s,o)=>s+API.orderPcs(o),0);
+  const pos=sel==='all'?DB.pos:[API.po(sel)].filter(Boolean);
+  const slotTot=pos.reduce((s,p)=>s+p.items.reduce((a,i)=>a+i.slot,0),0);
+  const ongkir=orders.reduce((s,o)=>s+(o.ongkir||0),0);
+  const paid=orders.filter(o=>o.statusBayar==='lunas'),unpaid=orders.filter(o=>o.statusBayar!=='lunas');
+  const cnt=m=>orders.filter(o=>o.metode===m).length;
+  return `<div class="card"><div class="row between"><h2 style="font-size:20px">Ringkasan</h2>
+    <select style="width:auto" onchange="S.owner.ringPO=this.value;render()"><option value="all">Semua PO</option>${DB.pos.map(p=>`<option value="${p.id}" ${sel===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>
+    <div class="grid4" style="margin-top:14px">
+      <div class="stat"><span class="muted">Omzet Produk</span><b>${rp(omzet)}</b></div>
+      <div class="stat"><span class="muted">Jumlah Pesanan</span><b>${orders.length}</b></div>
+      <div class="stat"><span class="muted">Total Pcs</span><b>${pcs}</b></div>
+      <div class="stat"><span class="muted">Slot Terisi</span><b>${slotTot?Math.round(pcs/slotTot*100):0}%</b><span class="muted">${pcs}/${slotTot}</span></div>
+      <div class="stat"><span class="muted">Ongkir Antar Sendiri</span><b>${rp(ongkir)}</b></div>
+      <div class="stat"><span class="muted">Sudah Lunas (${paid.length})</span><b>${rp(paid.reduce((s,o)=>s+API.orderGrand(o),0))}</b></div>
+      <div class="stat"><span class="muted">Belum Dibayar (${unpaid.length})</span><b>${rp(unpaid.reduce((s,o)=>s+API.orderGrand(o),0))}</b></div>
+    </div>
+    <p class="muted" style="margin:12px 0 0">Pengiriman: 🏢 Kantor ${cnt('kantor')} · 🚚 Kirim/Antar ${cnt('antar')+cnt('gosend')} (antar sendiri ${cnt('antar')}, GoSend ${cnt('gosend')})</p></div>
+  <div class="card"><h3 style="font-size:17px;margin-bottom:10px">Omzet per PO</h3><div class="scroll"><table>
+    <thead><tr><th>PO</th><th>Status</th><th>Close</th><th>Ready</th><th class="num">Pesanan</th><th class="num">Pcs</th><th class="num">Omzet</th></tr></thead>
+    <tbody>${DB.pos.map(p=>{const os=API.ordersOf(p.id);const open=API.isOpen(p);return `<tr><td><b>${esc(p.name)}</b></td><td><span class="pill ${open?'open':'closed'}">${open?'Buka':'Close'}</span></td><td>${fd(p.closeDate)}</td><td>${fd(p.readyDate)}</td><td class="num">${os.length}</td><td class="num">${os.reduce((s,o)=>s+API.orderPcs(o),0)}</td><td class="num">${rp(os.reduce((s,o)=>s+API.orderTotal(o),0))}</td></tr>`}).join('')}</tbody>
+    <tfoot><tr><td colspan="4">Total semua PO</td><td class="num">${DB.orders.length}</td><td class="num">${DB.orders.reduce((s,o)=>s+API.orderPcs(o),0)}</td><td class="num">${rp(DB.orders.reduce((s,o)=>s+API.orderTotal(o),0))}</td></tr></tfoot>
+  </table></div></div>`;
+}
+
+function oPO(){
+  return `<div class="card"><div class="row between"><h2 style="font-size:20px">Kelola PO & Slot</h2><button class="btn" onclick="openPOEditor()">+ Buat PO</button></div></div>
+  ${DB.pos.length?'':`<div class="card empty">Belum ada PO. Klik “+ Buat PO”.</div>`}
+  ${[...DB.pos].sort((a,b)=>b.closeDate.localeCompare(a.closeDate)).map(p=>{const open=API.isOpen(p);
+    return `<div class="card"><div class="row between"><div><h3 style="font-size:18px">${esc(p.name)}</h3><div class="muted">Close ${fd(p.closeDate)} · Ready ${fd(p.readyDate)}</div></div>
+    <div class="row"><span class="pill ${open?'open':'closed'}">${open?'Buka':p.status==='closed'?'Ditutup manual':'Lewat tgl close'}</span>
+    <button class="btn sm ghost" onclick="openPOEditor('${p.id}')">Edit</button><button class="btn sm danger" onclick="delPO('${p.id}')">Hapus</button></div></div>
+    <div class="scroll" style="margin-top:12px"><table><thead><tr><th>Produk – Varian</th><th class="num">Harga</th><th class="num">Slot</th><th class="num">Terjual</th><th class="num">Sisa</th><th></th></tr></thead>
+    <tbody>${p.items.map(it=>{const sold=API.sold(p.id,it.id);const left=it.slot-sold;return `<tr><td>${esc(API.itemLabel(it))}</td><td class="num">${rp(it.price)}</td><td class="num">${it.slot}</td><td class="num">${sold}</td><td class="num">${left<=0?'<span class="pill closed">Habis</span>':left<=5?`<span class="pill low">${left}</span>`:left}</td><td><div class="bar"><i style="width:${it.slot?Math.min(100,sold/it.slot*100):0}%"></i></div></td></tr>`}).join('')}</tbody></table></div></div>`}).join('')}`;
+}
+let draft=null;
+function addDays(n){const d=new Date(DB.today+'T00:00:00');d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function openPOEditor(id){
+  const p=id?API.po(id):null;
+  draft=p?JSON.parse(JSON.stringify(p)):{id:'',name:'',closeDate:addDays(5),readyDate:addDays(8),status:'open',note:'',items:[]};
+  renderModal();
+}
+function renderModal(){
+  if(!draft){document.getElementById('modal').innerHTML='';return;}
+  const d=draft;
+  document.getElementById('modal').innerHTML=`<div class="modal"><div class="card">
+  <div class="row between"><h2 style="font-size:20px">${d.id?'Edit PO':'Buat PO Baru'}</h2><button class="btn sm ghost" onclick="draft=null;renderModal()">✕</button></div>
+  <label>Nama PO</label><input value="${esc(d.name)}" oninput="draft.name=this.value" placeholder="cth: PO Batch November #1">
+  <div class="grid4"><div><label>Tanggal Close PO</label><input type="date" value="${d.closeDate}" onchange="draft.closeDate=this.value"></div>
+  <div><label>Tanggal Ready</label><input type="date" value="${d.readyDate}" onchange="draft.readyDate=this.value"></div>
+  <div><label>Status</label><select onchange="draft.status=this.value"><option value="open" ${d.status==='open'?'selected':''}>Buka</option><option value="closed" ${d.status==='closed'?'selected':''}>Tutup manual</option></select></div></div>
+  <label>Catatan untuk customer</label><input value="${esc(d.note)}" oninput="draft.note=this.value">
+  <div class="row between" style="margin-top:16px"><h3 style="font-size:16px">Produk, varian & slot</h3><button class="btn sm" onclick="addItem()">+ Tambah varian</button></div>
+  <div class="scroll tbl-input" style="margin-top:8px"><table><thead><tr><th>Produk</th><th>Varian</th><th class="num">Harga</th><th class="num">Slot</th><th class="num">Terjual</th><th class="num">Sisa</th><th></th></tr></thead>
+  <tbody>${d.items.length?d.items.map((it,i)=>{const sold=d.id&&it.id?API.sold(d.id,it.id):0;return `<tr>
+    <td><select onchange="draft.items[${i}].productId=this.value">${DB.products.map(pr=>`<option value="${pr.id}" ${pr.id===it.productId?'selected':''}>${esc(pr.name)}</option>`).join('')}</select></td>
+    <td><input value="${esc(it.variant)}" oninput="draft.items[${i}].variant=this.value" placeholder="Original"></td>
+    <td><input type="number" min="0" step="1000" value="${it.price}" oninput="draft.items[${i}].price=+this.value"></td>
+    <td><input type="number" min="${sold}" value="${it.slot}" oninput="draft.items[${i}].slot=+this.value;renderSisa(${i},${sold})" style="min-width:70px"></td>
+    <td class="num">${sold}</td><td class="num" id="sisa-${i}">${it.slot-sold}</td>
+    <td><button class="btn sm danger" onclick="rmItem(${i},${sold})">✕</button></td></tr>`}).join(''):`<tr><td colspan="7" class="empty">Belum ada varian. Klik “+ Tambah varian”.</td></tr>`}</tbody></table></div>
+  <div class="row" style="justify-content:flex-end;margin-top:16px"><button class="btn ghost" onclick="draft=null;renderModal()">Batal</button><button class="btn" onclick="savePO()">Simpan PO</button></div>
+  </div></div>`;
+}
+function renderSisa(i,sold){const el=document.getElementById('sisa-'+i);if(el)el.textContent=draft.items[i].slot-sold;}
+function addItem(){if(!DB.products.length)return toast('Tambah produk dulu di tab Produk & Wilayah');draft.items.push({id:'',productId:DB.products[0].id,variant:'',price:0,slot:10});renderModal();}
+function rmItem(i,sold){if(sold>0)return toast('Varian ini sudah ada pesanan, tidak bisa dihapus');draft.items.splice(i,1);renderModal();}
+async function savePO(){
+  const d=draft;
+  if(!d.name.trim())return toast('Nama PO wajib diisi');
+  if(!d.closeDate||!d.readyDate)return toast('Tanggal wajib diisi');
+  if(d.readyDate<d.closeDate)return toast('Tanggal ready harus setelah tanggal close');
+  if(!d.items.length)return toast('Minimal 1 varian');
+  for(const it of d.items){if(!it.variant.trim())return toast('Nama varian belum diisi');if(!(it.price>0))return toast('Harga belum diisi');}
+  if(await ownerCall('ownerSavePO',d)){draft=null;renderModal();toast('PO tersimpan');}
+}
+function delPO(id){if(API.ordersOf(id).length)return toast('PO sudah ada pesanan — tutup manual saja');if(confirm('Hapus PO ini?'))ownerCall('ownerDeletePO',id);}
+
+function oProduk(){
+  return `<div class="card"><h2 style="font-size:20px">Kelola Produk</h2><p class="muted">Master produk. Varian, harga & slot diatur per PO.</p>
+  <div class="row" style="margin:12px 0"><input id="newProd" style="flex:1;min-width:200px" placeholder="Nama produk baru, cth: Banana Bread" onkeydown="if(event.key==='Enter')addProd()"><button class="btn" onclick="addProd()">+ Tambah</button></div>
+  <div class="scroll"><table><thead><tr><th>Nama Produk</th><th class="num">Dipakai di PO</th><th></th></tr></thead><tbody>
+  ${DB.products.map(p=>{const used=DB.pos.filter(po=>po.items.some(i=>i.productId===p.id)).length;return `<tr><td><input value="${esc(p.name)}" onchange="renameProd('${p.id}',this.value)" style="max-width:320px"></td><td class="num">${used}</td><td style="text-align:right"><button class="btn sm danger" onclick="delProd('${p.id}',${used})">Hapus</button></td></tr>`}).join('')}
+  </tbody></table></div></div>`;
+}
+async function addProd(){const v=document.getElementById('newProd').value.trim();if(!v)return;if(await ownerCall('ownerSaveProduct',{name:v}))toast('Produk ditambah');}
+async function renameProd(id,v){if(!v.trim())return render();if(await ownerCall('ownerSaveProduct',{id,name:v}))toast('Nama produk diubah');}
+function delProd(id,used){if(used)return toast('Produk masih dipakai di PO, hapus variannya dulu');if(confirm('Hapus produk?'))ownerCall('ownerDeleteProduct',id);}
+
+function oWilayah(){
+  return `<div class="card"><h2 style="font-size:20px">Wilayah Antar Sendiri</h2><p class="muted">Wilayah yang kamu antar/drop sendiri. Isi ongkir 0 kalau gratis. Di luar daftar ini, customer otomatis masuk GoSend lewat pilihan "Wilayah lain".</p>
+  <div class="row" style="margin:12px 0"><input id="newArea" style="flex:2;min-width:180px" placeholder="Nama wilayah, cth: Cikokol" onkeydown="if(event.key==='Enter')addArea()">
+  <input id="newOngkir" type="number" min="0" step="1000" style="flex:1;min-width:120px" placeholder="Ongkir (Rp)"><button class="btn" onclick="addArea()">+ Tambah</button></div>
+  <div class="scroll tbl-input"><table><thead><tr><th>Wilayah</th><th class="num">Ongkir</th><th class="num">Pesanan</th><th></th></tr></thead><tbody>
+  ${DB.areas.length?DB.areas.map(a=>{const used=DB.orders.filter(o=>o.areaId===a.id).length;return `<tr><td><input value="${esc(a.name)}" onchange="updArea('${a.id}','name',this.value)" style="max-width:260px"></td>
+    <td class="num"><input type="number" min="0" step="1000" value="${a.ongkir}" onchange="updArea('${a.id}','ongkir',this.value)" style="max-width:130px;text-align:right"></td>
+    <td class="num">${used}</td><td style="text-align:right"><button class="btn sm danger" onclick="delArea('${a.id}')">Hapus</button></td></tr>`}).join('')
+  :`<tr><td colspan="4" class="empty">Belum ada wilayah. Customer di luar kantor akan masuk GoSend semua.</td></tr>`}
+  </tbody></table></div></div>`;
+}
+async function addArea(){const n=document.getElementById('newArea').value.trim();const o=+document.getElementById('newOngkir').value||0;
+  if(!n)return toast('Nama wilayah wajib diisi');if(await ownerCall('ownerSaveArea',{name:n,ongkir:o}))toast('Wilayah ditambah');}
+async function updArea(id,k,v){const a=Object.assign({},API.area(id));if(k==='name'){if(!v.trim())return render();a.name=v.trim();}else a.ongkir=Math.max(0,+v||0);
+  if(await ownerCall('ownerSaveArea',a))toast('Wilayah diubah');}
+function delArea(id){if(confirm('Hapus wilayah ini? Pesanan lama tetap tersimpan dengan nama wilayahnya.'))ownerCall('ownerDeleteArea',id);}
+
+/* ---- pengaturan: WA konfirmasi & QRIS ---- */
+function oSettings(){
+  const demo=DB.qrisPayload?qrImage(10000):'';
+  return `<div class="card"><h2 style="font-size:20px">Pengaturan Pembayaran & WhatsApp</h2>
+  <label>No. WhatsApp tujuan konfirmasi pesanan</label>
+  <div class="row"><input id="setWA" style="flex:1;min-width:200px" value="${esc(DB.ownerWA)}" inputmode="tel"><button class="btn" onclick="saveWA()">Simpan</button></div>
+  <label style="margin-top:18px">QRIS</label>
+  ${DB.qrisPayload?`<div class="pill open" style="margin-bottom:8px">✅ QRIS dinamis aktif · ${esc(DB.qrisMerchant||'merchant')}</div>
+    <p class="muted" style="margin:4px 0">Nominal QR otomatis ikut total tiap pesanan. Contoh QR Rp 10.000 (scan buat tes):</p>
+    ${demo?imgTag(demo,'width:100%;max-width:180px;border-radius:12px;border:1px solid var(--line)'):demo===null?'<div class="muted">Menyiapkan contoh QR…</div>':''}`
+  :`<div class="muted">Belum ada QRIS. Upload gambar <b>QRIS statis</b> kamu, nominalnya nanti otomatis ikut total pesanan.</div>`}
+  <div class="row" style="margin-top:10px">${fileInput('qrisFile')}<button class="btn" onclick="uploadQris()">${DB.qrisPayload?'Ganti':'Upload'} QRIS</button>
+  ${DB.qrisPayload?`<button class="btn sm danger" onclick="clearQris()">Hapus</button>`:''}</div>
+  <div style="margin-top:10px"><button class="btn sm ghost" onclick="S.owner.paste=!S.owner.paste;render()">Atau tempel kode QRIS (teks diawali 000201…)</button>
+  ${S.owner.paste?`<div class="row" style="margin-top:8px"><input id="qrisText" style="flex:1;min-width:200px" placeholder="000201010211…"><button class="btn sm" onclick="pasteQris()">Pakai</button></div>`:''}</div></div>`;
+}
+async function saveWA(){if(await ownerCall('ownerSaveSettings',{ownerWA:document.getElementById('setWA').value}))toast('No. WA disimpan');}
+async function saveQrisCode(raw){
+  const ok=qrisCheck(raw);
+  if(!ok)return toast('Kode QRIS tidak valid');
+  if(await ownerCall('ownerSaveQris',ok))toast('QRIS tersimpan ✅');
+}
+function decodeQR(dataUrl){
+  return new Promise(res=>{
+    const im=new Image();
+    im.onload=()=>{
+      for(const max of [1000,700,1600,400]){
+        const k=Math.min(1,max/Math.max(im.width,im.height));
+        const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+        const g=c.getContext('2d');g.drawImage(im,0,0,c.width,c.height);
+        const r=jsQR(g.getImageData(0,0,c.width,c.height).data,c.width,c.height,{inversionAttempts:'attemptBoth'});
+        if(r&&r.data)return res(r.data);
+      }
+      res(null);
+    };
+    im.onerror=()=>res(null);im.src=dataUrl;
+  });
+}
+function uploadQris(){
+  const f=document.getElementById('qrisFile').files[0];
+  if(!f)return toast('Pilih gambar QRIS dulu');
+  const rd=new FileReader();
+  rd.onload=async()=>{
+    try{await loadLib(READ_LIB);}catch(e){return toast('Gagal memuat pembaca QR, coba tempel kodenya');}
+    const txt=await decodeQR(rd.result);
+    if(!txt)return toast('Kode QR belum terbaca, coba gambar lebih jelas');
+    saveQrisCode(txt);
+  };
+  rd.readAsDataURL(f);
+}
+function pasteQris(){saveQrisCode(document.getElementById('qrisText').value);}
+async function clearQris(){if(confirm('Hapus QRIS?')&&await ownerCall('ownerSaveQris',''))toast('QRIS dihapus');}
+
+function oRekap(){
+  const o=S.owner; if(!o.rekapPO||!API.po(o.rekapPO)) o.rekapPO=[...DB.pos].sort((a,b)=>b.closeDate.localeCompare(a.closeDate))[0]?.id;
+  if(!o.rekapPO) return `<div class="card empty">Belum ada PO.</div>`;
+  const po=API.po(o.rekapPO);const orders=API.ordersOf(po.id);
+  const views=[['varian','Per Varian'],['nama','Per Nama'],['pt','Per Pengiriman']];
+  let h=`<div class="card"><div class="row between"><h2 style="font-size:20px">Rekap Pesanan</h2>
+    <div class="row"><select style="width:auto" onchange="S.owner.rekapPO=this.value;render()">${DB.pos.map(p=>`<option value="${p.id}" ${p.id===po.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
+    <button class="btn sm ghost" onclick="exportCSV()">⬇ CSV</button></div></div>
+    <div class="tabs" style="margin:12px 0 0">${views.map(([k,l])=>`<button class="${o.rekapView===k?'on':''}" onclick="S.owner.rekapView='${k}';render()">${l}</button>`).join('')}</div></div>`;
+  if(!orders.length) return h+`<div class="card empty">Belum ada pesanan di PO ini.</div>`;
+
+  if(o.rekapView==='varian'){
+    let tq=0,tr=0;
+    h+=`<div class="card"><div class="scroll"><table><thead><tr><th>Produk – Varian</th><th class="num">Qty</th><th class="num">Slot</th><th class="num">Sisa</th><th class="num">Omzet</th></tr></thead><tbody>
+    ${po.items.map(it=>{const q=API.sold(po.id,it.id);tq+=q;tr+=q*it.price;return `<tr><td>${esc(API.itemLabel(it))}</td><td class="num"><b>${q}</b></td><td class="num">${it.slot}</td><td class="num">${it.slot-q}</td><td class="num">${rp(q*it.price)}</td></tr>`}).join('')}
+    </tbody><tfoot><tr><td>Total</td><td class="num">${tq}</td><td></td><td></td><td class="num">${rp(tr)}</td></tr></tfoot></table></div></div>`;
+  }
+  if(o.rekapView==='nama'){
+    h+=`<div class="card"><div class="scroll"><table><thead><tr><th>Nama</th><th>Kirim ke</th>${po.items.map(it=>`<th class="num">${esc(API.itemLabel(it))}</th>`).join('')}<th class="num">Ongkir</th><th class="num">Total</th><th>Bayar</th><th></th></tr></thead><tbody>
+    ${[...orders].sort((a,b)=>a.nama.localeCompare(b.nama)).map(od=>`<tr><td><b>${esc(od.nama)}</b><div class="muted">${esc(od.wa)} · ${esc(od.id)}</div>${od.catatan?`<div class="muted">📝 ${esc(od.catatan)}</div>`:''}</td>
+      <td>${esc(API.shipLabel(od))}${od.alamat?`<div class="muted">${esc(od.alamat)}</div>`:''}</td>
+      ${po.items.map(it=>`<td class="num">${od.items[it.id]||''}</td>`).join('')}<td class="num">${od.ongkir?rp(od.ongkir):''}</td><td class="num"><b>${rp(API.orderGrand(od))}</b></td>
+      <td><span class="pill ${od.statusBayar==='lunas'?'open':'low'}">${od.bayar==='qris'?'QRIS':'Nanti'} · ${od.statusBayar==='lunas'?'Lunas':'Belum'}</span>
+        <button class="btn sm ghost" style="margin-top:4px" onclick="ownerCall('ownerSetPaid','${od.id}',${od.statusBayar!=='lunas'})">${od.statusBayar==='lunas'?'Batal lunas':'✓ Tandai lunas'}</button></td>
+      <td><button class="btn sm danger" onclick="delOrder('${od.id}')">✕</button></td></tr>`).join('')}
+    </tbody><tfoot><tr><td colspan="2">Total</td>${po.items.map(it=>`<td class="num">${API.sold(po.id,it.id)}</td>`).join('')}<td class="num">${rp(orders.reduce((s,x)=>s+(x.ongkir||0),0))}</td><td class="num">${rp(orders.reduce((s,x)=>s+API.orderGrand(x),0))}</td><td>${orders.filter(x=>x.statusBayar==='lunas').length}/${orders.length} lunas</td><td></td></tr></tfoot></table></div></div>`;
+  }
+  if(o.rekapView==='pt'){
+    const groups=[
+      ['🏢 Antar ke Kantor', orders.filter(x=>x.metode==='kantor'), x=>`${x.pt} · ${x.divisi}`, 'PT · Divisi', false],
+      ['🚚 Kirim/Antar · diantar sendiri', orders.filter(x=>x.metode==='antar'), x=>API.areaName(x), 'Wilayah', true],
+      ['🛵 Kirim/Antar · GoSend', orders.filter(x=>x.metode==='gosend'), ()=>'Wilayah lain', 'Tujuan', true],
+    ];
+    groups.forEach(([title,list,keyFn,col,showAddr])=>{
+      if(!list.length)return;
+      const g={};list.forEach(x=>{(g[keyFn(x)]=g[keyFn(x)]||[]).push(x)});
+      h+=`<div class="card"><div class="row between"><h3 style="font-size:17px">${title}</h3><span class="muted">${list.length} pesanan</span></div>
+      <div class="scroll" style="margin-top:10px"><table><thead><tr><th>${col}</th><th>Pemesan${showAddr?' & alamat':''}</th>${po.items.map(it=>`<th class="num">${esc(API.itemLabel(it))}</th>`).join('')}<th class="num">Total</th></tr></thead><tbody>
+      ${Object.keys(g).sort().map(k=>{const os=g[k];return `<tr><td><b>${esc(k)}</b></td>
+        <td>${os.map(x=>`<div><b>${esc(x.nama)}</b> <span class="muted">${esc(x.wa)}</span>${showAddr&&x.alamat?`<div class="muted">${esc(x.alamat)}</div>`:''}</div>`).join('')}</td>
+        ${po.items.map(it=>{const q=os.reduce((s,x)=>s+(x.items[it.id]||0),0);return `<td class="num">${q||''}</td>`}).join('')}
+        <td class="num">${rp(os.reduce((s,x)=>s+API.orderGrand(x),0))}</td></tr>`}).join('')}
+      </tbody></table></div></div>`;
+    });
+  }
+  return h;
+}
+function delOrder(id){if(confirm('Hapus pesanan '+id+'?'))ownerCall('ownerDeleteOrder',id);}
+function exportCSV(){
+  const po=API.po(S.owner.rekapPO);const os=API.ordersOf(po.id);
+  const head=['Kode','Nama','WA','Metode','PT','Divisi','Wilayah','Alamat','Catatan',...po.items.map(API.itemLabel),'Subtotal','Ongkir','Total','Pembayaran','Status Bayar'];
+  const rows=os.map(o=>[o.id,o.nama,o.wa,METODE[o.metode],o.pt,o.divisi,o.metode==='antar'?API.areaName(o):'',o.alamat,o.catatan,...po.items.map(it=>o.items[it.id]||0),o.subtotal,o.ongkir||0,o.total,o.bayar==='qris'?'QRIS':'Bayar nanti',o.statusBayar==='lunas'?'Lunas':'Belum']);
+  const csv=[head,...rows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'}));a.download=`rekap-${po.name}.csv`;document.body.appendChild(a);a.click();a.remove();
+}
+
+init();
+</script>
+</body>
+</html>
