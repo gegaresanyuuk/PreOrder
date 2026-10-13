@@ -19,11 +19,16 @@ h1,h2,h3{font-family:"Playfair Display",Georgia,serif;margin:0;color:var(--accen
 header h1{color:#fff}
 button,input,select,textarea{font:inherit;color:inherit}
 .wrap{max-width:980px;margin:0 auto;padding:0 16px 120px}
-header{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#fff;padding:18px 0 54px}
+header{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#fff;padding:22px 0}
+header h1{line-height:1.2;margin:0}
 header .wrap{padding-bottom:0;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 header h1{font-size:24px}
 header small{opacity:.85;display:block}
-main{margin-top:-38px}
+main.wrap{margin-top:18px}
+header small{margin-top:4px;font-size:13.5px}
+.ctabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px;margin-bottom:16px;box-shadow:0 6px 18px rgba(90,55,30,.12)}
+.ctabs button{border:0;background:transparent;border-radius:999px;padding:11px 8px;font:inherit;font-size:15px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s,color .15s}
+.ctabs button.on{background:var(--brand);color:#fff;box-shadow:0 2px 6px rgba(90,55,30,.25)}
 .card{background:var(--card);border:1px solid #ece2d4;border-radius:18px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .tabs button{border:1.5px solid var(--line);background:#fff;padding:9px 18px;border-radius:999px;cursor:pointer;font-weight:500;font-size:14px;color:var(--ink)}
@@ -86,11 +91,37 @@ tfoot td{font-weight:700;background:#f1e8dc}
 /* ===== owner tahap 1 ===== */
 :root{--red:#8e3b2e;--red-soft:#f6e3de}
 .otabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
-.otabs button{flex-shrink:0;white-space:nowrap}
+.otabs button{flex-shrink:0;white-space:nowrap;padding:8px 13px}
 .nf{background:#fff;border:1.5px solid var(--brand-2);border-radius:16px;padding:12px 14px;margin-bottom:12px;box-shadow:0 4px 14px rgba(90,55,30,.08)}
 .nf.off{display:flex;align-items:center;justify-content:space-between;gap:10px;border-style:dashed;box-shadow:none;font-size:14px}
 .nfi{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px dashed var(--line);margin-top:8px}
 .nfi .tx{flex:1;min-width:0}.nfi .amt{text-align:right;font-weight:700;white-space:nowrap}.nfi .amt small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+.onav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.onav button{border:1px solid var(--line);background:#fff;border-radius:14px;padding:8px 2px 7px;font:inherit;font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;line-height:1.2;white-space:nowrap}
+.onav button span{display:block;font-size:19px;margin-bottom:2px}
+.onav button.on{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 3px 10px rgba(90,55,30,.22)}
+.seg2{display:flex;background:var(--brand-soft);border-radius:999px;padding:3px;margin-top:12px}
+.seg2 button{flex:1;border:0;background:transparent;border-radius:999px;padding:8px 4px;font:inherit;font-weight:600;font-size:13px;cursor:pointer;color:var(--brand);white-space:nowrap}
+.seg2 button.on{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.1);color:var(--ink)}
+.ord{background:#fff;border:1px solid var(--line);border-left:5px solid #d9a99d;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 4px 14px rgba(90,55,30,.06)}
+.ord.ready{border-left-color:var(--ok);background:#fbfdf8}
+.ord-h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.ord-h b{font-size:16px}
+.ocode{font-family:ui-monospace,monospace;font-size:12px;color:var(--brand);background:var(--brand-soft);padding:1px 7px;border-radius:6px;white-space:nowrap}
+.ship{font-size:13px;color:var(--muted);margin:6px 0 8px;display:flex;gap:6px}
+.items{border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);padding:2px 0}
+.it{display:flex;align-items:center;gap:12px;padding:9px 2px;cursor:pointer;user-select:none}
+.it .box{width:24px;height:24px;border:2px solid var(--brand-2);border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.it.on .box{background:var(--ok);border-color:var(--ok)}
+.it .nm{flex:1}.it .q{font-weight:800;font-size:17px;min-width:36px;text-align:right}
+.it.on .nm,.it.on .q{color:var(--muted);text-decoration:line-through}
+.note{background:var(--warn-soft);border-radius:10px;padding:6px 10px;font-size:13px;margin-top:8px}
+.ord-f{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:10px}
+.prog{flex:1}.prog .bar{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:3px}.prog .bar i{display:block;height:100%;background:var(--ok)}
+.ord-a{display:flex;gap:6px;margin-top:10px}.ord-a .btn{flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap;padding-left:6px;padding-right:6px;min-height:36px}.ord-a .del{flex:0 0 auto;color:var(--red)}
+.vrow{padding:10px 0;border-bottom:1px dashed var(--line)}.vrow .big{font-family:"Playfair Display",serif;font-size:22px;color:var(--brand);font-weight:700;line-height:1}
+.vtot{padding-top:12px}
+.grp{display:flex;justify-content:space-between;align-items:center;margin:18px 4px 8px}.grp h3{font-size:17px}
+.sp{padding:10px 0 2px;border-top:1px dashed var(--line);margin-top:10px}
 .kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
 @media(min-width:640px){.kpi{grid-template-columns:repeat(4,1fr)}}
 .kpi.k3{grid-template-columns:repeat(3,1fr)}
@@ -249,7 +280,7 @@ const METODE = {kantor:'Antar ke Kantor',antar:'Kirim/Antar',gosend:'Kirim/Antar
 const S = {
   loaded:false,
   cust:{tab:'pesan',step:1,poId:null,qty:{},form:{metode:'kantor'},editingId:null,origQty:null,done:null,lookupWA:'',lookupDone:false,myOrders:[]},
-  owner:{authed:false,pin:'',tab:'dash',rekapPO:null,rekapView:'varian',ringPO:'all',dashPO:'all',prodDate:null,payPO:'all',payFilter:'tagih',expPO:null},
+  owner:{authed:false,pin:'',tab:'dash',rekapPO:null,rekapView:'nama',rekapQ:'',ringPO:'all',dashPO:'all',prodDate:null,payPO:'all',payFilter:'tagih',expPO:null},
 };
 
 function render(){
@@ -275,9 +306,9 @@ async function refreshPublic(){const d=await call('getPublicData');if(d)setDB(d)
 /* ================= CUSTOMER ================= */
 function renderCustomer(){
   const c=S.cust;
-  let h=`<div class="tabs">
+  let h=`<div class="ctabs">
     <button class="${c.tab==='pesan'?'on':''}" onclick="cTab('pesan')">🛒 Pesan</button>
-    <button class="${c.tab==='cek'?'on':''}" onclick="cTab('cek')">🔎 Cek / Edit Pesanan Saya</button>
+    <button class="${c.tab==='cek'?'on':''}" onclick="cTab('cek')">🔎 Cek / Edit Pesanan</button>
   </div>`;
   if(c.tab==='cek') return h+renderLookup();
   if(c.done) return h+renderDone();
@@ -488,7 +519,7 @@ function renderDone(){
   <div class="card" style="text-align:center">
     <p style="margin-top:0"><b>Langkah terakhir:</b> kirim konfirmasi ke WhatsApp admin${o.bayar==='qris'?' (sekalian lampirkan bukti bayar)':''}.</p>
     ${linkTag(waUrl(o,edited),'btn wa','💬 Kirim Konfirmasi ke WhatsApp')}
-    <p class="muted">Pesan konfirmasi sudah terisi otomatis, tinggal tekan <b>Kirim</b> di WhatsApp.<br>Pesanan masih bisa diedit sampai ${fd(po&&po.closeDate)} lewat menu <b>Cek / Edit Pesanan Saya</b>.</p>
+    <p class="muted">Pesan konfirmasi sudah terisi otomatis, tinggal tekan <b>Kirim</b> di WhatsApp.<br>Pesanan masih bisa diedit sampai ${fd(po&&po.closeDate)} lewat menu <b>Cek / Edit Pesanan</b>.</p>
     <button class="btn ghost" onclick="resetCust();render()">Pesan lagi</button></div>`;
 }
 
@@ -519,9 +550,9 @@ function renderOwner(){
   const o=S.owner;
   if(!o.authed) return `<div class="card" style="max-width:380px;margin:0 auto"><h2 style="font-size:20px">Masuk Owner</h2><p class="muted">Masukkan PIN owner.</p>
     <input type="password" id="pin" placeholder="PIN" onkeydown="if(event.key==='Enter')login()"><div style="margin-top:10px"><button class="btn" onclick="login()">Masuk</button></div></div>`;
-  const tabs=[['dash','📊 Dashboard'],['prod','🧁 Produksi'],['pay','💰 Pembayaran'],['exp','⬇ Ekspor'],['rekap','🧾 Rekap Pesanan'],['po','📦 Kelola PO'],['produk','🍰 Produk & Pengaturan']];
+  const tabs=[['dash','📊 Ringkasan'],['rekap','🧾 Pesanan'],['pay','💰 Bayar'],['prod','🧁 Produksi'],['po','📦 Kelola PO'],['exp','⬇ Ekspor'],['produk','⚙️ Pengaturan']];
   let h=`<div class="row between noprint" style="margin-bottom:12px;flex-wrap:nowrap"><div class="tabs otabs" style="margin:0">${tabs.map(([k,l])=>`<button class="${o.tab===k?'on':''}" onclick="oTab('${k}')">${l}</button>`).join('')}</div>
-    <button class="btn sm ghost" style="flex-shrink:0" onclick="ownerCall('ownerGetAll')">↻</button></div>`;
+    <button class="btn sm ghost" style="flex-shrink:0" onclick="ownerCall('ownerGetAll')" title="Muat ulang">↻</button></div>`;
   h+=notifBanner();
   if(o.tab==='ringkasan'||o.tab==='dash')h+=oDash();
   if(o.tab==='prod')h+=oProd();
@@ -609,7 +640,7 @@ function notifBanner(){
     ${L.length>6?`<div class="muted" style="margin-top:6px">+${L.length-6} lainnya</div>`:''}
   </div>`;
 }
-function oTab(t){S.owner.tab=t;render();}
+function oTab(t){S.owner.tab=t;render();const b=document.querySelector('.otabs .on');if(b)b.scrollIntoView({block:'nearest',inline:'center'});}
 
 function oRingkasan(){
   const sel=S.owner.ringPO;
@@ -662,7 +693,7 @@ function oDash(){
   const nL=os.filter(isLunas).length,nB=os.length-nL,pcs=os.reduce((s,o)=>s+oPcs(o),0);
   const pct=x=>V?Math.round(x/V*100):0;
   return `<div class="card">
-    <div class="row between"><h2 style="font-size:20px">Dashboard</h2>${poSelect('dashPO',true)}</div>
+    <div class="row between"><h2 style="font-size:20px">Ringkasan</h2>${poSelect('dashPO',true)}</div>
     <div class="kpi">
       <div><small>Total order</small><b>${os.length}</b><em>${pcs} pcs</em></div>
       <div><small>Nilai pesanan</small><b>${rpK(V)}</b><em>rata-rata ${rpK(os.length?V/os.length:0)}</em></div>
@@ -956,49 +987,70 @@ function uploadQris(){
 function pasteQris(){saveQrisCode(document.getElementById('qrisText').value);}
 async function clearQris(){if(confirm('Hapus QRIS?')&&await ownerCall('ownerSaveQris',''))toast('QRIS dihapus');}
 
+/* ---------- 🧾 Rekap Pesanan (versi kartu, tanpa geser) ---------- */
+function packGet(){try{return JSON.parse(localStorage.getItem('gy_pack')||'{}');}catch(e){return {};}}
+function packToggle(oid,iid){const d=packGet();d[oid]=d[oid]||{};d[oid][iid]=!d[oid][iid];try{localStorage.setItem('gy_pack',JSON.stringify(d));}catch(e){}render();}
+function packAll(oid,on){const od=DB.orders.find(x=>x.id===oid);if(!od)return;const d=packGet();d[oid]={};if(on)Object.keys(od.items).forEach(k=>d[oid][k]=true);try{localStorage.setItem('gy_pack',JSON.stringify(d));}catch(e){}render();}
+function rekapFind(v){S.owner.rekapQ=v;const q=v.trim().toLowerCase();document.querySelectorAll('.ord[data-n]').forEach(el=>{el.style.display=!q||el.getAttribute('data-n').indexOf(q)>=0?'':'none';});}
+const chatUrl=o=>'ht'+'tps://wa.me/'+toIntl(o.wa);
 function oRekap(){
   const o=S.owner; if(!o.rekapPO||!API.po(o.rekapPO)) o.rekapPO=[...DB.pos].sort((a,b)=>b.closeDate.localeCompare(a.closeDate))[0]?.id;
   if(!o.rekapPO) return `<div class="card empty">Belum ada PO.</div>`;
-  const po=API.po(o.rekapPO);const orders=API.ordersOf(po.id);
-  const views=[['varian','Per Varian'],['nama','Per Nama'],['pt','Per Pengiriman']];
-  let h=`<div class="card"><div class="row between"><h2 style="font-size:20px">Rekap Pesanan</h2>
-    <div class="row"><select style="width:auto" onchange="S.owner.rekapPO=this.value;render()">${DB.pos.map(p=>`<option value="${p.id}" ${p.id===po.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
-    <button class="btn sm ghost" onclick="exportCSV()">⬇ CSV</button></div></div>
-    <div class="tabs" style="margin:12px 0 0">${views.map(([k,l])=>`<button class="${o.rekapView===k?'on':''}" onclick="S.owner.rekapView='${k}';render()">${l}</button>`).join('')}</div></div>`;
+  const po=API.po(o.rekapPO),orders=API.ordersOf(po.id),pack=packGet();
+  const lbl=iid=>{const it=po.items.find(x=>x.id===iid);return it?API.itemLabel(it):'?';};
+  const isPacked=od=>{const p=pack[od.id]||{};return Object.keys(od.items).every(k=>p[k]);};
+  const views=[['nama','👤 Per Nama'],['varian','🍰 Per Varian'],['pt','🚚 Pengiriman']];
+  const nPacked=orders.filter(isPacked).length;
+  let h=`<div class="card"><div class="row between"><h2 style="font-size:20px">Rekap Pesanan</h2><button class="btn sm ghost" onclick="exportCSV()">⬇ CSV</button></div>
+    <select style="margin-top:10px" onchange="S.owner.rekapPO=this.value;render()">${[...DB.pos].sort((a,b)=>b.closeDate.localeCompare(a.closeDate)).map(p=>`<option value="${p.id}" ${p.id===po.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
+    <div class="muted" style="margin-top:6px">${orders.length} pesanan · ${orders.reduce((s,x)=>s+oPcs(x),0)} pcs · ${rp(orders.reduce((s,x)=>s+oVal(x),0))} · Ready ${fd(po.readyDate)}</div>
+    <div class="seg2">${views.map(([k,l])=>`<button class="${o.rekapView===k?'on':''}" onclick="S.owner.rekapView='${k}';render()">${l}</button>`).join('')}</div></div>`;
   if(!orders.length) return h+`<div class="card empty">Belum ada pesanan di PO ini.</div>`;
 
+  if(o.rekapView==='nama'){
+    const q=(o.rekapQ||'').trim().toLowerCase();
+    h+=`<div class="row between" style="margin:2px 2px 10px;flex-wrap:nowrap"><input placeholder="🔍 Cari nama / kode / no. WA" value="${esc(o.rekapQ||'')}" oninput="rekapFind(this.value)" style="flex:1">
+      <span class="pill ${nPacked===orders.length?'open':'low'}" style="flex-shrink:0">📦 ${nPacked}/${orders.length} siap</span></div>`;
+    h+=[...orders].sort((a,b)=>(isPacked(a)-isPacked(b))||a.nama.localeCompare(b.nama)).map(od=>{
+      const p=pack[od.id]||{},keys=Object.keys(od.items),done=keys.filter(k=>p[k]).length,ready=done===keys.length,l=isLunas(od);
+      const key=(od.nama+' '+od.id+' '+od.wa).toLowerCase();
+      return `<div class="ord ${ready?'ready':''}" data-n="${esc(key)}" style="${q&&key.indexOf(q)<0?'display:none':''}">
+        <div class="ord-h"><div><b>${esc(od.nama)}</b> <span class="ocode">${esc(od.id)}</span></div><span class="pill ${l?'open':'red'}">${l?'Lunas':'Belum bayar'}</span></div>
+        <div class="ship">${od.metode==='kantor'?'🏢':'🚚'} <span>${esc(API.shipLabel(od))}${od.alamat?' · '+esc(od.alamat):''}</span></div>
+        <div class="items">${keys.map(k=>`<div class="it ${p[k]?'on':''}" onclick="packToggle('${od.id}','${k}')"><div class="box">${p[k]?'✓':''}</div><div class="nm">${esc(lbl(k))}</div><div class="q">×${od.items[k]}</div></div>`).join('')}</div>
+        ${od.catatan?`<div class="note">📝 ${esc(od.catatan)}</div>`:''}
+        <div class="ord-f"><div class="prog"><span class="muted">${ready?'✅ Siap diantar':'Dikemas '+done+'/'+keys.length}</span><div class="bar"><i style="width:${keys.length?done/keys.length*100:0}%"></i></div></div>
+          <b>${rp(oVal(od))}</b></div>
+        <div class="ord-a">${ready?`<button class="btn sm ghost" onclick="packAll('${od.id}',false)">↺ Reset</button>`:`<button class="btn sm ghost" onclick="packAll('${od.id}',true)">📦 Dikemas</button>`}
+          <button class="btn sm ghost" onclick="ownerCall('ownerSetPaid','${od.id}',${!l})">${l?'Batal lunas':'✓ Lunas'}</button>
+          ${linkTag(chatUrl(od),'btn sm ghost','💬 Chat')}
+          <button class="btn sm ghost del" onclick="delOrder('${od.id}')">✕</button></div>
+      </div>`}).join('');
+    h+=`<p class="muted" style="text-align:center">Centang item saat dikemas. Centangan tersimpan di HP/laptop ini.</p>`;
+  }
   if(o.rekapView==='varian'){
     let tq=0,tr=0;
-    h+=`<div class="card"><div class="scroll"><table><thead><tr><th>Produk – Varian</th><th class="num">Qty</th><th class="num">Slot</th><th class="num">Sisa</th><th class="num">Omzet</th></tr></thead><tbody>
-    ${po.items.map(it=>{const q=API.sold(po.id,it.id);tq+=q;tr+=q*it.price;return `<tr><td>${esc(API.itemLabel(it))}</td><td class="num"><b>${q}</b></td><td class="num">${it.slot}</td><td class="num">${it.slot-q}</td><td class="num">${rp(q*it.price)}</td></tr>`}).join('')}
-    </tbody><tfoot><tr><td>Total</td><td class="num">${tq}</td><td></td><td></td><td class="num">${rp(tr)}</td></tr></tfoot></table></div></div>`;
-  }
-  if(o.rekapView==='nama'){
-    h+=`<div class="card"><div class="scroll"><table><thead><tr><th>Nama</th><th>Kirim ke</th>${po.items.map(it=>`<th class="num">${esc(API.itemLabel(it))}</th>`).join('')}<th class="num">Ongkir</th><th class="num">Total</th><th>Bayar</th><th></th></tr></thead><tbody>
-    ${[...orders].sort((a,b)=>a.nama.localeCompare(b.nama)).map(od=>`<tr><td><b>${esc(od.nama)}</b><div class="muted">${esc(od.wa)} · ${esc(od.id)}</div>${od.catatan?`<div class="muted">📝 ${esc(od.catatan)}</div>`:''}</td>
-      <td>${esc(API.shipLabel(od))}${od.alamat?`<div class="muted">${esc(od.alamat)}</div>`:''}</td>
-      ${po.items.map(it=>`<td class="num">${od.items[it.id]||''}</td>`).join('')}<td class="num">${od.ongkir?rp(od.ongkir):''}</td><td class="num"><b>${rp(API.orderGrand(od))}</b></td>
-      <td><span class="pill ${od.statusBayar==='lunas'?'open':'low'}">${od.bayar==='qris'?'QRIS':'Nanti'} · ${od.statusBayar==='lunas'?'Lunas':'Belum'}</span>
-        <button class="btn sm ghost" style="margin-top:4px" onclick="ownerCall('ownerSetPaid','${od.id}',${od.statusBayar!=='lunas'})">${od.statusBayar==='lunas'?'Batal lunas':'✓ Tandai lunas'}</button></td>
-      <td><button class="btn sm danger" onclick="delOrder('${od.id}')">✕</button></td></tr>`).join('')}
-    </tbody><tfoot><tr><td colspan="2">Total</td>${po.items.map(it=>`<td class="num">${API.sold(po.id,it.id)}</td>`).join('')}<td class="num">${rp(orders.reduce((s,x)=>s+(x.ongkir||0),0))}</td><td class="num">${rp(orders.reduce((s,x)=>s+API.orderGrand(x),0))}</td><td>${orders.filter(x=>x.statusBayar==='lunas').length}/${orders.length} lunas</td><td></td></tr></tfoot></table></div></div>`;
+    h+=`<div class="card">${po.items.map(it=>{const q=API.sold(po.id,it.id);tq+=q;tr+=q*it.price;const left=it.slot-q;
+      return `<div class="vrow"><div class="row between" style="flex-wrap:nowrap"><div><b>${esc(API.itemLabel(it))}</b><div class="muted">${rp(it.price)} · slot ${it.slot} · ${left<=0?'<b style="color:var(--red)">habis</b>':'sisa '+left}</div></div>
+        <div style="text-align:right"><div class="big">${q}</div><div class="muted">${rp(q*it.price)}</div></div></div>
+        <div class="pbar"><i style="width:${it.slot?Math.min(100,q/it.slot*100):0}%"></i></div></div>`}).join('')}
+      <div class="row between vtot"><b>Total</b><b>${tq} pcs · ${rp(tr)}</b></div></div>`;
   }
   if(o.rekapView==='pt'){
-    const groups=[
-      ['🏢 Antar ke Kantor', orders.filter(x=>x.metode==='kantor'), x=>`${x.pt} · ${x.divisi}`, 'PT · Divisi', false],
-      ['🚚 Kirim/Antar · diantar sendiri', orders.filter(x=>x.metode==='antar'), x=>API.areaName(x), 'Wilayah', true],
-      ['🛵 Kirim/Antar · GoSend', orders.filter(x=>x.metode==='gosend'), ()=>'Wilayah lain', 'Tujuan', true],
-    ];
-    groups.forEach(([title,list,keyFn,col,showAddr])=>{
+    const groups=[['🏢 Antar ke Kantor',orders.filter(x=>x.metode==='kantor'),x=>x.pt+' · '+x.divisi],
+      ['🚚 Diantar sendiri',orders.filter(x=>x.metode==='antar'),x=>API.areaName(x)],
+      ['🛵 GoSend',orders.filter(x=>x.metode==='gosend'),()=>'Wilayah lain']];
+    groups.forEach(([title,list,keyFn])=>{
       if(!list.length)return;
       const g={};list.forEach(x=>{(g[keyFn(x)]=g[keyFn(x)]||[]).push(x)});
-      h+=`<div class="card"><div class="row between"><h3 style="font-size:17px">${title}</h3><span class="muted">${list.length} pesanan</span></div>
-      <div class="scroll" style="margin-top:10px"><table><thead><tr><th>${col}</th><th>Pemesan${showAddr?' & alamat':''}</th>${po.items.map(it=>`<th class="num">${esc(API.itemLabel(it))}</th>`).join('')}<th class="num">Total</th></tr></thead><tbody>
-      ${Object.keys(g).sort().map(k=>{const os=g[k];return `<tr><td><b>${esc(k)}</b></td>
-        <td>${os.map(x=>`<div><b>${esc(x.nama)}</b> <span class="muted">${esc(x.wa)}</span>${showAddr&&x.alamat?`<div class="muted">${esc(x.alamat)}</div>`:''}</div>`).join('')}</td>
-        ${po.items.map(it=>{const q=os.reduce((s,x)=>s+(x.items[it.id]||0),0);return `<td class="num">${q||''}</td>`}).join('')}
-        <td class="num">${rp(os.reduce((s,x)=>s+API.orderGrand(x),0))}</td></tr>`}).join('')}
-      </tbody></table></div></div>`;
+      h+=`<div class="grp"><h3>${title}</h3><span class="muted">${list.length} pesanan</span></div>`;
+      h+=Object.keys(g).sort().map(k=>{const os=g[k];const sum={};os.forEach(x=>Object.entries(x.items).forEach(([i,q])=>sum[i]=(sum[i]||0)+q));
+        return `<div class="card"><div class="row between"><b>📍 ${esc(k)}</b><span class="muted">${os.length} org</span></div>
+          <div class="muted" style="margin-top:2px">${Object.entries(sum).map(([i,q])=>esc(lbl(i))+' <b style="color:var(--ink)">×'+q+'</b>').join(' · ')}</div>
+          ${os.map(x=>`<div class="sp"><div class="row between" style="flex-wrap:nowrap"><b>${esc(x.nama)}</b><span class="muted">${esc(x.wa)}</span></div>
+            ${x.alamat?`<div class="muted">🏠 ${esc(x.alamat)}</div>`:''}
+            <div style="font-size:14px">${Object.entries(x.items).map(([i,q])=>esc(lbl(i))+' ×'+q).join(', ')}</div>
+            ${x.catatan?`<div class="note">📝 ${esc(x.catatan)}</div>`:''}</div>`).join('')}</div>`}).join('');
     });
   }
   return h;
