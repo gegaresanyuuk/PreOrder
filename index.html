@@ -87,6 +87,10 @@ tfoot td{font-weight:700;background:#f1e8dc}
 :root{--red:#8e3b2e;--red-soft:#f6e3de}
 .otabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
 .otabs button{flex-shrink:0;white-space:nowrap}
+.nf{background:#fff;border:1.5px solid var(--brand-2);border-radius:16px;padding:12px 14px;margin-bottom:12px;box-shadow:0 4px 14px rgba(90,55,30,.08)}
+.nf.off{display:flex;align-items:center;justify-content:space-between;gap:10px;border-style:dashed;box-shadow:none;font-size:14px}
+.nfi{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px dashed var(--line);margin-top:8px}
+.nfi .tx{flex:1;min-width:0}.nfi .amt{text-align:right;font-weight:700;white-space:nowrap}.nfi .amt small{display:block;font-weight:400;color:var(--muted);font-size:11px}
 .kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
 @media(min-width:640px){.kpi{grid-template-columns:repeat(4,1fr)}}
 .kpi.k3{grid-template-columns:repeat(3,1fr)}
@@ -518,6 +522,7 @@ function renderOwner(){
   const tabs=[['dash','📊 Dashboard'],['prod','🧁 Produksi'],['pay','💰 Pembayaran'],['exp','⬇ Ekspor'],['rekap','🧾 Rekap Pesanan'],['po','📦 Kelola PO'],['produk','🍰 Produk & Pengaturan']];
   let h=`<div class="row between noprint" style="margin-bottom:12px;flex-wrap:nowrap"><div class="tabs otabs" style="margin:0">${tabs.map(([k,l])=>`<button class="${o.tab===k?'on':''}" onclick="oTab('${k}')">${l}</button>`).join('')}</div>
     <button class="btn sm ghost" style="flex-shrink:0" onclick="ownerCall('ownerGetAll')">↻</button></div>`;
+  h+=notifBanner();
   if(o.tab==='ringkasan'||o.tab==='dash')h+=oDash();
   if(o.tab==='prod')h+=oProd();
   if(o.tab==='pay')h+=oPay();
@@ -530,13 +535,79 @@ function renderOwner(){
 async function login(){
   const pin=document.getElementById('pin').value;
   const d=await call('ownerGetAll',pin);
-  if(d){S.owner.pin=pin;S.owner.authed=true;setDB(d);render();}
+  if(d){S.owner.pin=pin;S.owner.authed=true;setDB(d);notifStart();render();}
 }
 // semua aksi owner: kirim ke server, server balikin data terbaru
 async function ownerCall(fn,...args){
   const d=await call(fn,S.owner.pin,...args);
-  if(d){setDB(d);render();return true;}
+  if(d){setDB(d);updateTitle();render();return true;}
   return false;
+}
+/* ---------- 🔔 Notif pesanan baru / diubah ----------
+   Cek otomatis tiap 45 detik selama halaman owner terbuka.
+   "Sudah dilihat" disimpan di HP/laptop ini (localStorage). */
+const NOTIF_KEY='gy_seen_orders',POLL_MS=45000;
+let notifTimer=null,notifAlerted={};
+const oTime=o=>String(o.updatedAt||o.createdAt||'');
+const oStamp=o=>oTime(o)+'|'+(o.updatedAt?'u':'c')+'|'+o.total+'|'+JSON.stringify(o.items||{});
+function seenGet(){try{const s=localStorage.getItem(NOTIF_KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
+function seenSet(m){try{localStorage.setItem(NOTIF_KEY,JSON.stringify(m));}catch(e){}}
+function markAllSeen(){const m={};(DB.orders||[]).forEach(o=>m[o.id]=oStamp(o));seenSet(m);notifAlerted={};updateTitle();render();}
+function unseenList(){
+  const m=seenGet()||{};
+  return (DB.orders||[]).filter(o=>m[o.id]!==oStamp(o))
+    .map(o=>({o,kind:o.id in m?'ubah':'baru'}))
+    .sort((a,b)=>oTime(b.o).localeCompare(oTime(a.o)));
+}
+function updateTitle(){const n=unseenList().length;document.title=(n?'('+n+') ':'')+'Pre Order GegaresanYuuk';}
+function notifStart(){
+  if(seenGet()===null)markAllSeen(); // pertama kali login di device ini: anggap semua sudah dilihat
+  (DB.orders||[]).forEach(o=>{if(unseenList().some(x=>x.o.id===o.id))notifAlerted[o.id+'|'+oStamp(o)]=1;});
+  updateTitle();
+  if(notifTimer)clearInterval(notifTimer);
+  notifTimer=setInterval(notifPoll,POLL_MS);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)notifPoll();});
+}
+let polling=false;
+async function notifPoll(){
+  if(polling||document.hidden||!S.owner.authed)return;polling=true;
+  try{
+    const j=await viaFetch('ownerGetAll',[S.owner.pin]); // diam-diam, tanpa layar loading
+    if(!j||!j.ok)return;
+    setDB(j.result);
+    const fresh=unseenList().filter(x=>!notifAlerted[x.o.id+'|'+oStamp(x.o)]);
+    fresh.forEach(x=>notifAlerted[x.o.id+'|'+oStamp(x.o)]=1);
+    updateTitle();
+    const a=document.activeElement,typing=a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);
+    if(!typing)render();
+    if(fresh.length)notifAlert(fresh);
+  }finally{polling=false;}
+}
+function notifAlert(fresh){
+  const nb=fresh.filter(x=>x.kind==='baru').length,nu=fresh.length-nb;
+  const head=[nb?nb+' pesanan baru':'',nu?nu+' pesanan diubah':''].filter(Boolean).join(' · ');
+  const body=fresh.slice(0,3).map(x=>x.o.nama+' – '+rp(oVal(x.o))).join(', ');
+  toast('🔔 '+head);
+  try{navigator.vibrate&&navigator.vibrate([120,60,120]);}catch(e){}
+  try{const ac=new (window.AudioContext||window.webkitAudioContext)();[0,.18].forEach(t=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;g.gain.value=.08;o.connect(g);g.connect(ac.destination);o.start(ac.currentTime+t);o.stop(ac.currentTime+t+.12);});}catch(e){}
+  try{if(window.Notification&&Notification.permission==='granted')new Notification('🍰 '+head,{body:body,tag:'gy-order'});}catch(e){}
+}
+async function askNotifPerm(){
+  if(!window.Notification)return toast('Browser ini belum mendukung notifikasi');
+  const p=await Notification.requestPermission();
+  toast(p==='granted'?'🔔 Notifikasi aktif':'Notifikasi tidak diizinkan');render();
+}
+function notifBanner(){
+  const L=unseenList(),canAsk=window.Notification&&Notification.permission==='default';
+  if(!L.length)return canAsk?`<div class="nf off noprint"><span>🔔 Mau dapat notif di HP saat ada pesanan masuk?</span><button class="btn sm ghost" onclick="askNotifPerm()">Aktifkan</button></div>`:'';
+  const nb=L.filter(x=>x.kind==='baru').length,nu=L.length-nb;
+  return `<div class="nf noprint"><div class="row between"><b>🔔 ${[nb?nb+' pesanan baru':'',nu?nu+' diubah':''].filter(Boolean).join(' · ')}</b>
+    <span class="row" style="gap:6px">${canAsk?`<button class="btn sm ghost" onclick="askNotifPerm()">Aktifkan notif HP</button>`:''}<button class="btn sm" onclick="markAllSeen()">✓ Sudah dilihat</button></span></div>
+    ${L.slice(0,6).map(({o,kind})=>{const po=API.po(o.poId);return `<div class="nfi"><span class="pill ${kind==='baru'?'open':'low'}">${kind==='baru'?'Baru':'Diubah'}</span>
+      <div class="tx"><b>${esc(o.nama)}</b> <span class="muted">${esc(o.id)}</span><div class="muted">${esc(po?po.name:'-')} · ${o.metode==='kantor'?'🏢 Kantor':'🚚 Kirim/Antar'} · ${o.bayar==='qris'?'QRIS':'Bayar nanti'}</div></div>
+      <div class="amt">${rp(oVal(o))}<small>${esc(oTime(o).slice(5).replace(' ',' · '))}</small></div></div>`}).join('')}
+    ${L.length>6?`<div class="muted" style="margin-top:6px">+${L.length-6} lainnya</div>`:''}
+  </div>`;
 }
 function oTab(t){S.owner.tab=t;render();}
 
