@@ -791,8 +791,31 @@ async function shareQris(id){
   const a=document.createElement('a');a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();
   toast('⬇ Gambar QRIS tersimpan, lampirkan di chat WA');
 }
+// gambar QRIS + keterangan nominal & kode, sebagai Blob PNG
+function qrisCardBlob(o){
+  return new Promise((res,rej)=>{try{
+    const amt=Math.round(oVal(o)),qr=qrcode(0,'M');qr.addData(qrisDynamic(DB.qrisPayload,amt));qr.make();
+    const n=qr.getModuleCount(),cell=8,pad=32,W=n*cell+pad*2,H=W+96,c=document.createElement('canvas');c.width=W;c.height=H;
+    const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,H);g.fillStyle='#000';
+    for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(qr.isDark(r,k))g.fillRect(pad+k*cell,pad+r*cell,cell,cell);
+    g.textAlign='center';g.fillStyle='#5a3a28';g.font='bold 34px sans-serif';g.fillText(rp(amt),W/2,W+30);
+    g.fillStyle='#8c7a6b';g.font='20px sans-serif';g.fillText(o.id+' · '+(DB.qrisMerchant||'GegaresanYuuk'),W/2,W+66);
+    c.toBlob(b=>b?res(b):rej(new Error('blob')),'image/png');
+  }catch(e){rej(e);}});
+}
+// 1 tombol: salin gambar QRIS ke clipboard + buka chat customer dengan pesan tagihan
+function tagih(id){
+  const o=DB.orders.find(x=>x.id===id);if(!o)return;
+  let copied=false;
+  if(DB.qrisPayload&&typeof qrcode==='function'&&navigator.clipboard&&window.ClipboardItem){
+    try{navigator.clipboard.write([new ClipboardItem({'image/png':qrisCardBlob(o)})]).catch(()=>{});copied=true;}catch(e){}
+  }
+  const url=tagihUrl(o),w=window.open(url,'_blank');if(!w)location.href=url;
+  toast(copied?'📋 QRIS disalin! Di chat WA: tekan lama kolom ketik → Tempel':'💬 Link QRIS sudah ada di pesan tagihan');
+}
 function tagihUrl(o){return 'ht'+'tps://wa.me/'+toIntl(o.wa)+'?text='+encodeURIComponent(tagihText(o));}
 function oPay(){
+  if(DB.qrisPayload&&typeof qrcode!=='function')loadLib(QR_LIB).catch(()=>{});
   const os=ordersFor('payPO');
   const V=os.reduce((s,o)=>s+oVal(o),0),P=os.filter(isLunas).reduce((s,o)=>s+oVal(o),0);
   const F={tagih:o=>!isLunas(o),lunas:isLunas,semua:()=>true},f=S.owner.payFilter;
@@ -812,7 +835,7 @@ function oPay(){
     <div class="chips">${[['tagih','💸 Belum lunas'],['lunas','✅ Lunas'],['semua','Semua']].map(([k,l])=>`<button class="${f===k?'on':''}" onclick="S.owner.payFilter='${k}';render()">${l} (${osM.filter(F[k]).length})</button>`).join('')}</div>
     <div class="chips sub" style="margin-top:8px">${[['all','Semua metode'],['qris','📱 QRIS'],['nanti','🕒 Bayar nanti']].map(([k,l])=>`<button class="${m===k?'on':''}" onclick="S.owner.payMethod='${k}';render()">${l} (${os.filter(F[f]).filter(M[k]).length})</button>`).join('')}</div>
     ${f==='tagih'&&m==='qris'?`<div class="hint">📱 <b>Cek mutasi QRIS</b> di aplikasi merchant. Cocokkan <b>nominal</b> & <b>jam pesan</b>, lalu tandai lunas.</div>`:''}
-    ${f==='tagih'&&m==='nanti'?`<div class="hint">🕒 <b>Waktunya nagih</b> · tombol Tagih mengirim rincian + link QRIS dengan nominal terisi otomatis.</div>`:''}
+    ${f==='tagih'&&m==='nanti'?`<div class="hint">🕒 <b>Waktunya nagih</b> · tombol Tagih membuka chat customer + pesan tagihan & link QRIS. Gambar QRIS otomatis tersalin, tinggal <b>Tempel</b> di chat.</div>`:''}
     <div style="margin-top:8px">${list.length?list.map(o=>{const po=API.po(o.poId),l=isLunas(o);
       return `<div class="pay"><div><b>${esc(o.nama)}</b> <span class="muted">${esc(o.id)}</span>
           <div class="muted">${esc(po?po.name:'-')}${o.ongkir?' · termasuk ongkir':''}</div>
@@ -820,7 +843,7 @@ function oPay(){
           <span class="pill ${o.bayar==='qris'?'qr':'lt'}">${o.bayar==='qris'?'📱 QRIS':'🕒 Bayar nanti'}</span> <span class="pill ${l?'open':'red'}">${l?'Lunas':'Belum lunas'}</span></div>
         <div class="amt">${rp(oVal(o))}<small>${l?'diterima':'belum dibayar'}</small></div>
         <div class="acts">${l?`<button class="btn sm ghost" onclick="ownerCall('ownerSetPaid','${o.id}',false)">Batal lunas</button>`
-          :`${linkTag(tagihUrl(o),'btn wa','💬 Tagih via WA')}${DB.qrisPayload?`<button class="btn ghost" onclick="shareQris('${o.id}')">📤 Kirim QRIS</button>`:''}<button class="btn ghost full" onclick="markPaid('${o.id}')">✓ Tandai lunas</button>`}</div></div>`}).join('')
+          :`<button class="btn wa" onclick="tagih('${o.id}')">💬 Tagih via WA</button><button class="btn ghost" onclick="markPaid('${o.id}')">✓ Tandai lunas</button>`}</div></div>`}).join('')
     :`<div class="empty">${f==='tagih'?'Semua sudah lunas 🎉':'Belum ada data.'}</div>`}</div>
   </div>`;
 }
