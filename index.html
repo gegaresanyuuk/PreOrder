@@ -122,6 +122,14 @@ tfoot td{font-weight:700;background:#f1e8dc}
 .vtot{padding-top:12px}
 .grp{display:flex;justify-content:space-between;align-items:center;margin:18px 4px 8px}.grp h3{font-size:17px}
 .sp{padding:10px 0 2px;border-top:1px dashed var(--line);margin-top:10px}
+.bawa{background:var(--brand-soft);border-color:#e0cdb6}
+.bw{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.bw span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px}
+.divh{font-weight:700;color:var(--brand);margin:14px 4px 6px;font-size:14px}
+.chips.sub button{padding:5px 11px;font-size:12.5px}.chips.sub button.on{background:var(--brand);border-color:var(--brand)}
+.hint{background:var(--brand-soft);border-radius:12px;padding:8px 12px;font-size:13px;margin-top:10px}
+.pill.qr{background:#e6ecf3;color:#3d5a7a}.pill.lt{background:var(--warn-soft);color:#8a6a3a}
+.paycard{text-align:center}.paycard .amt{font-family:'Playfair Display',serif;font-size:30px;font-weight:800;color:var(--brand)}
+.paycard img{width:100%;max-width:280px;border-radius:14px;border:1px solid var(--line);margin-top:8px;background:#fff}
 .kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
 @media(min-width:640px){.kpi{grid-template-columns:repeat(4,1fr)}}
 .kpi.k3{grid-template-columns:repeat(3,1fr)}
@@ -159,8 +167,9 @@ tfoot td{font-weight:700;background:#f1e8dc}
 .pay:first-child{border-top:0}
 .pay .amt{text-align:right;font-weight:700}
 .pay .amt small{display:block;font-weight:400;color:var(--muted);font-size:12px}
-.pay .acts{flex-basis:100%;display:flex;gap:8px;padding-bottom:8px}
-.pay .acts .btn{flex:1;text-align:center}
+.pay .acts{flex-basis:100%;display:flex;flex-wrap:wrap;gap:8px;padding-bottom:8px}.pay .acts .full{flex-basis:100%}
+.pay .acts .btn{flex:1;text-align:center;white-space:nowrap;padding:10px 8px;font-size:14px;display:flex;align-items:center;justify-content:center;gap:4px;border-radius:999px;height:44px;box-sizing:border-box;line-height:1.2;margin:0}.pay .acts .btn.full{flex:1 1 100%}
+a.btn{text-decoration:none}
 .pill.red{background:var(--red-soft);color:var(--red)}
 .exp{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;margin-top:10px}
 .exp .ic{font-size:26px;line-height:1}.exp .tx{flex:1}.exp b{display:block}
@@ -203,6 +212,9 @@ window.API_URL = 'https://script.google.com/macros/s/AKfycbx6rnbnfc3zrjJy_0eJ810
 <script>
 // link owner: alamat halaman + ?page=owner
 const MODE = new URLSearchParams(location.search).get('page') === 'owner' ? 'owner' : 'cust';
+// link bayar dari admin: ?bayar=GY-XXXX&n=170000
+const PAYQ=(()=>{const q=new URLSearchParams(location.search),id=String(q.get('bayar')||'').replace(/[^A-Za-z0-9-]/g,'').slice(0,20),n=Math.round(Number(q.get('n')));
+  return id&&n>0&&n<1e9?{id:id,n:n}:null;})();
 const PT_LIST = ['Lippo','VIVERE'];
 
 /* ================= UTIL ================= */
@@ -280,7 +292,7 @@ const METODE = {kantor:'Antar ke Kantor',antar:'Kirim/Antar',gosend:'Kirim/Antar
 const S = {
   loaded:false,
   cust:{tab:'pesan',step:1,poId:null,qty:{},form:{metode:'kantor'},editingId:null,origQty:null,done:null,lookupWA:'',lookupDone:false,myOrders:[]},
-  owner:{authed:false,pin:'',tab:'dash',rekapPO:null,rekapView:'nama',rekapQ:'',ringPO:'all',dashPO:'all',prodDate:null,payPO:'all',payFilter:'tagih',expPO:null},
+  owner:{authed:false,pin:'',tab:'dash',rekapPO:null,rekapView:'nama',rekapQ:'',rekapGrp:'all',ringPO:'all',dashPO:'all',prodDate:null,payPO:'all',payFilter:'tagih',payMethod:'all',expPO:null},
 };
 
 function render(){
@@ -306,6 +318,7 @@ async function refreshPublic(){const d=await call('getPublicData');if(d)setDB(d)
 /* ================= CUSTOMER ================= */
 function renderCustomer(){
   const c=S.cust;
+  if(PAYQ&&!S.payClosed)return payPage();
   let h=`<div class="ctabs">
     <button class="${c.tab==='pesan'?'on':''}" onclick="cTab('pesan')">🛒 Pesan</button>
     <button class="${c.tab==='cek'?'on':''}" onclick="cTab('cek')">🔎 Cek / Edit Pesanan</button>
@@ -508,6 +521,19 @@ function qrisBlock(o){
     <p class="muted">Pesan dari HP yang sama? Simpan gambar ini, lalu di e-wallet / m-banking pilih scan dari galeri.</p>${after}</div>`;
   return `<div class="card qris"><h3 style="font-size:17px">Bayar via QRIS</h3><div class="amt">${rp(o.total)}</div>
     <div class="muted" style="padding:12px">QRIS akan dikirim admin lewat WhatsApp ya.</div></div>`;
+}
+function payPage(){
+  const img=qrImage(PAYQ.n);
+  return `<div class="card paycard"><h2 style="font-size:20px">Pembayaran Pesanan</h2>
+    <div class="muted" style="margin-top:4px">Kode pesanan <b style="color:var(--ink)">${esc(PAYQ.id)}</b></div>
+    <div class="amt">${rp(PAYQ.n)}</div>
+    ${img===null?`<div class="empty">Menyiapkan QRIS…</div>`:img?`<div class="muted">${esc(DB.qrisMerchant||'GegaresanYuuk')} · nominal otomatis terisi saat di-scan</div>${imgTag(img)}
+      <div style="margin-top:10px">${linkTag(img,'btn sm','⬇ Simpan gambar QRIS','QRIS-'+esc(PAYQ.id)+'.png')}</div>
+      <p class="muted">Bayar dari HP ini? Simpan gambarnya, lalu di e-wallet / m-banking pilih <b>scan dari galeri</b>.</p>`
+      :`<div class="empty">QRIS belum tersedia, silakan hubungi admin lewat WhatsApp ya.</div>`}
+    <p class="muted">Sudah bayar? <b>Screenshot bukti pembayaran</b> lalu kirim di chat WhatsApp admin 🙏</p>
+    <div style="margin-top:6px">${linkTag('ht'+'tps://wa.me/'+toIntl(DB.ownerWA)+'?text='+encodeURIComponent('Halo GegaresanYuuk, ini bukti bayar pesanan '+PAYQ.id+' ('+rp(PAYQ.n)+') 🙏'),'btn wa','💬 Kirim bukti ke WhatsApp')}</div>
+    <button class="btn ghost" style="margin-top:12px" onclick="S.payClosed=true;render()">Lihat halaman pre order</button></div>`;
 }
 function renderDone(){
   const o=S.cust.done;const po=API.po(o.poId);const edited=!!S.cust.doneEdited;
@@ -750,15 +776,29 @@ function tagihText(o){
   const po=API.po(o.poId);
   const lines=Object.entries(o.items).map(([iid,q])=>{const it=po&&po.items.find(x=>x.id===iid);return it?`- ${API.itemLabel(it)} x${q}`:''}).filter(Boolean);
   return ['Halo Kak '+o.nama+'! 🍰','Mau mengingatkan pembayaran pesanan *'+o.id+'*'+(po?' ('+po.name+', ready '+fd(po.readyDate)+')':'')+':','']
-    .concat(lines).concat(['','*Total: '+rp(oVal(o))+'*','Pembayaran bisa via QRIS / transfer, lalu kirim bukti bayarnya di chat ini ya 🙏','Terima kasih! — GegaresanYuuk 🤎'])
+    .concat(lines).concat(['','*Total: '+rp(oVal(o))+'*'].concat(DB.qrisPayload?['','📱 Bayar via QRIS (nominal sudah otomatis terisi):',payLink(o)]:[]).concat(['','Setelah bayar, kirim bukti bayarnya di chat ini ya 🙏','Terima kasih! — GegaresanYuuk 🤎']))
     .join(String.fromCharCode(10));
+}
+function payLink(o){return location.origin+location.pathname+'?bayar='+encodeURIComponent(o.id)+'&n='+Math.round(oVal(o));}
+async function shareQris(id){
+  const o=DB.orders.find(x=>x.id===id);if(!o)return;
+  try{if(typeof qrcode!=='function')await loadLib(QR_LIB);}catch(e){return toast('Gagal memuat QRIS, cek internet');}
+  let url;try{url=qrPng(qrisDynamic(DB.qrisPayload,oVal(o)));}catch(e){return toast('QRIS belum diatur');}
+  const bin=atob(url.split(',')[1]),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+  const file=new File([arr],'QRIS-'+o.id+'.png',{type:'image/png'});
+  const text='QRIS pesanan '+o.id+' · '+rp(oVal(o))+' (nominal otomatis terisi). Setelah bayar, kirim buktinya ya 🙏';
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:text});}catch(e){}return;}
+  const a=document.createElement('a');a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();
+  toast('⬇ Gambar QRIS tersimpan, lampirkan di chat WA');
 }
 function tagihUrl(o){return 'ht'+'tps://wa.me/'+toIntl(o.wa)+'?text='+encodeURIComponent(tagihText(o));}
 function oPay(){
   const os=ordersFor('payPO');
   const V=os.reduce((s,o)=>s+oVal(o),0),P=os.filter(isLunas).reduce((s,o)=>s+oVal(o),0);
   const F={tagih:o=>!isLunas(o),lunas:isLunas,semua:()=>true},f=S.owner.payFilter;
-  const list=os.filter(F[f]).sort((a,b)=>oVal(b)-oVal(a));
+  const M={all:()=>true,qris:o=>o.bayar==='qris',nanti:o=>o.bayar!=='qris'},m=S.owner.payMethod||'all';
+  const osM=os.filter(M[m]);
+  const list=osM.filter(F[f]).sort((a,b)=>m==='qris'?String(a.createdAt).localeCompare(String(b.createdAt)):oVal(b)-oVal(a));
   return `<div class="card">
     <div class="row between"><h2 style="font-size:20px">Rekap Pembayaran</h2>${poSelect('payPO',true)}</div>
     <div class="kpi k3">
@@ -769,17 +809,23 @@ function oPay(){
     <div class="money"><i style="width:${V?P/V*100:0}%;background:var(--ok)"></i></div>
   </div>
   <div class="card">
-    <div class="chips">${[['tagih','💸 Perlu ditagih'],['lunas','✅ Lunas'],['semua','Semua']].map(([k,l])=>`<button class="${f===k?'on':''}" onclick="S.owner.payFilter='${k}';render()">${l} (${os.filter(F[k]).length})</button>`).join('')}</div>
+    <div class="chips">${[['tagih','💸 Belum lunas'],['lunas','✅ Lunas'],['semua','Semua']].map(([k,l])=>`<button class="${f===k?'on':''}" onclick="S.owner.payFilter='${k}';render()">${l} (${osM.filter(F[k]).length})</button>`).join('')}</div>
+    <div class="chips sub" style="margin-top:8px">${[['all','Semua metode'],['qris','📱 QRIS'],['nanti','🕒 Bayar nanti']].map(([k,l])=>`<button class="${m===k?'on':''}" onclick="S.owner.payMethod='${k}';render()">${l} (${os.filter(F[f]).filter(M[k]).length})</button>`).join('')}</div>
+    ${f==='tagih'&&m==='qris'?`<div class="hint">📱 <b>Cek mutasi QRIS</b> di aplikasi merchant. Cocokkan <b>nominal</b> & <b>jam pesan</b>, lalu tandai lunas.</div>`:''}
+    ${f==='tagih'&&m==='nanti'?`<div class="hint">🕒 <b>Waktunya nagih</b> · tombol Tagih mengirim rincian + link QRIS dengan nominal terisi otomatis.</div>`:''}
     <div style="margin-top:8px">${list.length?list.map(o=>{const po=API.po(o.poId),l=isLunas(o);
       return `<div class="pay"><div><b>${esc(o.nama)}</b> <span class="muted">${esc(o.id)}</span>
-          <div class="muted">${esc(po?po.name:'-')} · ${o.bayar==='qris'?'QRIS':'Bayar nanti'}${o.ongkir?' · termasuk ongkir':''}</div>
-          <span class="pill ${l?'open':'red'}">${l?'Lunas':'Belum bayar'}</span></div>
+          <div class="muted">${esc(po?po.name:'-')}${o.ongkir?' · termasuk ongkir':''}</div>
+          <div class="muted">🕑 Pesan ${esc(String(o.createdAt||'').slice(5).replace(' ',' · '))}</div>
+          <span class="pill ${o.bayar==='qris'?'qr':'lt'}">${o.bayar==='qris'?'📱 QRIS':'🕒 Bayar nanti'}</span> <span class="pill ${l?'open':'red'}">${l?'Lunas':'Belum lunas'}</span></div>
         <div class="amt">${rp(oVal(o))}<small>${l?'diterima':'belum dibayar'}</small></div>
         <div class="acts">${l?`<button class="btn sm ghost" onclick="ownerCall('ownerSetPaid','${o.id}',false)">Batal lunas</button>`
-          :`${linkTag(tagihUrl(o),'btn wa','💬 Tagih via WA')}<button class="btn ghost" onclick="ownerCall('ownerSetPaid','${o.id}',true)">✓ Tandai lunas</button>`}</div></div>`}).join('')
+          :`${linkTag(tagihUrl(o),'btn wa','💬 Tagih via WA')}${DB.qrisPayload?`<button class="btn ghost" onclick="shareQris('${o.id}')">📤 Kirim QRIS</button>`:''}<button class="btn ghost full" onclick="markPaid('${o.id}')">✓ Tandai lunas</button>`}</div></div>`}).join('')
     :`<div class="empty">${f==='tagih'?'Semua sudah lunas 🎉':'Belum ada data.'}</div>`}</div>
   </div>`;
 }
+function markPaid(id){const o=DB.orders.find(x=>x.id===id);if(!o)return;
+  if(confirm('Tandai '+o.id+' ('+o.nama+') LUNAS?\n\nPastikan '+rp(oVal(o))+' sudah benar-benar masuk.'))ownerCall('ownerSetPaid',id,true);}
 
 /* ---------- ⬇ Ekspor ---------- */
 // nilai yang diawali = + - @ diberi tanda kutip supaya tidak dijalankan sebagai rumus di Excel
@@ -1009,12 +1055,27 @@ function oRekap(){
 
   if(o.rekapView==='nama'){
     const q=(o.rekapQ||'').trim().toLowerCase();
+    const grpOf=x=>x.metode==='kantor'?'pt:'+x.pt:'kirim';
+    const grps=[['all','Semua',orders]].concat(PT_LIST.map(p=>['pt:'+p,'🏢 '+p,orders.filter(x=>grpOf(x)==='pt:'+p)])).concat([['kirim','🚚 Kirim/Antar',orders.filter(x=>x.metode!=='kantor')]]).filter(g=>g[0]==='all'||g[2].length);
+    if(!grps.some(g=>g[0]===o.rekapGrp))o.rekapGrp='all';
+    const G=grps.find(g=>g[0]===o.rekapGrp),list=G[2];
+    h+=`<div class="chips" style="margin:0 0 10px">${grps.map(([k,l,os])=>`<button class="${o.rekapGrp===k?'on':''}" onclick="S.owner.rekapGrp='${k}';render()">${l} (${os.length})</button>`).join('')}</div>`;
+    if(o.rekapGrp!=='all'){
+      const sum={};list.forEach(x=>Object.entries(x.items).forEach(([i,n])=>sum[i]=(sum[i]||0)+n));
+      const nP=list.filter(isPacked).length;
+      h+=`<div class="card bawa"><div class="row between"><b>🧺 Bawaan ${o.rekapGrp==='kirim'?'Kirim/Antar':'ke '+esc(o.rekapGrp.slice(3))}</b><span class="pill ${nP===list.length?'open':'low'}">📦 ${nP}/${list.length} siap</span></div>
+        <div class="muted" style="margin-top:2px">${list.length} pesanan · ${list.reduce((s,x)=>s+oPcs(x),0)} pcs</div>
+        <div class="bw">${Object.entries(sum).map(([i,n])=>`<span>${esc(lbl(i))} <b>×${n}</b></span>`).join('')}</div></div>`;
+    }
     h+=`<div class="row between" style="margin:2px 2px 10px;flex-wrap:nowrap"><input placeholder="🔍 Cari nama / kode / no. WA" value="${esc(o.rekapQ||'')}" oninput="rekapFind(this.value)" style="flex:1">
-      <span class="pill ${nPacked===orders.length?'open':'low'}" style="flex-shrink:0">📦 ${nPacked}/${orders.length} siap</span></div>`;
-    h+=[...orders].sort((a,b)=>(isPacked(a)-isPacked(b))||a.nama.localeCompare(b.nama)).map(od=>{
+      ${o.rekapGrp==='all'?`<span class="pill ${nPacked===orders.length?'open':'low'}" style="flex-shrink:0">📦 ${nPacked}/${orders.length} siap</span>`:''}</div>`;
+    const sub=x=>x.metode==='kantor'?(x.divisi||'').toLowerCase():'';
+    let lastSub=null;
+    h+=[...list].sort((a,b)=>o.rekapGrp.indexOf('pt:')===0?(sub(a).localeCompare(sub(b))||(isPacked(a)-isPacked(b))||a.nama.localeCompare(b.nama)):((isPacked(a)-isPacked(b))||a.nama.localeCompare(b.nama))).map(od=>{
+      let hd='';if(o.rekapGrp.indexOf('pt:')===0&&sub(od)!==lastSub){lastSub=sub(od);hd=`<div class="divh">📍 ${esc(od.divisi)}</div>`;}
       const p=pack[od.id]||{},keys=Object.keys(od.items),done=keys.filter(k=>p[k]).length,ready=done===keys.length,l=isLunas(od);
       const key=(od.nama+' '+od.id+' '+od.wa).toLowerCase();
-      return `<div class="ord ${ready?'ready':''}" data-n="${esc(key)}" style="${q&&key.indexOf(q)<0?'display:none':''}">
+      return hd+`<div class="ord ${ready?'ready':''}" data-n="${esc(key)}" style="${q&&key.indexOf(q)<0?'display:none':''}">
         <div class="ord-h"><div><b>${esc(od.nama)}</b> <span class="ocode">${esc(od.id)}</span></div><span class="pill ${l?'open':'red'}">${l?'Lunas':'Belum bayar'}</span></div>
         <div class="ship">${od.metode==='kantor'?'🏢':'🚚'} <span>${esc(API.shipLabel(od))}${od.alamat?' · '+esc(od.alamat):''}</span></div>
         <div class="items">${keys.map(k=>`<div class="it ${p[k]?'on':''}" onclick="packToggle('${od.id}','${k}')"><div class="box">${p[k]?'✓':''}</div><div class="nm">${esc(lbl(k))}</div><div class="q">×${od.items[k]}</div></div>`).join('')}</div>
