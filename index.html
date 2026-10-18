@@ -142,6 +142,8 @@ tfoot td{font-weight:700;background:#f1e8dc}
 .stp input::-webkit-outer-spin-button,.stp input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .sisa{font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;background:#eee;color:#666}.sisa.pos{background:var(--ok-soft,#e6ecdc);color:var(--ok)}.sisa.neg{background:#f6e0db;color:var(--red)}
 .sisabox{margin-top:14px;background:var(--brand-soft);border-radius:14px;padding:12px}.sisabox textarea{width:100%;margin:8px 0 4px;font-size:13px;background:#fff}
+.vu{display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11.5px;color:var(--muted)}.vu button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:2px 9px;font-size:11.5px;cursor:pointer;color:var(--ink)}.vu button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.vr .q small{font-size:12px;font-weight:600;color:var(--muted)}
 .kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
 @media(min-width:640px){.kpi{grid-template-columns:repeat(4,1fr)}}
 .kpi.k3{grid-template-columns:repeat(3,1fr)}
@@ -766,6 +768,9 @@ function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'{}');}catch(e)
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 function unitOf(prod){const u=lsGet('gy_unit')[prod];return u>0?u:10;}
 function setUnit(prod,v){const u=lsGet('gy_unit');const n=Math.floor(+v);if(n>0)u[prod]=n;else delete u[prod];lsSet('gy_unit',u);render();}
+// satuan jual per varian: 'slice' atau 'roll' (1 qty = 1 roll utuh). Tebakan awal dari nama varian.
+function vUnitOf(prod,vn){const m=lsGet('gy_vunit'),k=prod+'|'+vn;if(m[k])return m[k];return /roll|utuh|whole|full|loyang/i.test(vn)?'roll':'slice';}
+function setVUnit(prod,vn,u){const m=lsGet('gy_vunit');m[prod+'|'+vn]=u;lsSet('gy_vunit',m);render();}
 function setHasil(key,v){const h=lsGet('gy_hasil');if(v===''||v==null||isNaN(+v))delete h[key];else h[key]=Math.max(0,Math.floor(+v));lsSet('gy_hasil',h);render();}
 function stepHasil(key,def,d){const h=lsGet('gy_hasil');const cur=key in h?h[key]:def;h[key]=Math.max(0,cur+d);lsSet('gy_hasil',h);render();}
 function copySisa(){const t=document.getElementById('sisaText');if(!t)return;const txt=t.value;
@@ -793,11 +798,11 @@ function oProd(){
   if(view==='rekap'){
     const shown=prods.filter(p=>Object.values(g[p]).some(v=>v.q>0));
     h+=`<p class="muted noprint" style="margin:8px 0 0">Semua varian dari semua batch di tanggal ini dijumlahkan otomatis.</p>
-    ${shown.length?shown.map(prod=>{const vs=g[prod],tot=Object.values(vs).reduce((s,v)=>s+v.q,0);
-      return `<div class="prodgrp"><div class="hd"><b>${esc(prod)}</b><span class="tot">${tot}</span></div>
+    ${shown.length?shown.map(prod=>{const vs=g[prod],u=unitOf(prod),tot=Object.keys(vs).reduce((s,vn)=>s+vs[vn].q*(vUnitOf(prod,vn)==='roll'?u:1),0);
+      return `<div class="prodgrp"><div class="hd"><b>${esc(prod)}</b><span class="tot">${tot}<small style="font-size:12px;font-weight:600"> slice</small></span></div>
       ${Object.keys(vs).filter(vn=>vs[vn].q>0).sort().map(vn=>{const v=vs[vn],key=day+'|'+prod+'|'+vn,d=done[key];
         return `<div class="vr ${d?'done':''}"><div class="chk" onclick="prodToggle(${esc(JSON.stringify(key))})">${d?'✓':''}</div>
-          <div class="nm">${esc(vn)}<div class="src">dari ${v.n} order</div></div><div class="q">${v.q}</div></div>`}).join('')}</div>`}).join('')
+          <div class="nm">${esc(vn)}<div class="src">dari ${v.n} order${vUnitOf(prod,vn)==='roll'?' · <b>roll utuh</b>':''}</div></div><div class="q">${v.q}${vUnitOf(prod,vn)==='roll'?'<small> roll</small>':''}</div></div>`}).join('')}</div>`}).join('')
     :`<div class="empty">Belum ada pesanan untuk tanggal ini.</div>`}
     <p class="muted noprint" style="margin-top:10px">✓ Centang kalau varian itu sudah selesai dibuat. Centangan tersimpan di HP/laptop ini saja.</p></div>`;
     return h;
@@ -805,10 +810,14 @@ function oProd(){
   // ===== Hasil Produksi
   const H=lsGet('gy_hasil');let T={made:0,q:0,sisa:0,val:0,kurang:0};const sisaList=[];
   const body=prods.map(prod=>{const vs=g[prod],u=unitOf(prod);
-    const rows=Object.keys(vs).sort().map(vn=>{const v=vs[vn],key=day+'|'+prod+'|'+vn,roll=Math.ceil(v.q/u),def=roll*u;
-      const made=key in H?H[key]:def,sisa=made-v.q,isDef=!(key in H);
-      T.made+=made;T.q+=v.q;if(sisa>0){T.sisa+=sisa;T.val+=sisa*v.price;sisaList.push([prod,vn,sisa,v.price]);}if(sisa<0)T.kurang+=-sisa;
-      return `<div class="hr"><div class="hrn"><b>${esc(vn)}</b><div class="muted">Pesanan <b style="color:var(--ink)">${v.q}</b> slice · butuh ${roll} roll${v.price?' · '+rp(v.price)+'/slice':''}</div></div>
+    const rows=Object.keys(vs).sort().map(vn=>{const v=vs[vn],key=day+'|'+prod+'|'+vn,vu=vUnitOf(prod,vn),isRoll=vu==='roll';
+      const need=isRoll?v.q*u:v.q,roll=Math.ceil(need/u),def=roll*u,ppS=isRoll?Math.round(v.price/u):v.price;
+      const made=key in H?H[key]:def,sisa=made-need,isDef=!(key in H);
+      T.made+=made;T.q+=need;if(sisa>0){T.sisa+=sisa;T.val+=sisa*ppS;sisaList.push([prod,vn,sisa,ppS]);}if(sisa<0)T.kurang+=-sisa;
+      const pk=esc(JSON.stringify(prod)),vk=esc(JSON.stringify(vn));
+      return `<div class="hr"><div class="hrn"><b>${esc(vn)}</b>
+        <div class="muted">Pesanan <b style="color:var(--ink)">${isRoll?v.q+' roll':v.q+' slice'}</b>${isRoll?' = '+need+' slice':''} · butuh ${roll} roll</div>
+        <div class="vu"><span>Dijual per</span><button class="${!isRoll?'on':''}" onclick="setVUnit(${pk},${vk},'slice')">slice</button><button class="${isRoll?'on':''}" onclick="setVUnit(${pk},${vk},'roll')">roll</button></div></div>
         <div class="hri"><div class="stp"><button onclick="stepHasil(${esc(JSON.stringify(key))},${def},-1)">−</button>
           <input type="number" min="0" inputmode="numeric" value="${made}" class="${isDef?'def':''}" onchange="setHasil(${esc(JSON.stringify(key))},this.value)">
           <button onclick="stepHasil(${esc(JSON.stringify(key))},${def},1)">+</button></div>
