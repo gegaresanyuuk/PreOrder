@@ -133,6 +133,15 @@ tfoot td{font-weight:700;background:#f1e8dc}
 .pgrp{padding-top:12px}.pgh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;cursor:pointer;user-select:none}
 .pgr{text-align:right;white-space:nowrap;display:flex;flex-direction:column;align-items:flex-end;gap:2px}.pgr small{color:var(--muted);font-size:12px}
 .pgr .car{color:var(--muted);font-size:14px}.pgrp .pay:first-child{margin-top:8px}
+.prodgrp .unit{font-size:12px;color:var(--muted);white-space:nowrap}.prodgrp .unit input{width:52px;padding:4px 6px;text-align:center;border-radius:8px;display:inline-block}
+.hr{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px dashed var(--line)}.hrn{flex:1;min-width:0}
+.hri{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.stp{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.stp button{border:0;background:var(--brand-soft);width:32px;height:36px;font-size:18px;cursor:pointer;color:var(--brand)}
+.stp input{width:52px;border:0;border-radius:0;text-align:center;padding:6px 2px;font-weight:700;-moz-appearance:textfield}.stp input.def{color:var(--muted)}
+.stp input::-webkit-outer-spin-button,.stp input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.sisa{font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;background:#eee;color:#666}.sisa.pos{background:var(--ok-soft,#e6ecdc);color:var(--ok)}.sisa.neg{background:#f6e0db;color:var(--red)}
+.sisabox{margin-top:14px;background:var(--brand-soft);border-radius:14px;padding:12px}.sisabox textarea{width:100%;margin:8px 0 4px;font-size:13px;background:#fff}
 .kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
 @media(min-width:640px){.kpi{grid-template-columns:repeat(4,1fr)}}
 .kpi.k3{grid-template-columns:repeat(3,1fr)}
@@ -295,7 +304,7 @@ const METODE = {kantor:'Antar ke Kantor',antar:'Kirim/Antar',gosend:'Kirim/Antar
 const S = {
   loaded:false,
   cust:{tab:'pesan',step:1,poId:null,qty:{},form:{metode:'kantor'},editingId:null,origQty:null,done:null,lookupWA:'',lookupDone:false,myOrders:[]},
-  owner:{authed:false,pin:'',tab:'dash',rekapPO:null,rekapView:'nama',rekapQ:'',rekapGrp:'all',ringPO:'all',dashPO:'all',prodDate:null,payPO:'all',payFilter:'tagih',payMethod:'all',payDest:'all',payFold:{},expPO:null},
+  owner:{authed:false,pin:'',tab:'dash',rekapPO:null,rekapView:'nama',rekapQ:'',rekapGrp:'all',ringPO:'all',dashPO:'all',prodDate:null,prodView:'rekap',payPO:'all',payFilter:'tagih',payMethod:'all',payDest:'all',payFold:{},expPO:null},
 };
 
 function render(){
@@ -752,31 +761,73 @@ function oDash(){
 /* ---------- 🧁 Produksi ---------- */
 function prodDoneGet(){try{return JSON.parse(localStorage.getItem('gy_prod_done')||'{}');}catch(e){return {};}}
 function prodToggle(key){const d=prodDoneGet();d[key]=!d[key];try{localStorage.setItem('gy_prod_done',JSON.stringify(d));}catch(e){}render();}
+/* hasil produksi & isi per roll: disimpan di HP/laptop ini */
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'{}');}catch(e){return {};}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function unitOf(prod){const u=lsGet('gy_unit')[prod];return u>0?u:10;}
+function setUnit(prod,v){const u=lsGet('gy_unit');const n=Math.floor(+v);if(n>0)u[prod]=n;else delete u[prod];lsSet('gy_unit',u);render();}
+function setHasil(key,v){const h=lsGet('gy_hasil');if(v===''||v==null||isNaN(+v))delete h[key];else h[key]=Math.max(0,Math.floor(+v));lsSet('gy_hasil',h);render();}
+function stepHasil(key,def,d){const h=lsGet('gy_hasil');const cur=key in h?h[key]:def;h[key]=Math.max(0,cur+d);lsSet('gy_hasil',h);render();}
+function copySisa(){const t=document.getElementById('sisaText');if(!t)return;const txt=t.value;
+  (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('📋 Daftar sisa disalin'),()=>{t.select();document.execCommand('copy');toast('📋 Daftar sisa disalin');});}
 function oProd(){
   const dates=[...new Set(DB.pos.map(p=>p.readyDate))].sort();
   if(!dates.length)return `<div class="card empty">Belum ada PO.</div>`;
   if(!S.owner.prodDate||dates.indexOf(S.owner.prodDate)<0)S.owner.prodDate=dates.find(d=>d>=DB.today)||dates[dates.length-1];
-  const day=S.owner.prodDate,pos=DB.pos.filter(p=>p.readyDate===day),ids=pos.map(p=>p.id);
+  const day=S.owner.prodDate,pos=DB.pos.filter(p=>p.readyDate===day),ids=pos.map(p=>p.id),view=S.owner.prodView||'rekap';
   const os=DB.orders.filter(o=>ids.indexOf(o.poId)>=0);
   // jumlahkan per produk → varian (lintas batch, pakai nama produk & varian)
   const g={};
+  const slot=(prod,vn)=>{g[prod]=g[prod]||{};return g[prod][vn]=g[prod][vn]||{q:0,n:0,price:0};};
+  pos.forEach(po=>po.items.forEach(it=>{const v=slot(API.product(it.productId)?.name||'?',it.variant);v.price=Math.max(v.price,it.price||0);}));
   os.forEach(o=>{const po=API.po(o.poId);Object.entries(o.items).forEach(([iid,q])=>{const it=po.items.find(x=>x.id===iid);if(!it)return;
-    const prod=API.product(it.productId)?.name||'?';g[prod]=g[prod]||{};const v=g[prod][it.variant]=g[prod][it.variant]||{q:0,n:0};v.q+=q;v.n++;});});
+    const v=slot(API.product(it.productId)?.name||'?',it.variant);v.q+=q;v.n++;});});
   const done=prodDoneGet(),pcs=os.reduce((s,o)=>s+oPcs(o),0);
-  return `<div class="card">
-    <div class="row between"><h2 style="font-size:20px">Rekap Produksi</h2><button class="btn sm ghost noprint" onclick="window.print()">🖨 Cetak</button></div>
-    <p class="muted noprint" style="margin:4px 0 10px">Pilih tanggal ready, semua varian dari semua batch di tanggal itu dijumlahkan otomatis.</p>
-    <div class="chips noprint">${dates.map(d=>`<button class="${day===d?'on':''}" onclick="S.owner.prodDate='${d}';render()">📅 ${fd(d)}</button>`).join('')}</div>
+  let h=`<div class="card">
+    <div class="row between"><h2 style="font-size:20px">${view==='hasil'?'Hasil Produksi':'Rekap Produksi'}</h2><button class="btn sm ghost noprint" onclick="window.print()">🖨 Cetak</button></div>
+    <div class="seg2 noprint">${[['rekap','🧁 Rekap Produksi'],['hasil','🧮 Hasil Produksi']].map(([k,l])=>`<button class="${view===k?'on':''}" onclick="S.owner.prodView='${k}';render()">${l}</button>`).join('')}</div>
+    <div class="chips noprint" style="margin-top:10px">${dates.map(d=>`<button class="${day===d?'on':''}" onclick="S.owner.prodDate='${d}';render()">📅 ${fd(d)}</button>`).join('')}</div>
     <div class="row between" style="margin-top:12px"><b>Ready ${fd(day)}</b><span class="muted">${os.length} order · <b style="color:var(--ink)">${pcs} pcs</b></span></div>
-    <div class="muted" style="font-size:12px">Batch: ${pos.map(p=>esc(p.name)).join(', ')}</div>
-    ${Object.keys(g).length?Object.keys(g).sort().map(prod=>{const vs=g[prod],tot=Object.values(vs).reduce((s,v)=>s+v.q,0);
+    <div class="muted" style="font-size:12px">Batch: ${pos.map(p=>esc(p.name)).join(', ')}</div>`;
+  const prods=Object.keys(g).sort();
+  if(view==='rekap'){
+    const shown=prods.filter(p=>Object.values(g[p]).some(v=>v.q>0));
+    h+=`<p class="muted noprint" style="margin:8px 0 0">Semua varian dari semua batch di tanggal ini dijumlahkan otomatis.</p>
+    ${shown.length?shown.map(prod=>{const vs=g[prod],tot=Object.values(vs).reduce((s,v)=>s+v.q,0);
       return `<div class="prodgrp"><div class="hd"><b>${esc(prod)}</b><span class="tot">${tot}</span></div>
-      ${Object.keys(vs).sort().map(vn=>{const v=vs[vn],key=day+'|'+prod+'|'+vn,d=done[key];
+      ${Object.keys(vs).filter(vn=>vs[vn].q>0).sort().map(vn=>{const v=vs[vn],key=day+'|'+prod+'|'+vn,d=done[key];
         return `<div class="vr ${d?'done':''}"><div class="chk" onclick="prodToggle(${esc(JSON.stringify(key))})">${d?'✓':''}</div>
           <div class="nm">${esc(vn)}<div class="src">dari ${v.n} order</div></div><div class="q">${v.q}</div></div>`}).join('')}</div>`}).join('')
     :`<div class="empty">Belum ada pesanan untuk tanggal ini.</div>`}
-    <p class="muted noprint" style="margin-top:10px">✓ Centang kalau varian itu sudah selesai dibuat. Centangan tersimpan di HP/laptop ini saja.</p>
-  </div>`;
+    <p class="muted noprint" style="margin-top:10px">✓ Centang kalau varian itu sudah selesai dibuat. Centangan tersimpan di HP/laptop ini saja.</p></div>`;
+    return h;
+  }
+  // ===== Hasil Produksi
+  const H=lsGet('gy_hasil');let T={made:0,q:0,sisa:0,val:0,kurang:0};const sisaList=[];
+  const body=prods.map(prod=>{const vs=g[prod],u=unitOf(prod);
+    const rows=Object.keys(vs).sort().map(vn=>{const v=vs[vn],key=day+'|'+prod+'|'+vn,roll=Math.ceil(v.q/u),def=roll*u;
+      const made=key in H?H[key]:def,sisa=made-v.q,isDef=!(key in H);
+      T.made+=made;T.q+=v.q;if(sisa>0){T.sisa+=sisa;T.val+=sisa*v.price;sisaList.push([prod,vn,sisa,v.price]);}if(sisa<0)T.kurang+=-sisa;
+      return `<div class="hr"><div class="hrn"><b>${esc(vn)}</b><div class="muted">Pesanan <b style="color:var(--ink)">${v.q}</b> slice · butuh ${roll} roll${v.price?' · '+rp(v.price)+'/slice':''}</div></div>
+        <div class="hri"><div class="stp"><button onclick="stepHasil(${esc(JSON.stringify(key))},${def},-1)">−</button>
+          <input type="number" min="0" inputmode="numeric" value="${made}" class="${isDef?'def':''}" onchange="setHasil(${esc(JSON.stringify(key))},this.value)">
+          <button onclick="stepHasil(${esc(JSON.stringify(key))},${def},1)">+</button></div>
+          <div class="sisa ${sisa>0?'pos':sisa<0?'neg':''}">${sisa>0?'Sisa '+sisa:sisa<0?'Kurang '+(-sisa):'Pas'}</div></div></div>`;}).join('');
+    return `<div class="prodgrp"><div class="hd"><b>${esc(prod)}</b><span class="unit">1 roll = <input type="number" min="1" value="${u}" onchange="setUnit(${esc(JSON.stringify(prod))},this.value)"> slice</span></div>${rows}</div>`;}).join('');
+  const txt=['Ready stock GegaresanYuuk 🍰 ('+fd(day)+')',''].concat(sisaList.map(([p,vn,n,pr])=>'- '+p+' '+vn+': '+n+' slice'+(pr?' ('+rp(pr)+')':''))).concat(['','Yuk order sebelum kehabisan! 🤎']).join(String.fromCharCode(10));
+  h+=`<div class="kpi" style="margin-top:12px">
+      <div><small>Diproduksi</small><b>${T.made}</b><em>slice</em></div>
+      <div><small>Terpesan</small><b>${T.q}</b><em>slice</em></div>
+      <div class="g"><small>Sisa bisa dijual</small><b>${T.sisa}</b><em>${T.val?'± '+rp(T.val):'slice'}</em></div>
+      <div class="${T.kurang?'r':''}"><small>Kurang</small><b>${T.kurang}</b><em>${T.kurang?'slice, tambah produksi':'aman'}</em></div>
+    </div>
+    <p class="muted noprint" style="margin:10px 0 0">Angka produksi otomatis diisi <b>jumlah roll × isi per roll</b>. Ubah kalau hasil aslinya beda (misal ada yang gagal / dipotong lebih).</p>
+    ${body||`<div class="empty">Belum ada varian di tanggal ini.</div>`}
+    ${sisaList.length?`<div class="sisabox noprint"><div class="row between"><b>🛍 Sisa siap dijual lagi</b><button class="btn sm" onclick="copySisa()">📋 Salin teks</button></div>
+      <textarea id="sisaText" rows="${Math.min(12,sisaList.length*2+4)}" readonly>${esc(txt)}</textarea>
+      <div class="muted" style="font-size:12px">Tempel di status WA / grup buat jual sisanya.</div></div>`:''}
+    <p class="muted noprint" style="margin-top:10px">Angka hasil produksi tersimpan di HP/laptop ini saja.</p></div>`;
+  return h;
 }
 
 /* ---------- 💰 Pembayaran ---------- */
