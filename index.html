@@ -144,6 +144,39 @@ tfoot td{font-weight:700;background:#f1e8dc}
 .sisabox{margin-top:14px;background:var(--brand-soft);border-radius:14px;padding:12px}.sisabox textarea{width:100%;margin:8px 0 4px;font-size:13px;background:#fff}
 .vu{display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11.5px;color:var(--muted)}.vu button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:2px 9px;font-size:11.5px;cursor:pointer;color:var(--ink)}.vu button.on{background:var(--brand);border-color:var(--brand);color:#fff}
 .vr .q small{font-size:12px;font-weight:600;color:var(--muted)}
+.bpadd{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.bplead{border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 11px;font-size:12.5px;cursor:pointer}.bplead.on{background:var(--brand);color:#fff;border-color:var(--brand);font-weight:600}
+.bptag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:999px;vertical-align:1px}
+.bptag.po{background:#e6ecf3;color:#3d5a7a}.bptag.ls{background:var(--warn-soft);color:#8a6a3a}.bptag.st{background:#e6ecdc;color:var(--ok)}.bptag.red{background:#f6e0db;color:var(--red)}
+.bpdays{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-top:4px;padding-bottom:2px}
+.bpdays button{flex-shrink:0;border:1px solid var(--line);background:#fff;border-radius:14px;padding:6px 10px;font-size:12.5px;cursor:pointer;text-align:center;line-height:1.25;min-width:46px}
+.bpdays button b{display:block;font-size:15px}.bpdays button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.bpdays .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brand-2)}.bpdays button.on .dot{background:#fff}
+.bpc{background:#fff;border:1px solid var(--line);border-radius:16px;margin-bottom:10px;overflow:hidden}
+.bphd{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;user-select:none}
+.bpic{width:40px;height:40px;border-radius:12px;background:var(--brand-soft);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.bpnm{flex:1;min-width:0}.bpnm b{display:block;font-size:15.5px}
+.bpbake{text-align:right;white-space:nowrap}.bpbake b{display:block;font-family:"Playfair Display",serif;font-size:21px;color:var(--brand);line-height:1.1}.bpbake small{font-size:12px;color:var(--muted)}
+.bpchk{width:26px;height:26px;border:2px solid var(--brand-2);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0;cursor:pointer}
+.bpc.done{opacity:.6}.bpc.done .bpchk{background:var(--ok);border-color:var(--ok)}.bpc.done .bpnm b{text-decoration:line-through}
+.bpsrc{border-top:1px dashed var(--line);padding:6px 14px 10px;background:#fffdfa}
+.bps{display:flex;gap:8px;align-items:center;padding:6px 0;font-size:13.5px;border-bottom:1px dashed #f0e6d8}.bps:last-child{border-bottom:0}
+.bps .t{font-weight:700;min-width:44px;color:var(--brand)}.bps .w{flex:1;min-width:0}.bps .q{font-weight:700;white-space:nowrap}.bpdel{color:var(--red);text-decoration:none;padding:0 2px}
+.bpsisa{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:#e6ecdc;color:var(--ok);margin-top:2px}
+.bpask{background:var(--warn-soft);border-radius:8px;padding:3px 8px;font-size:12px;color:#8a6a3a;margin-top:4px;display:inline-block}
+.bptl{position:relative;padding-left:18px}.bptl:before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.bptli{position:relative;padding:6px 0 10px}.bptli:before{content:"";position:absolute;left:-17px;top:11px;width:10px;height:10px;border-radius:50%;background:var(--brand-2);border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
+.bptli .h{font-weight:700;color:var(--brand)}
+.bpday{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px;cursor:pointer}.bpday.today{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand)}
+.bppills{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.bppill{display:inline-block;background:var(--brand-soft);border-radius:999px;padding:3px 9px;font-size:12px}.bppill b{color:var(--brand)}
+.bptot{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px}.bptot:last-of-type{border-bottom:0}.bptot b{font-family:"Playfair Display",serif;font-size:18px;color:var(--brand)}
+.bpshop{background:var(--brand-soft);border-radius:14px;padding:12px;margin-top:10px}
+.bpmodal{position:fixed;inset:0;background:rgba(40,20,10,.45);display:flex;align-items:flex-end;justify-content:center;z-index:50}
+.bpsheet{background:var(--card,#fffdf9);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:18px 16px 24px}
+@media(min-width:640px){.bpmodal{align-items:center}.bpsheet{border-radius:22px}}
+.bppaste{background:#e6ecf3;border-radius:14px;padding:10px 12px;margin-top:8px}
+.bpg3{display:grid;grid-template-columns:2fr 2fr 1fr;gap:6px}
+.bpitl{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 10px;margin-top:6px;font-size:14px}
 .kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
 @media(min-width:640px){.kpi{grid-template-columns:repeat(4,1fr)}}
 .kpi.k3{grid-template-columns:repeat(3,1fr)}
@@ -595,11 +628,12 @@ function renderOwner(){
   const o=S.owner;
   if(!o.authed) return `<div class="card" style="max-width:380px;margin:0 auto"><h2 style="font-size:20px">Masuk Owner</h2><p class="muted">Masukkan PIN owner.</p>
     <input type="password" id="pin" placeholder="PIN" onkeydown="if(event.key==='Enter')login()"><div style="margin-top:10px"><button class="btn" onclick="login()">Masuk</button></div></div>`;
-  const tabs=[['dash','📊 Ringkasan'],['rekap','🧾 Pesanan'],['pay','💰 Bayar'],['prod','🧁 Produksi'],['po','📦 Kelola PO'],['exp','⬇ Ekspor'],['produk','⚙️ Pengaturan']];
+  const tabs=[['dash','📊 Ringkasan'],['rekap','🧾 Pesanan'],['bake','📋 Baking Plan'],['pay','💰 Bayar'],['prod','🧁 Produksi'],['po','📦 Kelola PO'],['exp','⬇ Ekspor'],['produk','⚙️ Pengaturan']];
   let h=`<div class="row between noprint" style="margin-bottom:12px;flex-wrap:nowrap"><div class="tabs otabs" style="margin:0">${tabs.map(([k,l])=>`<button class="${o.tab===k?'on':''}" onclick="oTab('${k}')">${l}</button>`).join('')}</div>
     <button class="btn sm ghost" style="flex-shrink:0" onclick="ownerCall('ownerGetAll')" title="Muat ulang">↻</button></div>`;
   h+=notifBanner();
   if(o.tab==='ringkasan'||o.tab==='dash')h+=oDash();
+  if(o.tab==='bake')h+=oBake();
   if(o.tab==='prod')h+=oProd();
   if(o.tab==='pay')h+=oPay();
   if(o.tab==='exp')h+=oExp();
@@ -685,6 +719,210 @@ function notifBanner(){
     ${L.length>6?`<div class="muted" style="margin-top:6px">+${L.length-6} lainnya</div>`:''}
   </div>`;
 }
+/* =========================================================
+   📋 BAKING PLAN — pesanan PO (asli) + pesanan langsung & ready stock
+   Pesanan langsung/ready stock sementara tersimpan di HP/laptop ini (gy_bp_local).
+   ========================================================= */
+// unit produksi (yang benar-benar dipanggang)
+const BP_U={
+  mac:{n:'Macaroni Schotel',ic:'🧀',u:'resep',cap:'16 small / 8 medium / 1 party pack'}, spg:{n:'Spaghetti Brulee',ic:'🍝',u:'resep',cap:'8 medium / 1 party pack'},
+  br2020:{n:'Brownies 20x20',ic:'🍫',u:'loyang',egg:2}, br2010:{n:'Brownies 20x10',ic:'🍫',u:'loyang',egg:1},
+  br1510:{n:'Brownies 15x10',ic:'🍫',u:'loyang'}, br1010:{n:'Brownies 10x10',ic:'🍫',u:'loyang'},
+  bncup:{n:'Banana Cake cup',ic:'🍌',u:'cup'}, bn1510:{n:'Banana Cake 15x10',ic:'🍌',u:'loyang'}, bn2010:{n:'Banana Cake 20x10',ic:'🍌',u:'loyang'},
+  baby:{n:'Baby Burnt Cheesecake',ic:'🍮',u:'pcs'}, cc10:{n:'Cheesecake d10',ic:'🍰',u:'pcs'}, cc15:{n:'Cheesecake d15',ic:'🍰',u:'pcs'},
+  cc20:{n:'Cheesecake d20',ic:'🍰',u:'round',sl:8}, bcc:{n:'Brownies Cheesecake',ic:'🍰',u:'loaf',sl:8},
+  dcl:{n:'Dark Choco Layer',ic:'🍫',u:'loaf',sl:8},
+  ck:{n:'Soft Cookies',ic:'🍪',u:'adonan',per:20,flav:1},
+  ch:{n:'Chiffon Roll',ic:'🍥',u:'roll',sl:10,flav:1},
+  bday:{n:'Birthday Cheesecake',ic:'🎂',u:'pcs'},
+};
+// menu jual: produk → ukuran [nama, harga, unit produksi, berapa unit per 1 qty]
+const BP_MENU=[
+ {cat:'Savory',p:'Macaroni Schotel',s:[['Small',10000,'mac',1/16],['Medium',22000,'mac',1/8],['Party Pack',145000,'mac',1]]},
+ {cat:'Savory',p:'Spaghetti Brulee',s:[['Medium',25000,'spg',1/8],['Party Pack',160000,'spg',1]]},
+ {cat:'Sweet',p:'Brownies',s:[['10x10cm',35000,'br1010',1],['15x10cm',50000,'br1510',1],['20x10cm',65000,'br2010',1],['20x20cm',125000,'br2020',1]]},
+ {cat:'Sweet',p:'Banana Cake',s:[['Cup isi 5',25000,'bncup',5],['15x10cm',45000,'bn1510',1],['20x10cm',60000,'bn2010',1]]},
+ {cat:'Sweet',p:'Cheesecake',s:[['Baby burnt isi 4',42000,'baby',4],['Diameter 10cm',58000,'cc10',1],['Diameter 15cm',165000,'cc15',1],['Diameter 20cm',300000,'cc20',1],['Slice d20',38000,'cc20',1/8],['Brownies cheesecake 22x10',200000,'bcc',1],['Slice brownies cheesecake',26000,'bcc',1/8],['Birthday cheesecake',0,'bday',1]]},
+ {cat:'Sweet',p:'Soft Cookies',f:['Original','Matcha','Cookie Monster','Double Choco'],fp:{Original:12000,Matcha:16000,'Cookie Monster':16000,'Double Choco':18000},s:[['pcs',0,'ck',1]]},
+ {cat:'Sweet',p:'Dark Choco Layer',s:[['Loaf 22x10',220000,'dcl',1],['Slice',28000,'dcl',1/8]]},
+ {cat:'Sweet',p:'Chiffon Roll',f:['Double Cheese','Mocca','Pandan Srikaya','Pandan Kelapa'],s:[['Whole roll',150000,'ch',1],['Slice',15000,'ch',1/10]]},
+];
+const bpLocal=()=>{try{const a=JSON.parse(localStorage.getItem('gy_bp_local')||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}};
+const bpLocalSet=a=>{try{localStorage.setItem('gy_bp_local',JSON.stringify(a));}catch(e){toast('Gagal menyimpan di HP ini');}};
+const bpLead=()=>{const v=+(lsGet('gy_bp')).lead;return v===0||v===2?v:1;};
+function bpSetLead(n){const o=lsGet('gy_bp');o.lead=n;lsSet('gy_bp',o);render();}
+function bpAdd(s,n){const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+const bpFdl=s=>new Date(s+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'});
+const bpFds=s=>new Date(s+'T00:00:00').toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'});
+const bpTag=src=>src==='po'?'<span class="bptag po">PO</span>':src==='ls'?'<span class="bptag ls">Langsung</span>':'<span class="bptag st">Stok</span>';
+
+// item PO (nama produk + varian dari sistem) → unit produksi
+function bpMapPO(prod,variant){
+  const P=String(prod||''),V=String(variant||''),pv=(P+' '+V).toLowerCase();
+  if(/chiffon/i.test(P)){const roll=vUnitOf(P,V)==='roll',u=unitOf(P);
+    const flav=V.replace(/\(?\s*(1\s*)?(whole\s*)?roll(\s*utuh)?\s*\)?/ig,' ').replace(/\b(whole|utuh|slice)\b/ig,' ').replace(/\s+/g,' ').trim()||V;
+    return {unit:'ch',flav,per:roll?1:1/u};}
+  const sz=re=>re.test(pv);
+  if(/macaroni|spaghetti/i.test(P)){const k=/spaghetti/i.test(P)?'spg':'mac';
+    if(sz(/small|kecil/))return {unit:k,per:1/16};if(sz(/medium|sedang/))return {unit:k,per:1/8};if(sz(/party/))return {unit:k,per:1};}
+  if(/dark\s*choco/i.test(P))return {unit:'dcl',per:sz(/slice/)?1/8:1};
+  return {unit:'g|'+P+'|'+V,per:1,gen:{n:P+(V?' · '+V:''),ic:'🧁',u:'pcs'}};
+}
+// semua "baris kebutuhan" dari PO + lokal: {o, date(ambil), unit, flav, need, label, q}
+function bpRows(){
+  const out=[];
+  (DB.orders||[]).forEach(o=>{const po=API.po(o.poId);if(!po)return;
+    const O={src:'po',id:o.id,nama:o.nama,date:po.readyDate,jam:o.jam||'',to:o.metode==='kantor'?'🏢 '+o.pt+' · '+o.divisi:'🚚 '+API.shipLabel(o).replace('Kirim/Antar · ',''),paid:isLunas(o),note:o.catatan||'',items:[]};
+    Object.entries(o.items||{}).forEach(([iid,q])=>{const it=po.items.find(x=>x.id===iid);if(!it)return;
+      const prod=API.product(it.productId)?.name||'?',m=bpMapPO(prod,it.variant);O.items.push(prod+' '+it.variant+' ×'+q);
+      out.push({o:O,unit:m.unit,flav:m.flav||'',need:q*m.per,gen:m.gen,label:prod+' '+it.variant,q});});});
+  bpLocal().forEach(L=>{const O=Object.assign({},L,{items:L.items.map(([p,s,f,q])=>p+' '+s+(f?' '+f:'')+' ×'+q)});
+    L.items.forEach(([p,s,f,q])=>{const m=BP_MENU.find(x=>x.p===p),z=m&&m.s.find(x=>x[0]===s);if(!z)return;
+      out.push({o:O,unit:z[2],flav:BP_U[z[2]].flav?f:'',need:q*(z[2]==='ch'&&z[3]<1?1/bpChU():z[3]),label:p+' '+s+(f?' '+f:''),q});});});
+  return out;
+}
+const bpChU=()=>unitOf(((DB.products||[]).find(p=>/chiffon/i.test(p.name))||{name:'Chiffon Roll'}).name);
+const bpBakeDate=o=>o.src==='st'?o.date:bpAdd(o.date,-bpLead());
+function bpPlan(rows){
+  const g={};
+  rows.forEach(r=>{const key=r.unit+(r.flav?'|'+r.flav:'');const x=g[key]=g[key]||{key,unit:r.unit,flav:r.flav,d:r.gen||BP_U[r.unit],need:0,src:[]};x.need+=r.need;x.src.push(r);});
+  return Object.values(g).map(r=>{const d=r.d;let bake,extra='',sisa='';
+    if(d.sl){const sl=r.unit==='ch'?bpChU():d.sl;
+      bake=Math.ceil(r.need-1e-9);const left=Math.round((bake-r.need)*sl);extra=Math.round(r.need*sl)+' slice dibutuhkan';if(left>0)sisa=left+' slice sisa → ready stock';}
+    else if(d.per){bake=Math.ceil(r.need/d.per-1e-9);const left=Math.round(bake*d.per-r.need);extra=Math.round(r.need)+' pcs';if(left>0)sisa=left+' pcs sisa';}
+    else if(d.u==='resep'){bake=Math.ceil(r.need-1e-9);extra=Math.round(r.need*100)+'% kapasitas';const left=bake-r.need;
+      if(left>1e-9)sisa='sisa adonan ≈ '+Math.floor(left*16+1e-9)+' small / '+Math.floor(left*8+1e-9)+' medium';}
+    else bake=Math.round(r.need*100)/100;
+    const first=r.src.map(x=>(x.o.src==='st'?'':x.o.date+' ')+(x.o.jam||'99:99')).sort()[0]||'';
+    return Object.assign(r,{bake,extra,sisa,first,name:d.n+(r.flav?' · '+r.flav:'')});
+  }).sort((a,b)=>a.first.localeCompare(b.first)||a.name.localeCompare(b.name));
+}
+function bpCard(r,day){
+  const done=lsGet('gy_bp_done'),k=day+'|'+r.key,dn=done[k],op=(S.owner.bpOpen||{})[k];
+  const egg=r.d.egg?` · 🥚 ${r.d.egg*r.bake} telur`:'',jam=(r.first.split(' ')[1]||'');
+  return `<div class="bpc ${dn?'done':''}">
+    <div class="bphd" onclick="bpTog(${esc(JSON.stringify(k))})">
+      <div class="bpchk" onclick="event.stopPropagation();bpDone(${esc(JSON.stringify(k))})">${dn?'✓':''}</div>
+      <div class="bpic">${r.d.ic}</div>
+      <div class="bpnm"><b>${esc(r.name)}</b><span class="muted">${r.extra?esc(r.extra)+' · ':''}${r.src.length} pesanan${egg}${jam&&jam!=='99:99'?' · mulai '+jam:''}</span>
+        ${r.sisa?`<div><span class="bpsisa">${esc(r.sisa)}</span></div>`:''}${r.gen?`<div class="bpask">Ukuran belum dikenali, dihitung 1 = 1</div>`:''}</div>
+      <div class="bpbake"><b>${r.bake}</b><small>${r.d.u}</small></div>
+    </div>
+    ${op?`<div class="bpsrc">${r.src.map(x=>`<div class="bps"><span class="t">${x.o.jam||'—'}</span><span class="w">${esc(x.o.nama)} ${bpTag(x.o.src)}<div class="muted">${esc(x.label)}${x.o.src==='st'?'':' · ambil '+bpFds(x.o.date)}${x.o.note?' · 📝 '+esc(x.o.note):''}</div></span><span class="q">×${x.q}</span>${x.o.src!=='po'?`<a href="#" class="bpdel" onclick="bpDel(${esc(JSON.stringify(x.o.id))});return false">✕</a>`:''}</div>`).join('')}</div>`:''}
+  </div>`;
+}
+function bpTog(k){const o=S.owner.bpOpen=S.owner.bpOpen||{};o[k]=!o[k];render();}
+function bpDone(k){const d=lsGet('gy_bp_done');d[k]=!d[k];lsSet('gy_bp_done',d);render();}
+function bpDel(id){const a=bpLocal(),x=a.find(y=>y.id===id);if(!x)return;if(!confirm('Hapus '+(x.src==='st'?'rencana ready stock':'pesanan '+x.nama)+'?'))return;bpLocalSet(a.filter(y=>y.id!==id));render();}
+
+function oBake(){
+  const today=DB.today,lead=bpLead(),view=S.owner.bpView||'hari';
+  if(!S.owner.bpDay||S.owner.bpDay<today)S.owner.bpDay=today;
+  const rows=bpRows();
+  let h=`<div class="card"><div class="row between"><h2 style="font-size:20px">Baking Plan</h2><span class="muted">${bpFds(today)}</span></div>
+    <div class="bpadd"><button class="btn" onclick="bpOpen('ls')">＋ Pesanan langsung</button><button class="btn ghost" onclick="bpOpen('st')">＋ Ready stock</button></div>
+    <div class="seg2">${[['hari','📅 Harian'],['minggu','🗓 7 hari'],['2minggu','🧺 14 hari']].map(([k,l])=>`<button class="${view===k?'on':''}" onclick="S.owner.bpView='${k}';render()">${l}</button>`).join('')}</div>
+    <div class="row" style="margin-top:10px;font-size:13px;gap:6px"><span class="muted">🔥 Panggang pesanan:</span>${[0,1,2].map(n=>`<button class="bplead ${lead===n?'on':''}" onclick="bpSetLead(${n})">${n===0?'Hari H':'H-'+n}</button>`).join('')}</div>
+    <div class="row" style="gap:10px;margin-top:8px;font-size:12px">${bpTag('po')} sistem PO ${bpTag('ls')} pesanan WA ${bpTag('st')} bikin buat dijual</div></div>`;
+  if(view==='hari'){
+    const days=[...Array(14)].map((_,i)=>bpAdd(today,i)),day=S.owner.bpDay;
+    const R=rows.filter(r=>bpBakeDate(r.o)===day),P=bpPlan(R);
+    const ords={};R.forEach(r=>ords[r.o.src+r.o.id]=r.o);const OS=Object.values(ords);
+    h+=`<div class="bpdays">${days.map(d=>{const has=rows.some(r=>bpBakeDate(r.o)===d);const dt=new Date(d+'T00:00:00');
+      return `<button class="${day===d?'on':''}" onclick="S.owner.bpDay='${d}';render()">${dt.toLocaleDateString('id-ID',{weekday:'short'})}<b>${dt.getDate()}</b>${has?'<span class="dot"></span>':'&nbsp;'}</button>`}).join('')}</div>
+    <div style="margin:14px 2px 8px"><h3 style="font-size:18px">🔥 Panggang ${day===today?'hari ini · ':''}${bpFdl(day)}</h3>
+      <div class="muted">untuk diambil/dikirim <b style="color:var(--ink)">${bpFdl(bpAdd(day,lead))}</b>${lead===1?' (besoknya)':''}</div>
+      <div class="muted">${OS.filter(o=>o.src!=='st').length} pesanan${OS.some(o=>o.src==='st')?' · '+OS.filter(o=>o.src==='st').length+' ready stock':''} · ${P.length} item dipanggang</div></div>`;
+    if(!P.length)return h+`<div class="card empty">Belum ada yang perlu dipanggang di tanggal ini 🎉</div>`;
+    h+=`<div class="muted" style="margin:0 2px 8px">Urut dari jam/tanggal ambil paling awal · ketuk kartu untuk lihat pesanan</div>`+P.map(r=>bpCard(r,day)).join('');
+    const tl=OS.filter(o=>o.src!=='st').sort((a,b)=>(a.date+(a.jam||'99')).localeCompare(b.date+(b.jam||'99')));
+    if(tl.length)h+=`<div class="card"><h3 style="font-size:17px">🕑 Urutan ambil / kirim</h3><div class="muted">${bpFdl(bpAdd(day,lead))} · buat packing</div><div class="bptl" style="margin-top:8px">${tl.map(o=>`<div class="bptli"><span class="h">${o.jam||'—'}</span> · <b>${esc(o.nama)}</b> ${bpTag(o.src)} ${o.paid?'<span class="bptag st">Lunas</span>':'<span class="bptag red">Belum bayar</span>'}
+      <div class="muted">${esc(o.to||'')} · ${esc(o.items.join(', '))}</div></div>`).join('')}</div></div>`;
+    return h;
+  }
+  const n=view==='minggu'?7:14,days=[...Array(n)].map((_,i)=>bpAdd(today,i));
+  const tot={};let nOrd=new Set(),nDay=new Set();
+  days.forEach(d=>{const R=rows.filter(r=>bpBakeDate(r.o)===d);if(R.length)nDay.add(d);R.forEach(r=>{if(r.o.src!=='st')nOrd.add(r.o.src+r.o.id);});
+    bpPlan(R).forEach(r=>{const t=tot[r.key]=tot[r.key]||{r,bake:0};t.bake+=r.bake;});});
+  const L=Object.values(tot).sort((a,b)=>a.r.name.localeCompare(b.r.name));
+  h+=`<div class="kpi k3"><div><small>Pesanan</small><b>${nOrd.size}</b></div><div><small>Hari panggang</small><b>${nDay.size}</b></div><div><small>Item dipanggang</small><b>${Math.round(L.reduce((s,t)=>s+t.bake,0))}</b></div></div>`;
+  if(n===7)h+=`<h3 style="font-size:17px;margin:16px 2px 8px">Per hari panggang</h3>`+days.map(d=>{const P2=bpPlan(rows.filter(r=>bpBakeDate(r.o)===d));
+    return `<div class="bpday ${d===today?'today':''}" onclick="S.owner.bpView='hari';S.owner.bpDay='${d}';render()"><div class="row between"><b>${bpFds(d)}${d===today?' · hari ini':''}</b><span class="muted">${P2.length?P2.length+' item ›':'kosong'}</span></div>
+      ${P2.length?`<div class="bppills">${P2.map(r=>`<span class="bppill">${r.d.ic} ${esc(r.name)} <b>${r.bake} ${r.d.u}</b></span>`).join('')}</div>`:''}</div>`}).join('');
+  const eggs=L.reduce((s,t)=>s+(t.r.d.egg||0)*t.bake,0);
+  const txt=['Total produksi '+bpFds(days[0])+' – '+bpFds(days[n-1]),''].concat(L.map(t=>'- '+t.r.name+': '+t.bake+' '+t.r.d.u)).join(String.fromCharCode(10));
+  h+=`<div class="card" style="margin-top:12px"><div class="row between"><h3 style="font-size:17px">🧺 Total ${n} hari</h3><span class="muted">${bpFds(days[0])} – ${bpFds(days[n-1])}</span></div>
+    ${L.length?L.map(t=>`<div class="bptot"><span>${t.r.d.ic} ${esc(t.r.name)}</span><span><b>${t.bake}</b> ${t.r.d.u}</span></div>`).join(''):`<div class="empty">Belum ada rencana di rentang ini.</div>`}
+    ${L.length?`<div class="bpshop"><b>🛒 Persiapan belanja</b><div class="muted" style="margin-top:4px">${eggs?'🥚 Telur besar untuk brownies: <b style="color:var(--ink)">'+eggs+' butir</b><br>':''}Daftar belanja lengkap muncul setelah resep diisi (tahap berikutnya).</div>
+      <textarea id="bpTotText" rows="3" readonly style="display:none">${esc(txt)}</textarea><button class="btn sm ghost" style="margin-top:8px" onclick="bpCopy()">📋 Salin daftar</button></div>`:''}</div>`;
+  return h;
+}
+function bpCopy(){const t=document.getElementById('bpTotText').value;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('📋 Daftar disalin'),()=>toast('Gagal menyalin'));}
+
+/* ---- form pesanan langsung / ready stock ---- */
+let BPF=null;
+function bpOpen(src){const day=S.owner.bpDay||DB.today;BPF={src,nama:'',wa:'',date:src==='st'?day:bpAdd(day,bpLead()),jam:'',to:'',items:[],paid:false,note:'',pick:{p:'',s:'',f:'',q:1},paste:''};bpModal();}
+function bpClose(){BPF=null;const m=document.getElementById('bpmodal');if(m)m.remove();}
+function bpPrice(p,s,f){const m=BP_MENU.find(x=>x.p===p);if(!m)return 0;if(m.fp)return m.fp[f]||0;const z=m.s.find(x=>x[0]===s);return z?z[1]:0;}
+function bpModal(){
+  if(!BPF)return;let el=document.getElementById('bpmodal');if(!el){el=document.createElement('div');el.id='bpmodal';document.body.appendChild(el);}
+  const F=BPF,m=BP_MENU.find(x=>x.p===F.pick.p),isSt=F.src==='st',lead=bpLead();
+  const sizeSel=`<select onchange="BPF.pick.s=this.value" ${m?'':'disabled'}><option value="">Ukuran…</option>${m?m.s.map(x=>`<option ${F.pick.s===x[0]?'selected':''} value="${esc(x[0])}">${esc(x[0])}${x[1]?' · '+rp(x[1]):''}</option>`).join(''):''}</select>`;
+  el.innerHTML=`<div class="bpmodal" onclick="if(event.target===this)bpClose()"><div class="bpsheet">
+    <div class="row between"><h2 style="font-size:20px">${isSt?'＋ Rencana ready stock':'＋ Pesanan langsung'}</h2><button class="btn sm ghost" onclick="bpClose()">✕</button></div>
+    ${isSt?`<p class="muted" style="margin:4px 0 0">Untuk produk yang dibikin dulu baru dijual. Ikut masuk baking plan di tanggal produksinya.</p>`:`
+    <div class="bppaste"><b style="font-size:13.5px">💬 Tempel chat WA customer</b><div class="muted">Nama, produk, jumlah, hari & jam dicoba diisi otomatis. Tetap dicek ya.</div>
+      <textarea rows="3" style="margin-top:6px" placeholder="cth: Halo kak, aku Dina mau pesen dark choco 1 loaf sama brownies 20x20 1 buat kamis jam 4 sore" oninput="BPF.paste=this.value">${esc(F.paste)}</textarea>
+      <button class="btn sm" style="margin-top:6px" onclick="bpParse()">✨ Isi otomatis</button></div>
+    <div class="grid2"><div><label>Nama</label><input value="${esc(F.nama)}" oninput="BPF.nama=this.value"></div><div><label>No. WA</label><input value="${esc(F.wa)}" oninput="BPF.wa=this.value" inputmode="tel" placeholder="08…"></div></div>`}
+    <div class="grid2"><div><label>${isSt?'Tanggal produksi':'Tanggal ambil/kirim'}</label><input type="date" value="${F.date}" onchange="BPF.date=this.value;bpModal()">
+      ${isSt?'':`<div class="muted" style="font-size:12px;margin-top:3px">🔥 Dipanggang ${bpFds(bpAdd(F.date,-lead))} (${lead===0?'hari H':'H-'+lead})</div>`}</div>
+      ${isSt?'<div></div>':`<div><label>Jam</label><input type="time" value="${F.jam}" onchange="BPF.jam=this.value"></div>`}</div>
+    ${isSt?'':`<label>Kirim ke</label><select onchange="BPF.to=this.value"><option value="">— pilih —</option>${PT_LIST.map(p=>'🏢 '+p).concat(['🚚 Antar sendiri','🛵 GoSend','🏠 Ambil sendiri']).map(x=>`<option ${F.to===x?'selected':''}>${x}</option>`).join('')}</select>`}
+    <label>Produk</label>
+    <div class="bpg3"><select onchange="BPF.pick={p:this.value,s:'',f:'',q:1};bpModal()"><option value="">Produk…</option>${['Savory','Sweet'].map(c=>`<optgroup label="${c} treats">${BP_MENU.filter(x=>x.cat===c).map(x=>`<option ${F.pick.p===x.p?'selected':''}>${x.p}</option>`).join('')}</optgroup>`).join('')}</select>
+      ${m&&m.f?`<select onchange="BPF.pick.f=this.value"><option value="">Rasa…</option>${m.f.map(x=>`<option ${F.pick.f===x?'selected':''}>${x}</option>`).join('')}</select>`:sizeSel}
+      <input type="number" min="1" value="${F.pick.q}" oninput="BPF.pick.q=+this.value"></div>
+    ${m&&m.f&&m.s.length>1?`<div style="margin-top:6px">${sizeSel}</div>`:''}
+    <button class="btn sm ghost" style="margin-top:8px" onclick="bpAddItem()">＋ Tambah item</button>
+    ${F.items.map(([p,s,f,q],i)=>`<div class="bpitl"><span>${esc(p+' '+s+(f?' · '+f:''))} <b>×${q}</b></span><span><b>${rp(bpPrice(p,s,f)*q)}</b> <a href="#" onclick="BPF.items.splice(${i},1);bpModal();return false" style="color:var(--red);margin-left:6px">✕</a></span></div>`).join('')}
+    ${F.items.length&&!isSt?`<div class="row between" style="margin-top:8px"><b>Total</b><b>${rp(F.items.reduce((s,[p,sz,f,q])=>s+bpPrice(p,sz,f)*q,0))}</b></div>`:''}
+    ${isSt?'':`<label>Catatan</label><input value="${esc(F.note)}" oninput="BPF.note=this.value" placeholder="cth: tulisan HBD, tanpa kacang">
+    <label style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" style="width:auto" ${F.paid?'checked':''} onchange="BPF.paid=this.checked"> Sudah dibayar</label>`}
+    <button class="btn" style="width:100%;margin-top:14px" onclick="bpSave()">Simpan ke baking plan</button>
+    <div class="muted" style="font-size:12px;text-align:center;margin-top:6px">Sementara tersimpan di HP/laptop ini.</div>
+  </div></div>`;
+}
+function bpAddItem(){const F=BPF,k=F.pick,m=BP_MENU.find(x=>x.p===k.p);if(!m)return toast('Pilih produk dulu');
+  if(m.f&&!k.f)return toast('Pilih rasa dulu');const s=k.s||(m.s.length===1?m.s[0][0]:'');if(!s)return toast('Pilih ukuran dulu');
+  F.items.push([k.p,s,k.f||'',Math.max(1,Math.floor(k.q)||1)]);F.pick={p:'',s:'',f:'',q:1};bpModal();}
+// pengenal sederhana dari chat WA
+function bpParse(){const F=BPF,raw=F.paste||'',t=raw.toLowerCase();if(!t.trim())return toast('Tempel chat dulu');
+  const nm=raw.match(/\b(?:aku|saya|nama(?:ku)?)\s+([A-Z][a-zA-Z]+)/)||raw.match(/\b(?:aku|saya)\s+([a-z]+)/i);if(nm&&!/mau|pesen|pesan|order/i.test(nm[1]))F.nama=nm[1][0].toUpperCase()+nm[1].slice(1);
+  const wa=raw.match(/(?:\+?62|0)8[\d\s-]{8,13}/);if(wa)F.wa=wa[0].replace(/[\s-]/g,'');
+  const N='(\\d+)';const found=[];
+  const tryAdd=(p,s,f,res)=>{for(const re of res){const mm=t.match(re);if(mm){found.push([p,s,f,+(mm[1]||1)]);return;}}};
+  tryAdd('Dark Choco Layer','Slice','',[new RegExp('dark\\s*choco\\w*[^\\d]{0,12}'+N+'\\s*slice'),new RegExp(N+'\\s*slice\\s*dark\\s*choco')]);
+  tryAdd('Dark Choco Layer','Loaf 22x10','',[new RegExp('dark\\s*choco\\w*[^\\d]{0,12}'+N+'\\s*loaf'),new RegExp(N+'\\s*loaf\\s*dark')]);
+  [['20x20cm','20x20'],['20x10cm','20x10'],['15x10cm','15x10'],['10x10cm','10x10']].forEach(([s,k])=>tryAdd('Brownies',s,'',[new RegExp('brownies\\s*'+k+'\\s*'+N),new RegExp(N+'\\s*brownies\\s*'+k)]));
+  ['Double Cheese','Mocca','Pandan Srikaya','Pandan Kelapa'].forEach(f=>{const k=f.toLowerCase();
+    tryAdd('Chiffon Roll','Whole roll',f,[new RegExp(k+'[^\\d]{0,10}'+N+'\\s*roll'),new RegExp(N+'\\s*roll\\s*(?:chiffon\\s*)?'+k)]);
+    tryAdd('Chiffon Roll','Slice',f,[new RegExp(k+'[^\\d]{0,10}'+N+'\\s*slice'),new RegExp(N+'\\s*slice\\s*(?:chiffon\\s*)?'+k)]);});
+  ['Original','Matcha','Cookie Monster','Double Choco'].forEach(f=>{const k=f.toLowerCase();tryAdd('Soft Cookies','pcs',f,[new RegExp('cookies?\\s*'+k+'\\s*'+N),new RegExp(N+'\\s*(?:pcs\\s*)?(?:soft\\s*)?cookies?\\s*'+k)]);});
+  [['Small','small|kecil'],['Medium','medium|sedang'],['Party Pack','party\\s*pack|party']].forEach(([s,k])=>{
+    tryAdd('Macaroni Schotel',s,'',[new RegExp('macaroni\\w*\\s*(?:'+k+')\\s*'+N),new RegExp(N+'\\s*(?:'+k+')\\s*macaroni'),new RegExp('makaroni\\w*\\s*(?:'+k+')\\s*'+N)]);
+    tryAdd('Spaghetti Brulee',s,'',[new RegExp('spag\\w*\\s*(?:brulee\\s*)?(?:'+k+')\\s*'+N),new RegExp(N+'\\s*(?:'+k+')\\s*spag')]);});
+  found.forEach(x=>{if(BP_MENU.find(m=>m.p===x[0]).s.some(z=>z[0]===x[1]))F.items.push(x);});
+  const days=['minggu','senin','selasa','rabu','kamis','jumat','sabtu'];const di=days.findIndex(d=>new RegExp('\\b'+d+'\\b').test(t.replace("jum'at",'jumat')));
+  if(di>=0){let d=DB.today;for(let i=1;i<=7;i++){const c=bpAdd(DB.today,i);if(new Date(c+'T00:00:00').getDay()===di){d=c;break;}}F.date=d;}
+  else if(/\bbesok\b/.test(t))F.date=bpAdd(DB.today,1);else if(/\blusa\b/.test(t))F.date=bpAdd(DB.today,2);
+  const j=t.match(/jam\s*(\d{1,2})(?:[.:](\d{2}))?/);if(j){let hh=+j[1];if(/sore|malam/.test(t)&&hh<12)hh+=12;if(/siang/.test(t)&&hh<6)hh+=12;F.jam=String(hh).padStart(2,'0')+':'+(j[2]||'00');}
+  if(/vivere/.test(t))F.to='🏢 VIVERE';else if(/lippo/.test(t))F.to='🏢 Lippo';else if(/gosend|gojek/.test(t))F.to='🛵 GoSend';
+  toast(found.length?'✨ Terisi otomatis, cek lagi ya':'Produk belum kebaca, pilih manual ya');bpModal();}
+function bpSave(){const F=BPF;if(!F.items.length)return toast('Tambah minimal 1 item');if(F.src==='ls'&&!F.nama.trim())return toast('Nama wajib diisi');if(!F.date)return toast('Tanggal wajib diisi');
+  const a=bpLocal();a.push({id:(F.src==='st'?'S':'L')+'-'+Date.now().toString(36).toUpperCase(),src:F.src,nama:F.src==='st'?'Ready stock':F.nama.trim(),wa:F.wa,date:F.date,jam:F.jam,to:F.to||'',items:F.items,paid:F.paid,note:F.note,createdAt:new Date().toISOString()});
+  bpLocalSet(a);S.owner.bpView='hari';S.owner.bpDay=F.src==='st'?F.date:bpAdd(F.date,-bpLead());if(S.owner.bpDay<DB.today)S.owner.bpDay=DB.today;bpClose();render();toast('✅ Masuk baking plan');}
+
 function oTab(t){S.owner.tab=t;render();const b=document.querySelector('.otabs .on');if(b)b.scrollIntoView({block:'nearest',inline:'center'});}
 
 function oRingkasan(){
