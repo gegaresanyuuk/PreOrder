@@ -211,6 +211,7 @@ tfoot td{font-weight:700;background:#f1e8dc}
 .vr.done .chk{background:var(--ok);border-color:var(--ok)}
 .vr.done .nm,.vr.done .q{color:var(--muted);text-decoration:line-through}
 .pay{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:12px 0 4px;border-top:1px solid var(--line);flex-wrap:wrap}
+.pay>div:first-child{flex:1;min-width:0}
 .pay:first-child{border-top:0}
 .pay .amt{text-align:right;font-weight:700}
 .pay .amt small{display:block;font-weight:400;color:var(--muted);font-size:12px}
@@ -381,7 +382,7 @@ function renderCustomer(){
   return h;
 }
 function cTab(t){S.cust.tab=t;if(t==='pesan'&&S.cust.done)resetCust();render();}
-function resetCust(){Object.assign(S.cust,{step:1,poId:null,qty:{},form:{metode:'kantor'},editingId:null,origQty:null,done:null});}
+function resetCust(){Object.assign(S.cust,{step:1,poId:null,qty:{},form:{metode:'kantor'},editingId:null,origQty:null,done:null,reqId:null});}
 function cancelEdit(){resetCust();render();}
 
 function cStep1(){
@@ -439,6 +440,7 @@ function cStep3(){
     <button class="${f.bayar==='qris'?'on':''}" onclick="setBayar('qris')">📱 Bayar Sekarang (QRIS)<small>Scan QRIS setelah pesan, kirim bukti via WA</small></button>
     <button class="${f.bayar==='nanti'?'on':''}" onclick="setBayar('nanti')">🕒 Bayar Nanti<small>Bayar sesuai info dari admin</small></button>
   </div>
+  <label>Jam ambil / kirim (opsional)</label><input type="time" value="${esc(f.jam||'')}" onchange="S.cust.form.jam=this.value" style="max-width:200px"><div class="muted">Kosongkan kalau bebas / ikut jadwal admin.</div>
   <label>Catatan (opsional)</label><input value="${esc(f.catatan||'')}" oninput="S.cust.form.catatan=this.value" placeholder="cth: tulisan di kartu ucapan">
   </div>
   <div class="sticky"><div class="wrap"><span class="muted">Langkah 3 dari 4</span><div class="row"><button class="btn ghost" onclick="goStep(2)">Kembali</button><button class="btn" onclick="validate3()">Cek Pesanan</button></div></div></div>`;
@@ -470,7 +472,7 @@ function cStep4(){
   <tfoot>${f.metode==='antar'?`<tr><td colspan="3">Subtotal</td><td class="num">${rp(sub)}</td></tr><tr><td colspan="3">Ongkir antar</td><td class="num">${ongkir?rp(ongkir):'Gratis'}</td></tr>`:''}<tr><td colspan="3">Total</td><td class="num">${rp(total)}</td></tr></tfoot></table></div>
   <div class="grid2" style="margin-top:14px"><div><div class="muted">Pemesan</div><b>${esc(f.nama)}</b><br>${esc(normWA(f.wa))}</div>
   <div><div class="muted">${shipTitle}</div><b>${f.metode==='kantor'?`${esc(f.pt)} · ${esc(f.divisi)}`:esc(f.alamat)}</b>${f.catatan?`<br><span class="muted">Catatan: ${esc(f.catatan)}</span>`:''}</div>
-  <div><div class="muted">Pembayaran</div><b>${f.bayar==='qris'?'📱 Bayar sekarang (QRIS)':'🕒 Bayar nanti'}</b></div></div>
+  <div><div class="muted">Pembayaran</div><b>${f.bayar==='qris'?'📱 Bayar sekarang (QRIS)':'🕒 Bayar nanti'}</b></div>${f.jam?`<div><div class="muted">Jam ambil / kirim</div><b>${esc(f.jam)}</b></div>`:''}</div>
   <p class="muted" style="margin-top:14px">💬 Setelah pesanan terkirim, tekan tombol <b>Kirim Konfirmasi ke WhatsApp</b> buat konfirmasi ke admin ya.</p>
   </div>
   <div class="sticky"><div class="wrap"><b>${rp(total)}</b><div class="row"><button class="btn ghost" onclick="goStep(3)">Ubah</button><button class="btn" onclick="submitOrder()">${c.editingId?'Simpan Perubahan':'Kirim Pesanan'}</button></div></div></div>`;
@@ -478,10 +480,11 @@ function cStep4(){
 async function submitOrder(){
   const c=S.cust,f=c.form;
   const payload={id:c.editingId||'',poId:c.poId,nama:f.nama,wa:f.wa,metode:f.metode,pt:f.pt||'',divisi:f.divisi||'',
-    areaId:f.areaId||'',alamat:f.alamat||'',catatan:f.catatan||'',bayar:f.bayar,items:c.qty};
+    areaId:f.areaId||'',alamat:f.alamat||'',catatan:f.catatan||'',bayar:f.bayar,items:c.qty,jam:f.jam||'',
+    reqId:c.editingId?'':(c.reqId=c.reqId||('R'+Date.now().toString(36)+Math.random().toString(36).slice(2,8)))};
   const r=await call('submitOrder',payload);
   await refreshPublic();
-  if(r){c.done=r;c.doneEdited=!!c.editingId;}
+  if(r){c.done=r;c.doneEdited=!!c.editingId;c.reqId=null;}
   render();window.scrollTo(0,0);
 }
 /* ---- perakit tag: gambar, link keluar & upload ditulis terpotong ---- */
@@ -503,7 +506,7 @@ function waText(o,edited){
     `Kode: *${o.id}*`,`PO: ${po?po.name:'-'} (ready ${fd(po&&po.readyDate)})`,`Nama: ${o.nama}`,`No. WA: ${o.wa}`,'',
     'Pesanan:'].concat(lines).concat(['',
     `*Total: ${rp(o.total)}*`,`Pengiriman: ${ship}`,
-    `Pembayaran: ${o.bayar==='qris'?'QRIS – bukti bayar saya kirim di chat ini':'Bayar nanti'}`]);
+    `Pembayaran: ${o.bayar==='qris'?'QRIS – bukti bayar saya kirim di chat ini':'Bayar nanti'}`].concat(o.jam?[`Jam ambil/kirim: ${o.jam}`]:[]));
   if(o.catatan)out.push(`Catatan: ${o.catatan}`);
   return out.join(String.fromCharCode(10));
 }
@@ -621,7 +624,7 @@ async function lookup(){
 }
 function editOrder(id){const o=S.cust.myOrders.find(x=>x.id===id);
   Object.assign(S.cust,{tab:'pesan',step:2,poId:o.poId,qty:{...o.items},origQty:{...o.items},editingId:id,done:null,
-    form:{nama:o.nama,wa:o.wa,metode:o.metode,pt:o.pt,divisi:o.divisi,areaId:o.areaId,alamat:o.alamat,catatan:o.catatan,bayar:o.bayar}});render();}
+    form:{nama:o.nama,wa:o.wa,metode:o.metode,pt:o.pt,divisi:o.divisi,areaId:o.areaId,alamat:o.alamat,catatan:o.catatan,bayar:o.bayar,jam:o.jam||''}});render();}
 
 /* ================= OWNER ================= */
 function renderOwner(){
@@ -747,7 +750,13 @@ const BP_MENU=[
  {cat:'Sweet',p:'Dark Choco Layer',s:[['Loaf 22x10',220000,'dcl',1],['Slice',28000,'dcl',1/8]]},
  {cat:'Sweet',p:'Chiffon Roll',f:['Double Cheese','Mocca','Pandan Srikaya','Pandan Kelapa'],s:[['Whole roll',150000,'ch',1],['Slice',15000,'ch',1/10]]},
 ];
-const bpLocal=()=>{try{const a=JSON.parse(localStorage.getItem('gy_bp_local')||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}};
+const bpPhone=()=>{try{const a=JSON.parse(localStorage.getItem('gy_bp_local')||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}};
+const bpServer=()=>Array.isArray(DB.direct);
+const bpLocal=()=>bpServer()?DB.direct:bpPhone();
+const bpTotal=items=>items.reduce((s,[p,sz,f,q])=>s+bpPrice(p,sz,f)*q,0);
+async function bpMigrate(){const a=bpPhone();if(!a.length)return;
+  if(!confirm('Pindahkan '+a.length+' data dari HP ini ke Google Sheet?'))return;
+  if(await ownerCall('ownerImportDirect',a.map(x=>Object.assign({},x,{total:bpTotal(x.items)})))){try{localStorage.removeItem('gy_bp_local');}catch(e){}render();toast('✅ Data sudah pindah ke Sheet');}}
 const bpLocalSet=a=>{try{localStorage.setItem('gy_bp_local',JSON.stringify(a));}catch(e){toast('Gagal menyimpan di HP ini');}};
 const bpLead=()=>{const v=+(lsGet('gy_bp')).lead;return v===0||v===2?v:1;};
 function bpSetLead(n){const o=lsGet('gy_bp');o.lead=n;lsSet('gy_bp',o);render();}
@@ -813,13 +822,16 @@ function bpCard(r,day){
 }
 function bpTog(k){const o=S.owner.bpOpen=S.owner.bpOpen||{};o[k]=!o[k];render();}
 function bpDone(k){const d=lsGet('gy_bp_done');d[k]=!d[k];lsSet('gy_bp_done',d);render();}
-function bpDel(id){const a=bpLocal(),x=a.find(y=>y.id===id);if(!x)return;if(!confirm('Hapus '+(x.src==='st'?'rencana ready stock':'pesanan '+x.nama)+'?'))return;bpLocalSet(a.filter(y=>y.id!==id));render();}
+function bpDel(id){const a=bpLocal(),x=a.find(y=>y.id===id);if(!x)return;if(!confirm('Hapus '+(x.src==='st'?'rencana ready stock':'pesanan '+x.nama)+'?'))return;
+  if(bpServer())return ownerCall('ownerDeleteDirect',id);bpLocalSet(a.filter(y=>y.id!==id));render();}
 
 function oBake(){
   const today=DB.today,lead=bpLead(),view=S.owner.bpView||'hari';
   if(!S.owner.bpDay||S.owner.bpDay<today)S.owner.bpDay=today;
-  const rows=bpRows();
-  let h=`<div class="card"><div class="row between"><h2 style="font-size:20px">Baking Plan</h2><span class="muted">${bpFds(today)}</span></div>
+  const rows=bpRows(),phone=bpServer()?bpPhone():[];
+  let h=(phone.length?`<div class="card" style="background:var(--warn-soft);border-color:#dcc6a6"><b>📦 Ada ${phone.length} data uji coba di HP ini</b>
+    <div class="muted" style="margin:2px 0 8px">Pesanan langsung / ready stock yang diinput sebelum update. Pindahkan ke Sheet supaya aman & bisa dibuka berdua.</div>
+    <button class="btn sm" onclick="bpMigrate()">Pindahkan ke Sheet</button></div>`:'')+`<div class="card"><div class="row between"><h2 style="font-size:20px">Baking Plan</h2><span class="muted">${bpFds(today)}</span></div>
     <div class="bpadd"><button class="btn" onclick="bpOpen('ls')">＋ Pesanan langsung</button><button class="btn ghost" onclick="bpOpen('st')">＋ Ready stock</button></div>
     <div class="seg2">${[['hari','📅 Harian'],['minggu','🗓 7 hari'],['2minggu','🧺 14 hari']].map(([k,l])=>`<button class="${view===k?'on':''}" onclick="S.owner.bpView='${k}';render()">${l}</button>`).join('')}</div>
     <div class="row" style="margin-top:10px;font-size:13px;gap:6px"><span class="muted">🔥 Panggang pesanan:</span>${[0,1,2].map(n=>`<button class="bplead ${lead===n?'on':''}" onclick="bpSetLead(${n})">${n===0?'Hari H':'H-'+n}</button>`).join('')}</div>
@@ -890,7 +902,7 @@ function bpModal(){
     ${isSt?'':`<label>Catatan</label><input value="${esc(F.note)}" oninput="BPF.note=this.value" placeholder="cth: tulisan HBD, tanpa kacang">
     <label style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" style="width:auto" ${F.paid?'checked':''} onchange="BPF.paid=this.checked"> Sudah dibayar</label>`}
     <button class="btn" style="width:100%;margin-top:14px" onclick="bpSave()">Simpan ke baking plan</button>
-    <div class="muted" style="font-size:12px;text-align:center;margin-top:6px">Sementara tersimpan di HP/laptop ini.</div>
+    <div class="muted" style="font-size:12px;text-align:center;margin-top:6px">${bpServer()?'Tersimpan di Google Sheet, bisa dibuka dari HP mana pun.':'Sementara tersimpan di HP/laptop ini.'}</div>
   </div></div>`;
 }
 function bpAddItem(){const F=BPF,k=F.pick,m=BP_MENU.find(x=>x.p===k.p);if(!m)return toast('Pilih produk dulu');
@@ -919,7 +931,10 @@ function bpParse(){const F=BPF,raw=F.paste||'',t=raw.toLowerCase();if(!t.trim())
   const j=t.match(/jam\s*(\d{1,2})(?:[.:](\d{2}))?/);if(j){let hh=+j[1];if(/sore|malam/.test(t)&&hh<12)hh+=12;if(/siang/.test(t)&&hh<6)hh+=12;F.jam=String(hh).padStart(2,'0')+':'+(j[2]||'00');}
   if(/vivere/.test(t))F.to='🏢 VIVERE';else if(/lippo/.test(t))F.to='🏢 Lippo';else if(/gosend|gojek/.test(t))F.to='🛵 GoSend';
   toast(found.length?'✨ Terisi otomatis, cek lagi ya':'Produk belum kebaca, pilih manual ya');bpModal();}
-function bpSave(){const F=BPF;if(!F.items.length)return toast('Tambah minimal 1 item');if(F.src==='ls'&&!F.nama.trim())return toast('Nama wajib diisi');if(!F.date)return toast('Tanggal wajib diisi');
+async function bpSave(){const F=BPF;if(!F.items.length)return toast('Tambah minimal 1 item');if(F.src==='ls'&&!F.nama.trim())return toast('Nama wajib diisi');if(!F.date)return toast('Tanggal wajib diisi');
+  const go=()=>{S.owner.bpView='hari';S.owner.bpDay=F.src==='st'?F.date:bpAdd(F.date,-bpLead());if(S.owner.bpDay<DB.today)S.owner.bpDay=DB.today;};
+  if(bpServer()){const rec={src:F.src,nama:F.src==='st'?'Ready stock':F.nama.trim(),wa:F.wa,date:F.date,jam:F.jam,to:F.to||'',items:F.items,paid:F.paid,note:F.note,total:bpTotal(F.items)};
+    go();if(await ownerCall('ownerSaveDirect',rec)){bpClose();render();toast('✅ Tersimpan di Sheet');}return;}
   const a=bpLocal();a.push({id:(F.src==='st'?'S':'L')+'-'+Date.now().toString(36).toUpperCase(),src:F.src,nama:F.src==='st'?'Ready stock':F.nama.trim(),wa:F.wa,date:F.date,jam:F.jam,to:F.to||'',items:F.items,paid:F.paid,note:F.note,createdAt:new Date().toISOString()});
   bpLocalSet(a);S.owner.bpView='hari';S.owner.bpDay=F.src==='st'?F.date:bpAdd(F.date,-bpLead());if(S.owner.bpDay<DB.today)S.owner.bpDay=DB.today;bpClose();render();toast('✅ Masuk baking plan');}
 
@@ -965,9 +980,23 @@ const oPcs=o=>Object.values(o.items||{}).reduce((a,b)=>a+b,0);
 function poSelect(key,withAll){
   const cur=S.owner[key];
   return `<select style="width:auto;max-width:100%" onchange="S.owner.${key}=this.value;render()">${withAll?`<option value="all">Semua batch</option>`:''}${
-    [...DB.pos].sort((a,b)=>b.closeDate.localeCompare(a.closeDate)).map(p=>`<option value="${p.id}" ${cur===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`;
+    [...DB.pos].sort((a,b)=>b.closeDate.localeCompare(a.closeDate)).map(p=>`<option value="${p.id}" ${cur===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}${
+    withAll&&directOrders().length?`<option value="${DIRECT_ID}" ${cur===DIRECT_ID?'selected':''}>Pesanan langsung (WA)</option>`:''}</select>`;
 }
-const ordersFor=key=>S.owner[key]==='all'?DB.orders:API.ordersOf(S.owner[key]);
+// pesanan langsung (dari tab Direct di Sheet) dibentuk mirip pesanan PO supaya bisa ikut di Bayar & Ringkasan
+const DIRECT_ID='__direct';
+function directOrders(){
+  if(!Array.isArray(DB.direct))return [];
+  return DB.direct.filter(d=>d.src==='ls').map(d=>{const items={},lines=[];
+    (d.items||[]).forEach(([p,sz,f,q])=>{const k=p+' '+sz+(f?' '+f:'');items[k]=(items[k]||0)+q;lines.push('- '+k+' x'+q);});
+    const kantor=/^🏢/.test(d.to||'');
+    return {id:d.id,_direct:true,poId:DIRECT_ID,nama:d.nama,wa:d.wa||'',metode:kantor?'kantor':'antar',pt:kantor?String(d.to).replace(/^🏢\s*/,''):'',divisi:'',
+      to:d.to||'',date:d.date,jam:d.jam||'',total:Number(d.total)||0,ongkir:0,statusBayar:d.paid?'lunas':'belum',bayar:'nanti',createdAt:d.createdAt||'',items,_lines:lines,catatan:d.note||''};});
+}
+const allOrders=()=>(DB.orders||[]).concat(directOrders());
+const findOrder=id=>allOrders().find(x=>x.id===id);
+const ordersFor=key=>S.owner[key]==='all'?allOrders():S.owner[key]===DIRECT_ID?directOrders():API.ordersOf(S.owner[key]);
+function setPaid(id,lunas){const o=findOrder(id);if(!o)return;return o._direct?ownerCall('ownerSetDirectPaid',id,lunas):ownerCall('ownerSetPaid',id,lunas);}
 
 /* ---------- 📊 Dashboard ---------- */
 function oDash(){
@@ -995,6 +1024,11 @@ function oDash(){
         <div class="mini"><div><span class="muted">Order</span><b>${bo.length}</b></div><div><span class="muted">Nilai</span><b>${rpK(v)}</b></div><div><span class="muted">Belum dibayar</span><b style="color:var(--red)">${rpK(v-pd)}</b></div></div>
         <div class="pbar"><i style="width:${v?pd/v*100:0}%"></i></div><div class="muted" style="font-size:12px;margin-top:3px">${v?Math.round(pd/v*100):0}% sudah dibayar</div></div>`}).join('')
     :`<div class="empty">Belum ada PO.</div>`}
+    ${(()=>{const bo=directOrders();if(!bo.length)return '';const v=bo.reduce((s,o)=>s+oVal(o),0),pd=bo.filter(isLunas).reduce((s,o)=>s+oVal(o),0);
+      return `<div class="batch"><div class="row between"><b>💬 Pesanan langsung (WA)</b><span class="pill open">${bo.length} pesanan</span></div>
+        <div class="muted">Di luar PO · dicatat lewat Baking Plan</div>
+        <div class="mini"><div><span class="muted">Order</span><b>${bo.length}</b></div><div><span class="muted">Nilai</span><b>${rpK(v)}</b></div><div><span class="muted">Belum dibayar</span><b style="color:var(--red)">${rpK(v-pd)}</b></div></div>
+        <div class="pbar"><i style="width:${v?pd/v*100:0}%"></i></div><div class="muted" style="font-size:12px;margin-top:3px">${v?Math.round(pd/v*100):0}% sudah dibayar</div></div>`;})()}
   </div>`;
 }
 
@@ -1079,6 +1113,9 @@ function oProd(){
 
 /* ---------- 💰 Pembayaran ---------- */
 function tagihText(o){
+  if(o._direct)return ['Halo Kak '+o.nama+'! 🍰✨','Mau mengingatkan pembayaran pesanan *'+o.id+'* (ambil '+fd(o.date)+(o.jam?' jam '+o.jam:'')+'):','']
+    .concat(o._lines).concat(['','*Total: '+rp(oVal(o))+'*'].concat(DB.qrisPayload?['','📱 Bayar via QRIS (nominal sudah otomatis terisi):',payLink(o)]:[]).concat(['','Setelah bayar, kirim bukti bayarnya di chat ini ya 🙏','Terima kasih! — GegaresanYuuk 🤎🧁']))
+    .join(String.fromCharCode(10));
   const po=API.po(o.poId);
   const lines=Object.entries(o.items).map(([iid,q])=>{const it=po&&po.items.find(x=>x.id===iid);return it?`- ${API.itemLabel(it)} x${q}`:''}).filter(Boolean);
   return ['Halo Kak '+o.nama+'! 🍰✨','Mau mengingatkan pembayaran pesanan *'+o.id+'*'+(po?' ('+po.name+', ready '+fd(po.readyDate)+')':'')+':','']
@@ -1111,7 +1148,8 @@ function qrisCardBlob(o){
 }
 // 1 tombol: salin gambar QRIS ke clipboard + buka chat customer dengan pesan tagihan
 function tagih(id){
-  const o=DB.orders.find(x=>x.id===id);if(!o)return;
+  const o=findOrder(id);if(!o)return;
+  if(normWA(o.wa).length<10)return toast('No. WA pesanan ini belum diisi');
   let copied=false;
   if(DB.qrisPayload&&typeof qrcode==='function'&&navigator.clipboard&&window.ClipboardItem){
     try{navigator.clipboard.write([new ClipboardItem({'image/png':qrisCardBlob(o)})]).catch(()=>{});copied=true;}catch(e){}
@@ -1135,17 +1173,17 @@ function oPay(){
   // kelompokkan per PO: yang masih ada tagihan & ready paling dekat di atas
   const g={};list.forEach(o=>(g[o.poId]=g[o.poId]||[]).push(o));
   const today=DB.today||'';
-  const pos=Object.keys(g).map(id=>API.po(id)||{id:id,name:'(PO terhapus)',readyDate:'9999'}).sort((a,b)=>{
+  const pos=Object.keys(g).map(id=>id===DIRECT_ID?{id:DIRECT_ID,name:'💬 Pesanan langsung (WA)',readyDate:g[id].map(o=>o.date).sort()[0]||'9999',direct:true}:(API.po(id)||{id:id,name:'(PO terhapus)',readyDate:'9999'})).sort((a,b)=>{
     const ua=os.some(o=>o.poId===a.id&&!isLunas(o)),ub=os.some(o=>o.poId===b.id&&!isLunas(o));if(ua!==ub)return ua?-1:1;
     const pa=a.readyDate<today,pb=b.readyDate<today;if(pa!==pb)return pa?1:-1;return pa?b.readyDate.localeCompare(a.readyDate):a.readyDate.localeCompare(b.readyDate);});
   const fold=S.owner.payFold||{};
   const row=o=>{const l=isLunas(o);
     return `<div class="pay"><div><b>${esc(o.nama)}</b> <span class="muted">${esc(o.id)}</span>
-        <div class="muted">${o.metode==='kantor'?'🏢 '+esc(o.pt+' · '+o.divisi):'🚚 '+esc(API.shipLabel(o).replace('Kirim/Antar · ',''))}${o.ongkir?' · termasuk ongkir':''}</div>
+        <div class="muted">${o._direct?esc(o.to||'—')+' · ambil '+bpFds(o.date)+(o.jam?' '+o.jam:''):o.metode==='kantor'?'🏢 '+esc(o.pt+' · '+o.divisi):'🚚 '+esc(API.shipLabel(o).replace('Kirim/Antar · ',''))}${o.ongkir?' · termasuk ongkir':''}</div>
         <div class="muted">🕑 Pesan ${esc(String(o.createdAt||'').slice(5).replace(' ',' · '))}</div>
         <span class="pill ${o.bayar==='qris'?'qr':'lt'}">${o.bayar==='qris'?'📱 QRIS':'🕒 Bayar nanti'}</span> <span class="pill ${l?'open':'red'}">${l?'Lunas':'Belum lunas'}</span></div>
       <div class="amt">${rp(oVal(o))}<small>${l?'diterima':'belum dibayar'}</small></div>
-      <div class="acts">${l?`<button class="btn sm ghost" onclick="ownerCall('ownerSetPaid','${o.id}',false)">Batal lunas</button>`
+      <div class="acts">${l?`<button class="btn sm ghost" onclick="setPaid('${o.id}',false)">Batal lunas</button>`
         :`<button class="btn wa" onclick="tagih('${o.id}')">💬 Tagih via WA</button><button class="btn ghost" onclick="markPaid('${o.id}')">✓ Tandai lunas</button>`}</div></div>`;};
   return `<div class="card">
     <div class="row between"><h2 style="font-size:20px">Rekap Pembayaran</h2>${poSelect('payPO',true)}</div>
@@ -1166,13 +1204,13 @@ function oPay(){
   ${pos.length?pos.map(po=>{const L=g[po.id].sort((a,b)=>m==='qris'?String(a.createdAt).localeCompare(String(b.createdAt)):a.nama.localeCompare(b.nama));
     const all=os.filter(o=>o.poId===po.id),un=all.filter(o=>!isLunas(o)),unV=un.reduce((s,o)=>s+oVal(o),0),closed=!!fold[po.id];
     return `<div class="card pgrp"><div class="pgh" onclick="payToggle('${po.id}')">
-        <div><b>${esc(po.name)}</b><div class="muted">Ready ${fd(po.readyDate)} · ${L.length} order</div></div>
+        <div><b>${esc(po.name)}</b><div class="muted">${po.direct?'Ambil mulai '+fd(po.readyDate):'Ready '+fd(po.readyDate)} · ${L.length} order</div></div>
         <div class="pgr">${un.length?`<b style="color:var(--red)">${rp(unV)}</b><small>${un.length} belum lunas</small>`:`<span class="pill open">✅ Lunas semua</span>`}<span class="car">${closed?'▸':'▾'}</span></div></div>
       ${closed?'':`<div>${L.map(row).join('')}</div>`}</div>`}).join('')
   :`<div class="card empty">${f==='tagih'?'Semua sudah lunas 🎉':'Belum ada data.'}</div>`}`;
 }
-function markPaid(id){const o=DB.orders.find(x=>x.id===id);if(!o)return;
-  if(confirm('Tandai '+o.id+' ('+o.nama+') LUNAS?\n\nPastikan '+rp(oVal(o))+' sudah benar-benar masuk.'))ownerCall('ownerSetPaid',id,true);}
+function markPaid(id){const o=findOrder(id);if(!o)return;
+  if(confirm('Tandai '+o.id+' ('+o.nama+') LUNAS?\n\nPastikan '+rp(oVal(o))+' sudah benar-benar masuk.'))setPaid(id,true);}
 
 /* ---------- ⬇ Ekspor ---------- */
 // nilai yang diawali = + - @ diberi tanda kutip supaya tidak dijalankan sebagai rumus di Excel
@@ -1193,9 +1231,9 @@ function doExport(kind){
   }
   if(kind==='kirim'){
     const ord={kantor:0,antar:1,gosend:2};
-    downloadCSV('pengiriman-'+slug+'.csv',[['Metode','Tujuan','Alamat','Nama','No. WA','Kode','Pesanan','Catatan','Status bayar']].concat(
+    downloadCSV('pengiriman-'+slug+'.csv',[['Metode','Tujuan','Jam','Alamat','Nama','No. WA','Kode','Pesanan','Catatan','Status bayar']].concat(
       [...os].sort((a,b)=>(ord[a.metode]-ord[b.metode])||shipDest(a).localeCompare(shipDest(b))||a.nama.localeCompare(b.nama))
-      .map(o=>[METODE[o.metode],shipDest(o),o.alamat,o.nama,toIntl(o.wa),o.id,itemsTxt(o),o.catatan,isLunas(o)?'Lunas':'Belum'])));
+      .map(o=>[METODE[o.metode],shipDest(o),o.jam||'',o.alamat,o.nama,toIntl(o.wa),o.id,itemsTxt(o),o.catatan,isLunas(o)?'Lunas':'Belum'])));
   }
   if(kind==='arsip'){
     downloadCSV('arsip-'+slug+'.csv',[['Kode','Tanggal pesan','Nama','No. WA','Metode','PT','Divisi','Wilayah','Alamat','Catatan'].concat(po.items.map(API.itemLabel)).concat(['Subtotal','Ongkir','Total','Pembayaran','Status bayar'])]
@@ -1424,7 +1462,7 @@ function oRekap(){
       const key=(od.nama+' '+od.id+' '+od.wa).toLowerCase();
       return hd+`<div class="ord ${ready?'ready':''}" data-n="${esc(key)}" style="${q&&key.indexOf(q)<0?'display:none':''}">
         <div class="ord-h"><div><b>${esc(od.nama)}</b> <span class="ocode">${esc(od.id)}</span></div><span class="pill ${l?'open':'red'}">${l?'Lunas':'Belum bayar'}</span></div>
-        <div class="ship">${od.metode==='kantor'?'🏢':'🚚'} <span>${esc(API.shipLabel(od))}${od.alamat?' · '+esc(od.alamat):''}</span></div>
+        <div class="ship">${od.metode==='kantor'?'🏢':'🚚'} <span>${esc(API.shipLabel(od))}${od.alamat?' · '+esc(od.alamat):''}${od.jam?' · ⏰ '+esc(od.jam):''}</span></div>
         <div class="items">${keys.map(k=>`<div class="it ${p[k]?'on':''}" onclick="packToggle('${od.id}','${k}')"><div class="box">${p[k]?'✓':''}</div><div class="nm">${esc(lbl(k))}</div><div class="q">×${od.items[k]}</div></div>`).join('')}</div>
         ${od.catatan?`<div class="note">📝 ${esc(od.catatan)}</div>`:''}
         <div class="ord-f"><div class="prog"><span class="muted">${ready?'✅ Siap diantar':'Dikemas '+done+'/'+keys.length}</span><div class="bar"><i style="width:${keys.length?done/keys.length*100:0}%"></i></div></div>
