@@ -817,7 +817,7 @@ function bpCard(r,day){
         ${r.sisa?`<div><span class="bpsisa">${esc(r.sisa)}</span></div>`:''}${r.gen?`<div class="bpask">Ukuran belum dikenali, dihitung 1 = 1</div>`:''}</div>
       <div class="bpbake"><b>${r.bake}</b><small>${r.d.u}</small></div>
     </div>
-    ${op?`<div class="bpsrc">${r.src.map(x=>`<div class="bps"><span class="t">${x.o.jam||'—'}</span><span class="w">${esc(x.o.nama)} ${bpTag(x.o.src)}<div class="muted">${esc(x.label)}${x.o.src==='st'?'':' · ambil '+bpFds(x.o.date)}${x.o.note?' · 📝 '+esc(x.o.note):''}</div></span><span class="q">×${x.q}</span>${x.o.src!=='po'?`<a href="#" class="bpdel" onclick="bpDel(${esc(JSON.stringify(x.o.id))});return false">✕</a>`:''}</div>`).join('')}</div>`:''}
+    ${op?`<div class="bpsrc">${r.src.map(x=>`<div class="bps"><span class="t">${x.o.jam||'—'}</span><span class="w">${esc(x.o.nama)} ${bpTag(x.o.src)}<div class="muted">${esc(x.label)}${x.o.src==='st'?'':' · ambil '+bpFds(x.o.date)}${x.o.note?' · 📝 '+esc(x.o.note):''}</div></span><span class="q">×${x.q}</span>${x.o.src!=='po'?`<a href="#" class="bpdel" title="Edit" style="color:var(--brand)" onclick="bpEdit(${esc(JSON.stringify(x.o.id))});return false">✏️</a><a href="#" class="bpdel" onclick="bpDel(${esc(JSON.stringify(x.o.id))});return false">✕</a>`:''}</div>`).join('')}</div>`:''}
   </div>`;
 }
 function bpTog(k){const o=S.owner.bpOpen=S.owner.bpOpen||{};o[k]=!o[k];render();}
@@ -873,6 +873,10 @@ function bpCopy(){const t=document.getElementById('bpTotText').value;(navigator.
 
 /* ---- form pesanan langsung / ready stock ---- */
 let BPF=null;
+function bpEdit(id){const x=bpLocal().find(y=>y.id===id);if(!x)return toast('Data tidak ditemukan');
+  const items=(x.items||[]).map(i=>i.slice());const calc=bpTotal(items);
+  BPF={id:x.id,src:x.src,nama:x.src==='st'?'':x.nama,wa:x.wa||'',date:x.date,jam:x.jam||'',to:x.to||'',items,paid:!!x.paid,note:x.note||'',
+    total:(x.total!=null&&Number(x.total)!==calc)?Number(x.total):null,pick:{p:'',s:'',f:'',q:1},paste:''};bpModal();}
 function bpOpen(src){const day=S.owner.bpDay||DB.today;BPF={src,nama:'',wa:'',date:src==='st'?day:bpAdd(day,bpLead()),jam:'',to:'',items:[],paid:false,note:'',pick:{p:'',s:'',f:'',q:1},paste:''};bpModal();}
 function bpClose(){BPF=null;const m=document.getElementById('bpmodal');if(m)m.remove();}
 function bpPrice(p,s,f){const m=BP_MENU.find(x=>x.p===p);if(!m)return 0;if(m.fp)return m.fp[f]||0;const z=m.s.find(x=>x[0]===s);return z?z[1]:0;}
@@ -881,11 +885,11 @@ function bpModal(){
   const F=BPF,m=BP_MENU.find(x=>x.p===F.pick.p),isSt=F.src==='st',lead=bpLead();
   const sizeSel=`<select onchange="BPF.pick.s=this.value" ${m?'':'disabled'}><option value="">Ukuran…</option>${m?m.s.map(x=>`<option ${F.pick.s===x[0]?'selected':''} value="${esc(x[0])}">${esc(x[0])}${x[1]?' · '+rp(x[1]):''}</option>`).join(''):''}</select>`;
   el.innerHTML=`<div class="bpmodal" onclick="if(event.target===this)bpClose()"><div class="bpsheet">
-    <div class="row between"><h2 style="font-size:20px">${isSt?'＋ Rencana ready stock':'＋ Pesanan langsung'}</h2><button class="btn sm ghost" onclick="bpClose()">✕</button></div>
+    <div class="row between"><h2 style="font-size:20px">${F.id?'✏️ Edit '+(isSt?'ready stock':'pesanan '+esc(F.id)):isSt?'＋ Rencana ready stock':'＋ Pesanan langsung'}</h2><button class="btn sm ghost" onclick="bpClose()">✕</button></div>
     ${isSt?`<p class="muted" style="margin:4px 0 0">Untuk produk yang dibikin dulu baru dijual. Ikut masuk baking plan di tanggal produksinya.</p>`:`
-    <div class="bppaste"><b style="font-size:13.5px">💬 Tempel chat WA customer</b><div class="muted">Nama, produk, jumlah, hari & jam dicoba diisi otomatis. Tetap dicek ya.</div>
+    ${F.id?'':`<div class="bppaste"><b style="font-size:13.5px">💬 Tempel chat WA customer</b><div class="muted">Nama, produk, jumlah, hari & jam dicoba diisi otomatis. Tetap dicek ya.</div>
       <textarea rows="3" style="margin-top:6px" placeholder="cth: Halo kak, aku Dina mau pesen dark choco 1 loaf sama brownies 20x20 1 buat kamis jam 4 sore" oninput="BPF.paste=this.value">${esc(F.paste)}</textarea>
-      <button class="btn sm" style="margin-top:6px" onclick="bpParse()">✨ Isi otomatis</button></div>
+      <button class="btn sm" style="margin-top:6px" onclick="bpParse()">✨ Isi otomatis</button></div>`}
     <div class="grid2"><div><label>Nama</label><input value="${esc(F.nama)}" oninput="BPF.nama=this.value"></div><div><label>No. WA</label><input value="${esc(F.wa)}" oninput="BPF.wa=this.value" inputmode="tel" placeholder="08…"></div></div>`}
     <div class="grid2"><div><label>${isSt?'Tanggal produksi':'Tanggal ambil/kirim'}</label><input type="date" value="${F.date}" onchange="BPF.date=this.value;bpModal()">
       ${isSt?'':`<div class="muted" style="font-size:12px;margin-top:3px">🔥 Dipanggang ${bpFds(bpAdd(F.date,-lead))} (${lead===0?'hari H':'H-'+lead})</div>`}</div>
@@ -898,10 +902,12 @@ function bpModal(){
     ${m&&m.f&&m.s.length>1?`<div style="margin-top:6px">${sizeSel}</div>`:''}
     <button class="btn sm ghost" style="margin-top:8px" onclick="bpAddItem()">＋ Tambah item</button>
     ${F.items.map(([p,s,f,q],i)=>`<div class="bpitl"><span>${esc(p+' '+s+(f?' · '+f:''))} <b>×${q}</b></span><span><b>${rp(bpPrice(p,s,f)*q)}</b> <a href="#" onclick="BPF.items.splice(${i},1);bpModal();return false" style="color:var(--red);margin-left:6px">✕</a></span></div>`).join('')}
-    ${F.items.length&&!isSt?`<div class="row between" style="margin-top:8px"><b>Total</b><b>${rp(F.items.reduce((s,[p,sz,f,q])=>s+bpPrice(p,sz,f)*q,0))}</b></div>`:''}
+    ${F.items.length&&!isSt?`<div class="row between" style="margin-top:10px;flex-wrap:nowrap"><b>Total</b>
+      <span class="row" style="flex-wrap:nowrap;gap:6px"><span class="muted">Rp</span><input type="number" min="0" step="1000" style="width:130px;text-align:right;font-weight:700" value="${F.total!=null?F.total:bpTotal(F.items)}" onchange="BPF.total=this.value===''?null:Math.max(0,+this.value)"></span></div>
+      <div class="muted" style="font-size:12px;text-align:right">${F.total!=null&&F.total!==bpTotal(F.items)?'Diubah manual (harga menu '+rp(bpTotal(F.items))+')':'Otomatis dari harga menu · bisa diubah untuk harga custom / diskon'}</div>`:''}
     ${isSt?'':`<label>Catatan</label><input value="${esc(F.note)}" oninput="BPF.note=this.value" placeholder="cth: tulisan HBD, tanpa kacang">
     <label style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" style="width:auto" ${F.paid?'checked':''} onchange="BPF.paid=this.checked"> Sudah dibayar</label>`}
-    <button class="btn" style="width:100%;margin-top:14px" onclick="bpSave()">Simpan ke baking plan</button>
+    <button class="btn" style="width:100%;margin-top:14px" onclick="bpSave()">${F.id?'Simpan perubahan':'Simpan ke baking plan'}</button>
     <div class="muted" style="font-size:12px;text-align:center;margin-top:6px">${bpServer()?'Tersimpan di Google Sheet, bisa dibuka dari HP mana pun.':'Sementara tersimpan di HP/laptop ini.'}</div>
   </div></div>`;
 }
@@ -933,9 +939,10 @@ function bpParse(){const F=BPF,raw=F.paste||'',t=raw.toLowerCase();if(!t.trim())
   toast(found.length?'✨ Terisi otomatis, cek lagi ya':'Produk belum kebaca, pilih manual ya');bpModal();}
 async function bpSave(){const F=BPF;if(!F.items.length)return toast('Tambah minimal 1 item');if(F.src==='ls'&&!F.nama.trim())return toast('Nama wajib diisi');if(!F.date)return toast('Tanggal wajib diisi');
   const go=()=>{S.owner.bpView='hari';S.owner.bpDay=F.src==='st'?F.date:bpAdd(F.date,-bpLead());if(S.owner.bpDay<DB.today)S.owner.bpDay=DB.today;};
-  if(bpServer()){const rec={src:F.src,nama:F.src==='st'?'Ready stock':F.nama.trim(),wa:F.wa,date:F.date,jam:F.jam,to:F.to||'',items:F.items,paid:F.paid,note:F.note,total:bpTotal(F.items)};
-    go();if(await ownerCall('ownerSaveDirect',rec)){bpClose();render();toast('✅ Tersimpan di Sheet');}return;}
-  const a=bpLocal();a.push({id:(F.src==='st'?'S':'L')+'-'+Date.now().toString(36).toUpperCase(),src:F.src,nama:F.src==='st'?'Ready stock':F.nama.trim(),wa:F.wa,date:F.date,jam:F.jam,to:F.to||'',items:F.items,paid:F.paid,note:F.note,createdAt:new Date().toISOString()});
+  const total=F.total!=null?Math.round(F.total):bpTotal(F.items);
+  if(bpServer()){const rec={id:F.id||'',src:F.src,nama:F.src==='st'?'Ready stock':F.nama.trim(),wa:F.wa,date:F.date,jam:F.jam,to:F.to||'',items:F.items,paid:F.paid,note:F.note,total};
+    if(!F.id)go();if(await ownerCall('ownerSaveDirect',rec)){bpClose();render();toast(F.id?'✅ Perubahan disimpan':'✅ Tersimpan di Sheet');}return;}
+  const a=bpLocal().filter(y=>y.id!==F.id);a.push({id:(F.src==='st'?'S':'L')+'-'+Date.now().toString(36).toUpperCase(),src:F.src,nama:F.src==='st'?'Ready stock':F.nama.trim(),wa:F.wa,date:F.date,jam:F.jam,to:F.to||'',items:F.items,paid:F.paid,note:F.note,total,createdAt:new Date().toISOString()});
   bpLocalSet(a);S.owner.bpView='hari';S.owner.bpDay=F.src==='st'?F.date:bpAdd(F.date,-bpLead());if(S.owner.bpDay<DB.today)S.owner.bpDay=DB.today;bpClose();render();toast('✅ Masuk baking plan');}
 
 function oTab(t){S.owner.tab=t;render();const b=document.querySelector('.otabs .on');if(b)b.scrollIntoView({block:'nearest',inline:'center'});}
@@ -1419,21 +1426,52 @@ function pasteQris(){saveQrisCode(document.getElementById('qrisText').value);}
 async function clearQris(){if(confirm('Hapus QRIS?')&&await ownerCall('ownerSaveQris',''))toast('QRIS dihapus');}
 
 /* ---------- 🧾 Rekap Pesanan (versi kartu, tanpa geser) ---------- */
+function rekapSelect(cur){return `<select style="margin-top:10px" onchange="S.owner.rekapPO=this.value;render()">${[...DB.pos].sort((a,b)=>b.closeDate.localeCompare(a.closeDate)).map(p=>`<option value="${p.id}" ${p.id===cur?'selected':''}>${esc(p.name)}</option>`).join('')}${
+  bpLocal().length?`<option value="${DIRECT_ID}" ${cur===DIRECT_ID?'selected':''}>💬 Pesanan langsung & ready stock</option>`:''}</select>`;}
+function oRekapDirect(){
+  const o=S.owner,today=DB.today,all=bpLocal(),f=o.dirFilter||'next';
+  const F={next:x=>x.date>=today,past:x=>x.date<today,all:()=>true};
+  const list=all.filter(F[f]).sort((a,b)=>f==='past'?(b.date+(b.jam||'')).localeCompare(a.date+(a.jam||'')):(a.date+(a.jam||'99')).localeCompare(b.date+(b.jam||'99')));
+  const ls=all.filter(x=>x.src==='ls');
+  let h=`<div class="card"><div class="row between"><h2 style="font-size:20px">Rekap Pesanan</h2></div>
+    ${rekapSelect(DIRECT_ID)}
+    <div class="muted" style="margin-top:6px">${ls.length} pesanan langsung · ${rp(ls.reduce((s,x)=>s+(Number(x.total)||0),0))} · ${all.length-ls.length} rencana ready stock</div>
+    <div class="row" style="margin-top:10px;gap:8px"><button class="btn sm" onclick="bpOpen('ls')">＋ Pesanan langsung</button><button class="btn sm ghost" onclick="bpOpen('st')">＋ Ready stock</button></div>
+    <div class="seg2">${[['next','📅 Akan datang'],['past','🕘 Sudah lewat'],['all','Semua']].map(([k,l])=>`<button class="${f===k?'on':''}" onclick="S.owner.dirFilter='${k}';render()">${l} (${all.filter(F[k]).length})</button>`).join('')}</div></div>`;
+  if(!list.length)return h+`<div class="card empty">Belum ada data di sini.</div>`;
+  let last='';
+  h+=list.map(x=>{const st=x.src==='st',paid=!!x.paid,hd=x.date!==last?`<div class="divh">📅 ${x.date===today?'Hari ini · ':''}${bpFdl(x.date)}</div>`:'';last=x.date;
+    return hd+`<div class="ord ${paid||st?'ready':''}">
+      <div class="ord-h"><div><b>${esc(st?'🛍 Ready stock':x.nama)}</b> <span class="ocode">${esc(x.id)}</span></div>${st?'<span class="bptag st">Stok</span>':`<span class="pill ${paid?'open':'red'}">${paid?'Lunas':'Belum bayar'}</span>`}</div>
+      <div class="ship">${st?'🔥 Produksi '+bpFds(x.date):'⏰ '+(x.jam||'jam bebas')+' · '+esc(x.to||'—')}${x.wa?' · '+esc(x.wa):''}</div>
+      <div class="items">${(x.items||[]).map(([p,sz,fl,q])=>`<div class="it" style="cursor:default"><div class="nm">${esc(p+' '+sz+(fl?' · '+fl:''))}</div><div class="q">×${q}</div></div>`).join('')}</div>
+      ${x.note?`<div class="note">📝 ${esc(x.note)}</div>`:''}
+      ${st?'':`<div class="ord-f"><span class="muted">Total</span><b>${rp(Number(x.total)||0)}</b></div>`}
+      <div class="ord-a"><button class="btn sm ghost" onclick="bpEdit(${esc(JSON.stringify(x.id))})">✏️ Edit</button>
+        ${st?'':`<button class="btn sm ghost" onclick="bpPaid(${esc(JSON.stringify(x.id))},${!paid})">${paid?'Batal lunas':'✓ Lunas'}</button>${x.wa?linkTag('ht'+'tps://wa.me/'+toIntl(x.wa),'btn sm ghost','💬 Chat'):''}`}
+        <button class="btn sm ghost del" onclick="bpDel(${esc(JSON.stringify(x.id))})">✕</button></div></div>`;}).join('');
+  return h;
+}
+function bpPaid(id,lunas){if(bpServer())return lunas?markPaid(id):setPaid(id,false);
+  const a=bpLocal(),x=a.find(y=>y.id===id);if(x){x.paid=lunas;bpLocalSet(a);render();}}
 function packGet(){try{return JSON.parse(localStorage.getItem('gy_pack')||'{}');}catch(e){return {};}}
 function packToggle(oid,iid){const d=packGet();d[oid]=d[oid]||{};d[oid][iid]=!d[oid][iid];try{localStorage.setItem('gy_pack',JSON.stringify(d));}catch(e){}render();}
 function packAll(oid,on){const od=DB.orders.find(x=>x.id===oid);if(!od)return;const d=packGet();d[oid]={};if(on)Object.keys(od.items).forEach(k=>d[oid][k]=true);try{localStorage.setItem('gy_pack',JSON.stringify(d));}catch(e){}render();}
 function rekapFind(v){S.owner.rekapQ=v;const q=v.trim().toLowerCase();document.querySelectorAll('.ord[data-n]').forEach(el=>{el.style.display=!q||el.getAttribute('data-n').indexOf(q)>=0?'':'none';});}
 const chatUrl=o=>'ht'+'tps://wa.me/'+toIntl(o.wa);
 function oRekap(){
-  const o=S.owner; if(!o.rekapPO||!API.po(o.rekapPO)) o.rekapPO=[...DB.pos].sort((a,b)=>b.closeDate.localeCompare(a.closeDate))[0]?.id;
+  const o=S.owner;const hasDirect=bpLocal().length>0;
+  if(o.rekapPO===DIRECT_ID&&!hasDirect)o.rekapPO=null;
+  if(o.rekapPO!==DIRECT_ID&&(!o.rekapPO||!API.po(o.rekapPO))) o.rekapPO=[...DB.pos].sort((a,b)=>b.closeDate.localeCompare(a.closeDate))[0]?.id||(hasDirect?DIRECT_ID:null);
   if(!o.rekapPO) return `<div class="card empty">Belum ada PO.</div>`;
+  if(o.rekapPO===DIRECT_ID) return oRekapDirect();
   const po=API.po(o.rekapPO),orders=API.ordersOf(po.id),pack=packGet();
   const lbl=iid=>{const it=po.items.find(x=>x.id===iid);return it?API.itemLabel(it):'?';};
   const isPacked=od=>{const p=pack[od.id]||{};return Object.keys(od.items).every(k=>p[k]);};
   const views=[['nama','👤 Per Nama'],['varian','🍰 Per Varian'],['pt','🚚 Pengiriman']];
   const nPacked=orders.filter(isPacked).length;
   let h=`<div class="card"><div class="row between"><h2 style="font-size:20px">Rekap Pesanan</h2><button class="btn sm ghost" onclick="exportCSV()">⬇ CSV</button></div>
-    <select style="margin-top:10px" onchange="S.owner.rekapPO=this.value;render()">${[...DB.pos].sort((a,b)=>b.closeDate.localeCompare(a.closeDate)).map(p=>`<option value="${p.id}" ${p.id===po.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
+    ${rekapSelect(po.id)}
     <div class="muted" style="margin-top:6px">${orders.length} pesanan · ${orders.reduce((s,x)=>s+oPcs(x),0)} pcs · ${rp(orders.reduce((s,x)=>s+oVal(x),0))} · Ready ${fd(po.readyDate)}</div>
     <div class="seg2">${views.map(([k,l])=>`<button class="${o.rekapView===k?'on':''}" onclick="S.owner.rekapView='${k}';render()">${l}</button>`).join('')}</div></div>`;
   if(!orders.length) return h+`<div class="card empty">Belum ada pesanan di PO ini.</div>`;
