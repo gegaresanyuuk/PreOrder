@@ -181,6 +181,8 @@ tfoot td{font-weight:700;background:#f1e8dc}
 .mmr{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:6px 0;border-top:1px dashed var(--line);font-size:14px;margin-top:6px}.mmr .muted{font-size:12px}
 .mmp .btn{white-space:nowrap}.mmp>.row b{min-width:0}
 .mmf{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.jsec{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:12px 0 2px;padding:6px 10px;background:var(--brand-soft);border-radius:10px;font-size:14px}
+.pill.wh{background:#e6ecf3;color:#3d5a7a}
 .kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
 @media(min-width:640px){.kpi{grid-template-columns:repeat(4,1fr)}}
 .kpi.k3{grid-template-columns:repeat(3,1fr)}
@@ -321,7 +323,8 @@ const API = {
   product: id => DB.products.find(p=>p.id===id),
   po: id => DB.pos.find(p=>p.id===id),
   area: id => DB.areas.find(a=>a.id===id),
-  itemLabel: it => `${API.product(it.productId)?.name || '?'} – ${it.variant}`,
+  vName: it => it.jual==='whole'&&!/roll|utuh|whole|loyang|loaf/i.test(it.variant)?it.variant+' · 1 Roll':it.variant,
+  itemLabel: it => `${API.product(it.productId)?.name || '?'} – ${API.vName(it)}`,
   isOpen: po => po.status==='open' && DB.today <= po.closeDate,
   ordersOf: poId => (DB.orders||[]).filter(o=>o.poId===poId),
   // owner: hitung dari semua pesanan. customer: dari rekap server (tanpa data pribadi)
@@ -412,13 +415,16 @@ function cStep2(){
   const pcs=Object.values(c.qty).reduce((a,b)=>a+b,0);
   const groups={};po.items.forEach(it=>{(groups[it.productId]=groups[it.productId]||[]).push(it)});
   return `<div class="card"><div class="row between"><h2 style="font-size:20px">2. Pilih Produk</h2><span class="muted">${esc(po.name)} · close ${fd(po.closeDate)}</span></div>
-  ${Object.entries(groups).map(([pid,its])=>`<h3 style="font-size:16px;margin-top:16px">${esc(API.product(pid)?.name)}</h3>
-    ${its.map(it=>{const left=API.left(po,it,c.editingId);const q=c.qty[it.id]||0;
-      return `<div class="item"><div><b>${esc(it.variant)}</b><div class="muted">${rp(it.price)} · ${left<=0?'<span class="pill closed">Slot habis</span>':left<=5?`<span class="pill low">Sisa ${left} slot</span>`:`Sisa ${left} slot`}</div></div>
-      <div class="stepper"><button ${q<=0?'disabled':''} onclick="chQty('${it.id}',-1)">−</button><span>${q}</span><button ${q>=left?'disabled':''} onclick="chQty('${it.id}',1)">+</button></div></div>`}).join('')}`).join('')}
+  ${Object.entries(groups).map(([pid,its])=>{const jt=it=>it.jual||(/roll|utuh|whole/i.test(it.variant)&&/chiffon|roll/i.test(API.product(pid)?.name||'')?'whole':'');
+    const W=its.filter(it=>jt(it)==='whole'),Sl=its.filter(it=>jt(it)==='slice'),O=its.filter(it=>!jt(it)),split=W.length&&(Sl.length||O.length);
+    const sec=(t,sub,list)=>list.length?(split?`<div class="jsec"><b>${t}</b><span class="muted">${sub}</span></div>`:'')+list.map(itemRow).join(''):'';
+    return `<h3 style="font-size:16px;margin-top:16px">${esc(API.product(pid)?.name)}</h3>`+(split?sec('🍰 Per slice','1 potong',Sl.concat(O))+sec('🎂 Whole roll','1 roll utuh · isi 10 slice',W):its.map(itemRow).join(''));}).join('')}
   </div>
   <div class="sticky"><div class="wrap"><div><div class="muted">${pcs} pcs</div><b style="font-size:18px">${rp(total)}</b></div>
   <div class="row"><button class="btn ghost" onclick="goStep(1)">Kembali</button><button class="btn" ${pcs?'':'disabled'} onclick="goStep(3)">Lanjut</button></div></div></div>`;
+  function itemRow(it){const left=API.left(po,it,c.editingId);const q=c.qty[it.id]||0;const wh=it.jual==='whole';
+      return `<div class="item"><div><b>${esc(it.variant)}</b>${wh?' <span class="pill wh">1 Roll</span>':''}<div class="muted">${rp(it.price)} · ${left<=0?'<span class="pill closed">Slot habis</span>':left<=5?`<span class="pill low">Sisa ${left} slot</span>`:`Sisa ${left} slot`}</div></div>
+      <div class="stepper"><button ${q<=0?'disabled':''} onclick="chQty('${it.id}',-1)">−</button><span>${q}</span><button ${q>=left?'disabled':''} onclick="chQty('${it.id}',1)">+</button></div></div>`;}
 }
 function chQty(id,d){const po=API.po(S.cust.poId);const it=po.items.find(x=>x.id===id);const left=API.left(po,it,S.cust.editingId);
   const n=Math.max(0,Math.min(left,(S.cust.qty[id]||0)+d));if(n)S.cust.qty[id]=n;else delete S.cust.qty[id];render();}
@@ -787,10 +793,10 @@ const bpFds=s=>new Date(s+'T00:00:00').toLocaleDateString('id-ID',{weekday:'shor
 const bpTag=src=>src==='po'?'<span class="bptag po">PO</span>':src==='ls'?'<span class="bptag ls">Langsung</span>':'<span class="bptag st">Stok</span>';
 
 // item PO (nama produk + varian dari sistem) → unit produksi
-function bpMapPO(prod,variant){
+function bpMapPO(prod,variant,jual){
   const P=String(prod||''),V=String(variant||''),pv=(P+' '+V).toLowerCase();
-  if(/chiffon/i.test(P)){const roll=vUnitOf(P,V)==='roll',u=unitOf(P);
-    const flav=V.replace(/\(?\s*(1\s*)?(whole\s*)?roll(\s*utuh)?\s*\)?/ig,' ').replace(/\b(whole|utuh|slice)\b/ig,' ').replace(/\s+/g,' ').trim()||V;
+  if(/chiffon/i.test(P)){const roll=jual==='whole'?true:jual==='slice'?false:vUnitOf(P,V)==='roll',u=unitOf(P);
+    const flav=V.replace(/\(?\s*(1\s*)?(whole\s*)?roll(\s*utuh)?\s*\)?/ig,' ').replace(/·/g,' ').replace(/\b(whole|utuh|slice)\b/ig,' ').replace(/\s+/g,' ').trim()||V;
     return {unit:'ch',flav,per:roll?1:1/u};}
   const sz=re=>re.test(pv);
   if(/macaroni|spaghetti/i.test(P)){const k=/spaghetti/i.test(P)?'spg':'mac';
@@ -804,8 +810,8 @@ function bpRows(){
   (DB.orders||[]).forEach(o=>{const po=API.po(o.poId);if(!po)return;
     const O={src:'po',id:o.id,nama:o.nama,date:po.readyDate,jam:o.jam||'',to:o.metode==='kantor'?'🏢 '+o.pt+' · '+o.divisi:'🚚 '+API.shipLabel(o).replace('Kirim/Antar · ',''),paid:isLunas(o),note:o.catatan||'',items:[]};
     Object.entries(o.items||{}).forEach(([iid,q])=>{const it=po.items.find(x=>x.id===iid);if(!it)return;
-      const prod=API.product(it.productId)?.name||'?',m=bpMapPO(prod,it.variant);O.items.push(prod+' '+it.variant+' ×'+q);
-      out.push({o:O,unit:m.unit,flav:m.flav||'',need:q*m.per,gen:m.gen,label:prod+' '+it.variant,q});});});
+      const prod=API.product(it.productId)?.name||'?',m=bpMapPO(prod,API.vName(it),it.jual);O.items.push(prod+' '+API.vName(it)+' ×'+q);
+      out.push({o:O,unit:m.unit,flav:m.flav||'',need:q*m.per,gen:m.gen,label:prod+' '+API.vName(it),q});});});
   const MENU=bpMenu();
   bpLocal().forEach(L=>{const O=Object.assign({},L,{items:L.items.map(([p,s,f,q])=>p+' '+s+(f?' '+f:'')+' ×'+q)});
     L.items.forEach(([p,s,f,q])=>{const m=MENU.find(x=>x.p===p),z=m&&m.s.find(x=>x[0]===s);if(!z)return;
@@ -1085,9 +1091,9 @@ function oProd(){
   // jumlahkan per produk → varian (lintas batch, pakai nama produk & varian)
   const g={};
   const slot=(prod,vn)=>{g[prod]=g[prod]||{};return g[prod][vn]=g[prod][vn]||{q:0,n:0,price:0};};
-  pos.forEach(po=>po.items.forEach(it=>{const v=slot(API.product(it.productId)?.name||'?',it.variant);v.price=Math.max(v.price,it.price||0);}));
+  pos.forEach(po=>po.items.forEach(it=>{const v=slot(API.product(it.productId)?.name||'?',API.vName(it));v.price=Math.max(v.price,it.price||0);}));
   os.forEach(o=>{const po=API.po(o.poId);Object.entries(o.items).forEach(([iid,q])=>{const it=po.items.find(x=>x.id===iid);if(!it)return;
-    const v=slot(API.product(it.productId)?.name||'?',it.variant);v.q+=q;v.n++;});});
+    const v=slot(API.product(it.productId)?.name||'?',API.vName(it));v.q+=q;v.n++;});});
   const done=prodDoneGet(),pcs=os.reduce((s,o)=>s+oPcs(o),0);
   let h=`<div class="card">
     <div class="row between"><h2 style="font-size:20px">${view==='hasil'?'Hasil Produksi':'Rekap Produksi'}</h2><button class="btn sm ghost noprint" onclick="window.print()">🖨 Cetak</button></div>
@@ -1256,7 +1262,7 @@ function doExport(kind){
   const itemsTxt=o=>Object.entries(o.items).map(([iid,q])=>{const it=po.items.find(x=>x.id===iid);return it?API.itemLabel(it)+' x'+q:''}).filter(Boolean).join('; ');
   if(kind==='prod'){
     downloadCSV('produksi-'+slug+'.csv',[['Produk','Varian','Jumlah','Jumlah order']].concat(po.items.map(it=>{
-      const q=API.sold(po.id,it.id),n=os.filter(o=>o.items[it.id]).length;return [API.product(it.productId)?.name||'?',it.variant,q,n];}).filter(r=>r[2]>0)));
+      const q=API.sold(po.id,it.id),n=os.filter(o=>o.items[it.id]).length;return [API.product(it.productId)?.name||'?',API.vName(it),q,n];}).filter(r=>r[2]>0)));
   }
   if(kind==='kirim'){
     const ord={kantor:0,antar:1,gosend:2};
@@ -1319,14 +1325,15 @@ function renderModal(){
     ${d.photo?`<button class="btn sm danger" style="margin-top:8px" onclick="draft.photo='';draft.photoChanged=true;renderModal()">Hapus foto</button>`:''}</div>
   </div>
   <div class="row between" style="margin-top:16px"><h3 style="font-size:16px">Produk, varian & slot</h3><button class="btn sm" onclick="addItem()">+ Tambah varian</button></div>
-  <div class="scroll tbl-input" style="margin-top:8px"><table><thead><tr><th>Produk</th><th>Varian</th><th class="num">Harga</th><th class="num">Slot</th><th class="num">Terjual</th><th class="num">Sisa</th><th></th></tr></thead>
+  <div class="scroll tbl-input" style="margin-top:8px"><table><thead><tr><th>Produk</th><th>Varian</th><th>Dijual</th><th class="num">Harga</th><th class="num">Slot</th><th class="num">Terjual</th><th class="num">Sisa</th><th></th></tr></thead>
   <tbody>${d.items.length?d.items.map((it,i)=>{const sold=d.id&&it.id?API.sold(d.id,it.id):0;return `<tr>
     <td><select onchange="draft.items[${i}].productId=this.value">${DB.products.map(pr=>`<option value="${pr.id}" ${pr.id===it.productId?'selected':''}>${esc(pr.name)}</option>`).join('')}</select></td>
     <td><input value="${esc(it.variant)}" oninput="draft.items[${i}].variant=this.value" placeholder="Original"></td>
+    <td><select onchange="draft.items[${i}].jual=this.value" style="min-width:120px">${[['','Biasa'],['slice','Per slice'],['whole','1 Roll utuh']].map(([v,l])=>`<option value="${v}" ${(it.jual||'')===v?'selected':''}>${l}</option>`).join('')}</select></td>
     <td><input type="number" min="0" step="1000" value="${it.price}" oninput="draft.items[${i}].price=+this.value"></td>
     <td><input type="number" min="${sold}" value="${it.slot}" oninput="draft.items[${i}].slot=+this.value;renderSisa(${i},${sold})" style="min-width:70px"></td>
     <td class="num">${sold}</td><td class="num" id="sisa-${i}">${it.slot-sold}</td>
-    <td><button class="btn sm danger" onclick="rmItem(${i},${sold})">✕</button></td></tr>`}).join(''):`<tr><td colspan="7" class="empty">Belum ada varian. Klik “+ Tambah varian”.</td></tr>`}</tbody></table></div>
+    <td><button class="btn sm danger" onclick="rmItem(${i},${sold})">✕</button></td></tr>`}).join(''):`<tr><td colspan="8" class="empty">Belum ada varian. Klik “+ Tambah varian”.</td></tr>`}</tbody></table></div>
   <div class="row" style="justify-content:flex-end;margin-top:16px"><button class="btn ghost" onclick="draft=null;renderModal()">Batal</button><button class="btn" onclick="savePO()">Simpan PO</button></div>
   </div></div>`;
 }
@@ -1350,7 +1357,7 @@ function pickPOPhoto(inp){
   rd.readAsDataURL(f);
 }
 function renderSisa(i,sold){const el=document.getElementById('sisa-'+i);if(el)el.textContent=draft.items[i].slot-sold;}
-function addItem(){if(!DB.products.length)return toast('Tambah produk dulu di tab Produk & Wilayah');draft.items.push({id:'',productId:DB.products[0].id,variant:'',price:0,slot:10});renderModal();}
+function addItem(){if(!DB.products.length)return toast('Tambah produk dulu di tab Produk & Wilayah');draft.items.push({id:'',productId:DB.products[0].id,variant:'',price:0,slot:10,jual:''});renderModal();}
 function rmItem(i,sold){if(sold>0)return toast('Varian ini sudah ada pesanan, tidak bisa dihapus');draft.items.splice(i,1);renderModal();}
 async function savePO(){
   const d=draft;
