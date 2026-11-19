@@ -1801,7 +1801,7 @@ function ntDates(){const c=NC().cfg,out=[];for(let d=c.start;d<=c.end&&out.lengt
 const ntLoc=id=>(NC().loc||[]).find(l=>l.id===id);
 function ntGroups(d,pub){const g={};ntKeys(d).forEach(k=>{const v=ntV(k);if(pub&&v.hidden)return;(g[v.P.n]=g[v.P.n]||[]).push(k);});return g;}
 const ntPubKeys=d=>ntKeys(d).filter(k=>!ntV(k).hidden);
-const ntStepTxt=v=>v.step>1?(v.per<1&&Math.abs(v.step*v.per-1)<1e-9&&v.step>2?'per box isi '+v.step:'kelipatan '+v.step):'';
+const ntStepTxt=v=>v.step>2?'min. '+v.step+', kelipatan '+v.step:v.step>1?'kelipatan '+v.step:'';
 function ntMonths(cell){const c=NC().cfg;let h='',y=+c.start.slice(0,4),m=+c.start.slice(5,7),guard=0;const ey=+c.end.slice(0,4),em=+c.end.slice(5,7);
   while((y<ey||(y===ey&&m<=em))&&guard++<6){const first=new Date(y,m-1,1),days=new Date(y,m,0).getDate(),lead=(first.getDay()+6)%7,cells=[];
     for(let i=0;i<lead;i++)cells.push(null);for(let d=1;d<=days;d++)cells.push([y+'-'+ntP2(m)+'-'+ntP2(d),d]);while(cells.length%7)cells.push(null);
