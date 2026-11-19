@@ -301,6 +301,16 @@ a.btn{text-decoration:none}
 .nx-save{position:fixed;left:0;right:0;bottom:0;z-index:25;background:#2f4630;color:#fff;padding:10px 0;box-shadow:0 -4px 16px rgba(0,0,0,.15)}
 .nx-save .wrap{padding-bottom:0;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .nx-save .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}.nx-save .btn{background:#fff;color:#2f4630}
+.nx-pe{display:grid;grid-template-columns:minmax(0,1fr) auto 76px auto;gap:6px;align-items:center}.nx-pe input{padding:8px 10px;border-radius:10px}
+.nx-zh,.nx-zr2{display:grid;grid-template-columns:minmax(0,1fr) 44px 44px 80px 22px;gap:6px;align-items:center}.nx-zh{font-size:9.5px;color:var(--muted);margin-top:8px;line-height:1.2}.nx-zh span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nx-zr2{margin-top:5px}.nx-zr2 input{padding:7px 8px;border-radius:9px;font-size:13.5px}.nx-zr2>input[type=number]{text-align:right}
+.nx-cut{display:flex;align-items:center;gap:3px}.nx-cut input{padding:7px 4px;text-align:center}.nx-cut small{font-size:11px;color:var(--muted)}
+.nx-x{border:0;background:transparent;color:var(--red);font-size:14px;cursor:pointer;padding:4px}
+.nx-fl{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.nx-fl>span{display:inline-flex;align-items:center;background:var(--brand-soft);border-radius:999px;padding:0 4px 0 0}
+.nx-fn{border:0;background:transparent;font-size:12.5px;font-weight:600;color:var(--ink);padding:4px 4px 4px 10px;cursor:pointer}
+.nx-rules{background:#fff7e0;border:1px solid #ecd9a8;border-radius:12px;padding:10px 12px;font-size:13.5px;margin:6px 0 4px;line-height:1.5}
+.nx-fl>span.hd{background:#ece6dd;opacity:.85}
+.nx-u{font-size:10px;color:var(--brand);font-weight:700}.nx-od .f{white-space:nowrap;font-size:10.5px;letter-spacing:-.2px}
 .bptag.nt{background:#e3ecdf;color:#3f5a3a}
 @media (max-width:420px){.nx-add{grid-template-columns:repeat(2,minmax(0,1fr))}.nx-lr{grid-template-columns:80px minmax(0,1fr) auto minmax(0,1fr)}}
 </style>
@@ -1757,7 +1767,8 @@ const ntJs=v=>esc(JSON.stringify(v));
 const ntProd=id=>(NC().cat||[]).find(p=>p.id===id);
 const ntKey=(p,sz,f)=>p+'|'+sz+'|'+(f||'');
 function ntV(k){const a=String(k).split('|'),P=NC()&&ntProd(a[0]),Z=P&&P.sizes.find(z=>z[0]===a[1]),f=a[2]||'';
-  return {P:P||{id:a[0],n:a[0],unit:'unit',sizes:[]},Z:Z||[a[1],a[1],0,1],f,ok:!!(P&&Z),price:Z?+Z[2]||0:0,per:Z?+Z[3]||1:1,
+  const per=Z?+Z[3]||1:1,step=Z?(+Z[4]>=1?Math.floor(+Z[4]):(per<1?Math.round(1/per):1)):1;
+  return {P:P||{id:a[0],n:a[0],unit:'unit',sizes:[]},Z:Z||[a[1],a[1],0,1],f,ok:!!(P&&Z),price:Z?+Z[2]||0:0,per,step,hidden:!!(P&&f&&(P.hide||[]).indexOf(f)>=0),
     label:(P?P.n:a[0])+' '+(Z?Z[1]:a[1])+(f?' · '+f:''),short:(Z?Z[1]:a[1])+(f?' · '+f:'')};}
 function ntSold(d){const s=Object.assign({},(NT().sold||{})[d]||{});
   if(NTX&&NTX.date===d)Object.entries(NTX.items||{}).forEach(([k,q])=>s[k]=Math.max(0,(s[k]||0)-q));return s;}
@@ -1766,27 +1777,32 @@ const ntSlot=(d,k)=>((ntDay(d)||{}).slot||{})[k]||0;
 const ntLeft=(d,k)=>Math.max(0,ntSlot(d,k)-(ntSold(d)[k]||0));
 const ntKeys=d=>Object.keys((ntDay(d)||{}).slot||{});
 const ntCloseD=d=>ntAdd(d,-NC().cfg.cutoff);
-const ntCap=d=>{const c=NC().cfg;return ntWE(ntAdd(d,-1))?+c.capWe:+c.capWd;};
+const ntCapDef=d=>{const c=NC().cfg;return ntWE(ntAdd(d,-1))?+c.capWe:+c.capWd;};
+const ntCap=d=>{const x=ntDay(d);return x&&typeof x.cap==='number'&&x.cap>=0?x.cap:ntCapDef(d);};
 function ntUnits(tot){const g={};Object.entries(tot).forEach(([k,q])=>{if(!q)return;const v=ntV(k),key=v.P.id+'|'+v.f;g[key]=(g[key]||0)+q*v.per;});
   return Object.values(g).reduce((t,n)=>t+Math.ceil(n-1e-9),0);}
 function ntPlan(d,extra){const t=ntSold(d);Object.entries(extra||{}).forEach(([k,q])=>t[k]=(t[k]||0)+q);return ntUnits(t);}
-function ntFits(d,k,cart){if(ntLeft(d,k)<=((cart||{})[k]||0))return false;const c=Object.assign({},cart||{});c[k]=(c[k]||0)+1;return ntPlan(d,c)<=ntCap(d);}
+function ntFits(d,k,cart){const v=ntV(k);if(v.hidden)return false;const n=v.step;if(ntLeft(d,k)-((cart||{})[k]||0)<n)return false;const c=Object.assign({},cart||{});c[k]=(c[k]||0)+n;return ntPlan(d,c)<=ntCap(d);}
 function ntJam(d,lok,jam){let n=(NT().jam||{})[d+'|'+lok+'|'+jam]||0;if(NTX&&NTX.date===d&&NTX.lok===lok&&NTX.jam===jam)n--;return Math.max(0,n);}
 const ntBakeOff=d=>{const b=ntDay(ntAdd(d,-1));return !!(b&&b.off);};
 function ntMax(d){const c={};ntKeys(d).forEach(k=>c[k]=ntLeft(d,k));return ntPlan(d,c);}
 function ntStatus(d){const x=ntDay(d);if(!x)return 'out';if(x.off)return 'off';if((DB.today||'')>ntCloseD(d))return 'past';
-  const ks=ntKeys(d);if(!ks.length)return 'closed';const tot=ks.reduce((t,k)=>t+ntSlot(d,k),0),lf=ks.reduce((t,k)=>t+ntLeft(d,k),0);
+  const ks=MODE==='owner'?ntKeys(d):ntPubKeys(d);if(!ks.length)return 'closed';const tot=ks.reduce((t,k)=>t+ntSlot(d,k),0),lf=ks.reduce((t,k)=>t+ntLeft(d,k),0);
   if(!lf||!ks.some(k=>ntFits(d,k)))return 'sold';if(lf<=tot*0.25||ks.some(k=>!ntLeft(d,k))||ntCap(d)-ntPlan(d)<=2)return 'low';return 'av';}
 const ntWin=(l,d)=>ntWE(d)?l.we:l.wd;
 function ntTimes(w){const out=[],st=+NC().cfg.step||30,a=w[0].split(':').map(Number),b=w[1].split(':').map(Number);
   for(let m=a[0]*60+a[1];m<=b[0]*60+b[1];m+=st)out.push(ntP2(Math.floor(m/60))+':'+ntP2(m%60));return out;}
 function ntDates(){const c=NC().cfg,out=[];for(let d=c.start;d<=c.end&&out.length<120;d=ntAdd(d,1))out.push(d);return out;}
 const ntLoc=id=>(NC().loc||[]).find(l=>l.id===id);
-function ntGroups(d){const g={};ntKeys(d).forEach(k=>{const v=ntV(k);(g[v.P.n]=g[v.P.n]||[]).push(k);});return g;}
+function ntGroups(d,pub){const g={};ntKeys(d).forEach(k=>{const v=ntV(k);if(pub&&v.hidden)return;(g[v.P.n]=g[v.P.n]||[]).push(k);});return g;}
+const ntPubKeys=d=>ntKeys(d).filter(k=>!ntV(k).hidden);
+const ntStepTxt=v=>v.step>1?(v.per<1&&Math.abs(v.step*v.per-1)<1e-9&&v.step>2?'per box isi '+v.step:'kelipatan '+v.step):'';
 function ntMonths(cell){const c=NC().cfg;let h='',y=+c.start.slice(0,4),m=+c.start.slice(5,7),guard=0;const ey=+c.end.slice(0,4),em=+c.end.slice(5,7);
-  while((y<ey||(y===ey&&m<=em))&&guard++<6){const first=new Date(y,m-1,1),days=new Date(y,m,0).getDate(),lead=(first.getDay()+6)%7;
-    h+=`<div class="nx-calhd"><b>${first.toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</b></div><div class="nx-cal">${['Sen','Sel','Rab','Kam','Jum','Sab','Min'].map((d,i)=>`<div class="nx-dow ${i>4?'we':''}">${d}</div>`).join('')}`;
-    for(let i=0;i<lead;i++)h+='<div></div>';for(let d=1;d<=days;d++)h+=cell(y+'-'+ntP2(m)+'-'+ntP2(d),d);h+='</div>';m++;if(m>12){m=1;y++;}}
+  while((y<ey||(y===ey&&m<=em))&&guard++<6){const first=new Date(y,m-1,1),days=new Date(y,m,0).getDate(),lead=(first.getDay()+6)%7,cells=[];
+    for(let i=0;i<lead;i++)cells.push(null);for(let d=1;d<=days;d++)cells.push([y+'-'+ntP2(m)+'-'+ntP2(d),d]);while(cells.length%7)cells.push(null);
+    let body='';for(let w=0;w<cells.length;w+=7){const wk=cells.slice(w,w+7);if(!wk.some(x=>x&&x[0]>=c.start&&x[0]<=c.end))continue;body+=wk.map(x=>x?cell(x[0],x[1]):'<div></div>').join('');}
+    h+=`<div class="nx-calhd"><b>${first.toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</b></div><div class="nx-cal">${['Sen','Sel','Rab','Kam','Jum','Sab','Min'].map((d,i)=>`<div class="nx-dow ${i>4?'we':''}">${d}</div>`).join('')}${body}</div>`;
+    m++;if(m>12){m=1;y++;}}
   return h;}
 const ntUnitNm=()=>{const u=[...new Set((NC().cat||[]).map(p=>p.unit))];return u.join('/')||'unit';};
 
@@ -1819,7 +1835,7 @@ function ntStep1(){const n=S.nt,d=n.date;
     <div class="nx-lg"><span><i style="background:var(--ok-soft)"></i>Tersedia</span><span><i style="background:var(--warn-soft);border-color:#e0c08e"></i>Sisa sedikit</span><span><i style="background:#e7ded3;border-style:dashed"></i>Sold out</span><span><i style="background:repeating-linear-gradient(135deg,#f3eee7 0 3px,#e3d9cb 3px 6px)"></i>Libur</span></div>
     ${d?`<div class="nx-box"><div class="row between"><b>📅 ${ntFdl(d)}</b><span class="pill low">${ntWE(d)?'Weekend':'Weekday'}</span></div>
       <div class="muted" style="margin-bottom:4px">Pesan paling lambat ${ntFdl(ntCloseD(d))}</div>
-      ${Object.entries(ntGroups(d)).map(([pn,ks])=>`<div class="nx-grp"><b>${esc(pn)}</b>${ks.map(k=>{const l=ntLeft(d,k);return `<div class="nx-tl"><span>${esc(ntV(k).short)}</span><b style="color:${l?'var(--ok)':'var(--red)'}">${l?'sisa '+l:'habis'}</b></div>`}).join('')}</div>`).join('')}</div>`:''}
+      ${Object.entries(ntGroups(d,1)).map(([pn,ks])=>`<div class="nx-grp"><b>${esc(pn)}</b>${ks.map(k=>{const l=ntLeft(d,k);return `<div class="nx-tl"><span>${esc(ntV(k).short)}</span><b style="color:${l?'var(--ok)':'var(--red)'}">${l?'sisa '+l:'habis'}</b></div>`}).join('')}</div>`).join('')}</div>`:''}
   </div>
   <div class="sticky"><div class="wrap"><span class="muted">${d?ntFds(d):'Belum pilih tanggal'}</span><button class="btn" ${d?'':'disabled'} onclick="ntGo(2)">Lanjut</button></div></div>`;}
 function ntPick(d){const st=ntStatus(d);const msg={sold:'Tanggal ini sudah sold out 🙏',off:'Tanggal ini libur ya',past:'Pemesanan tanggal ini sudah tutup',closed:'Menu tanggal ini belum dibuka',out:'Di luar periode PO'}[st];
@@ -1827,18 +1843,21 @@ function ntPick(d){const st=ntStatus(d);const msg={sold:'Tanggal ini sudah sold 
 function ntGo(s){S.nt.step=s;render();window.scrollTo(0,0);}
 const ntCartN=()=>Object.values(S.nt.qty).reduce((a,b)=>a+b,0);
 const ntCartT=()=>Object.entries(S.nt.qty).reduce((t,[k,q])=>t+q*ntV(k).price,0);
-function ntStep2(){const n=S.nt,d=n.date,g=ntGroups(d);let tight=false;
+function ntStep2(){const n=S.nt,d=n.date,g=ntGroups(d,1),rules=String(NC().cfg.rules||'').trim();let tight=false;
   const body=Object.entries(g).map(([pn,ks])=>`<div class="nx-sz"><b>${esc(pn)}</b></div>`+ks.map(k=>{const v=ntV(k),q=n.qty[k]||0,l=ntLeft(d,k),can=ntFits(d,k,n.qty);
     if(l>q&&!can)tight=true;
-    return `<div class="item"><div><b>${esc(v.short)}</b><div class="muted">${rp(v.price)} · ${!l?'<span class="pill closed">Sold out</span>':can||q>=l?(l-q<=3?`<span class="pill low">Sisa ${l-q}</span>`:'Sisa '+(l-q)):'<span class="pill low">Kapasitas penuh</span>'}</div></div>
-      <div class="stepper"><button ${q?'':'disabled'} onclick="ntQ(${ntJs(k)},-1)">−</button><span>${q}</span><button ${can?'':'disabled'} onclick="ntQ(${ntJs(k)},1)">+</button></div></div>`;}).join('')).join('');
+    return `<div class="item"><div><b>${esc(v.short)}</b><div class="muted">${rp(v.price)}${ntStepTxt(v)?' · <b>'+ntStepTxt(v)+'</b>':''} · ${!l?'<span class="pill closed">Sold out</span>':can||q>=l?(l-q<=3?`<span class="pill low">Sisa ${l-q}</span>`:'Sisa '+(l-q)):'<span class="pill low">Kapasitas penuh</span>'}</div></div>
+      <div class="stepper"><button ${q?'':'disabled'} onclick="ntQ(${ntJs(k)},-${v.step})">−</button><span>${q}</span><button ${can?'':'disabled'} onclick="ntQ(${ntJs(k)},${v.step})">+</button></div></div>`;}).join('')).join('');
   return `<div class="card"><div class="row between"><h2 style="font-size:20px">2. Pilih menu</h2><button class="btn sm ghost" onclick="ntGo(1)">📅 ${ntFds(d)} · ganti</button></div>
+    ${rules?`<div class="nx-rules">${esc(rules).replace(/\n/g,'<br>')}</div>`:''}
     ${body||'<div class="empty">Belum ada menu di tanggal ini.</div>'}
     ${tight?`<div class="nx-note">Kapasitas dapur di tanggal ini hampir penuh, jadi beberapa menu tidak bisa ditambah lagi. Coba tanggal lain ya 🙏</div>`:''}
     ${(NC().cat||[]).some(p=>p.sizes.some(z=>z[3]<1))?`<p class="muted" style="margin-top:10px">ℹ️ 1 loyang = 1 Large = 2 Medium = 6 slice</p>`:''}</div>
   <div class="sticky"><div class="wrap"><div><div class="muted">${ntCartN()} item</div><b style="font-size:18px">${rp(ntCartT())}</b></div>
-    <div class="row"><button class="btn ghost" onclick="ntGo(1)">Kembali</button><button class="btn" ${ntCartN()?'':'disabled'} onclick="ntGo(3)">Lanjut</button></div></div></div>`;}
-function ntQ(k,x){const n=S.nt,q=Math.max(0,(n.qty[k]||0)+x);if(x>0&&!ntFits(n.date,k,n.qty))return;if(q)n.qty[k]=q;else delete n.qty[k];render();}
+    <div class="row"><button class="btn ghost" onclick="ntGo(1)">Kembali</button><button class="btn" ${ntCartN()?'':'disabled'} onclick="ntCheck2()">Lanjut</button></div></div></div>`;}
+function ntCheck2(){const bad=Object.entries(S.nt.qty).filter(([k,q])=>q%ntV(k).step||ntV(k).hidden);
+  if(bad.length){const v=ntV(bad[0][0]);return toast(v.hidden?v.label+' tidak tersedia, hapus dulu ya':v.label+' harus kelipatan '+v.step+' (1 rasa = 1 loyang utuh)');}ntGo(3);}
+function ntQ(k,x){const n=S.nt,st=ntV(k).step,cur=n.qty[k]||0,q=x<0?Math.max(0,cur%st?cur-cur%st:cur+x):cur+x;if(x>0&&!ntFits(n.date,k,n.qty))return;if(q)n.qty[k]=q;else delete n.qty[k];render();}
 function ntStep3(){const n=S.nt,d=n.date,f=n.form,c=NC().cfg;
   const locs=(NC().loc||[]).map(l=>({l,w:ntWin(l,d)})),cur=locs.find(x=>x.l.id===n.lok&&x.w);
   return `<div class="card"><h2 style="font-size:20px">3. Pengambilan · ${ntFds(d)}</h2>
@@ -1893,7 +1912,7 @@ function ntDone(){const o=S.nt.done,edited=!!S.nt.edited,l=ntLoc(o.lok);
     <button class="btn ghost" onclick="ntOpen()">Pesan lagi</button> <button class="btn ghost" onclick="ntReset();render()">Daftar PO</button></div>`;}
 // daftar pesanan Natal di menu "Cek / Edit Pesanan"
 function ntLookupCards(list){if(!list||!list.length||!NT())return '';const c=NT().cfg;
-  return list.map(o=>{const can=c.live&&(DB.today||'')<=ntAdd(o.date,-c.editH),l=ntLoc(o.lok);
+  return list.map(o=>{const can=c.live&&o.src==='web'&&(DB.today||'')<=ntAdd(o.date,-c.editH),l=ntLoc(o.lok);
     return `<div class="card"><div class="row between"><div><span class="code" style="font-size:14px">${esc(o.id)}</span> <b style="margin-left:6px">🎄 ${esc(c.title)}</b></div><span class="pill ${can?'open':'closed'}">${can?'Bisa diubah':'Ubah lewat admin'}</span></div>
       <div style="margin:10px 0">${Object.entries(o.items||{}).map(([k,q])=>esc(ntV(k).label)+' x'+q).join('<br>')}</div>
       <div class="row between"><div class="muted">Ambil ${fd(o.date)}${o.jam?' jam '+esc(o.jam):''}${l?' · '+esc(l.n):''}</div><div class="row"><b>${rp(o.total)}</b>${can?`<button class="btn sm" onclick="ntEdit(${ntJs(o.id)})">Ubah</button>`:''}</div></div>
@@ -1937,6 +1956,8 @@ function oNtSet(){
     <label>Kapasitas & sesi</label>
     <div class="nx-g2">${[['capWd','Maks panggang · hari kerja',ntUnitNm()],['capWe','Maks panggang · Sab/Min',ntUnitNm()],['perJam','Maks pesanan / sesi jam','per lokasi']].map(([k,l,u])=>`<div class="nx-q"><small>${l}</small><div class="qv"><button onclick="ntCfgStep('${k}',-1)">−</button><b>${c[k]}</b><button onclick="ntCfgStep('${k}',1)">+</button></div><small>${esc(u)}</small></div>`).join('')}
       <div class="nx-q"><small>Hitungan chiffon</small><div style="font-size:13px;margin-top:6px">1 loyang = 1 Large = 2 Medium = <b>6 slice</b></div><small>Kapasitas ikut hari panggang (H-1)</small></div></div>
+    <label>Ketentuan order <span class="muted">(tampil di atas menu customer)</span></label>
+    <textarea rows="5" onchange="ntCfgSet('rules',this.value)" placeholder="cth: Medium minimal 2 pcs per rasa (kelipatan 2)…">${esc(c.rules||'')}</textarea>
     <div class="nx-note">💡 Menu & slot tiap tanggal awalnya diisi dari pesanan yang sudah masuk (slot = jumlah dipesan, jadi penuh). Tambah slot atau produk di tanggal yang mau dibuka untuk customer, lalu tekan <b>Simpan</b>.</div></div>
   <div class="card"><div class="row between"><h3 style="font-size:17px">📅 Kalender</h3><span class="muted">Ketuk tanggal untuk atur menunya</span></div>
     ${ntMonths((x,num)=>{if(!ntDay(x))return `<div class="nx-od out"><div class="n">${num}</div></div>`;
@@ -1953,10 +1974,12 @@ function oNtSet(){
         <div class="bar" style="margin-top:6px;background:#fff"><i style="width:${Math.min(100,cap?pu/cap*100:100)}%;background:${pu>=cap?'var(--red)':'var(--ok)'}"></i></div>
         <div class="muted" style="margin-top:4px">${ntUnitNm()} dari pesanan masuk · kalau semua slot laku: <b style="color:${mx>cap?'var(--red)':'var(--ink)'}">${mx}</b></div></div>
       ${mx>cap?`<div class="nx-note">⚠️ Slot yang dibuka bisa jadi <b>${mx}</b>, lebih dari kapasitas ${cap}. Tidak apa-apa, sistem otomatis berhenti menerima pesanan saat kapasitas penuh.</div>`:''}
+      <div class="nx-vl"><div>Kapasitas tanggal ini<div class="t">${typeof ntDay(d).cap==='number'?'khusus tanggal ini · <a href="#" onclick="ntCapDay(\''+d+'\',null);return false">pakai default ('+ntCapDef(d)+')</a>':'default '+(ntWE(ntAdd(d,-1))?'Sab/Min':'hari kerja')}</div></div>
+        <span class="nx-mini"><button onclick="ntCapDay('${d}',-1)">−</button><b>${cap}</b><button onclick="ntCapDay('${d}',1)">+</button></span></div>
       ${ntBakeOff(d)?`<div class="nx-note r">⚠️ Hari panggangnya (${ntFdl(ntAdd(d,-1))}) ditandai <b>libur</b>. Pastikan dapur tetap bisa produksi, atau tutup tanggal ini.</div>`:''}
       ${Object.keys(g).length?Object.entries(g).map(([pn,ks])=>`<div class="nx-grp"><b>${esc(pn)}</b>${ks.map(k=>{const so=ntSold(d)[k]||0,sl=ntSlot(d,k);
-        return `<div class="nx-vl"><div>${esc(ntV(k).short)}<div class="t">terisi ${so} · ${sl>so?'<span style="color:var(--ok)">sisa '+(sl-so)+' untuk customer</span>':'<span style="color:var(--red)">penuh</span>'}</div></div>
-          <span class="nx-mini"><button onclick="ntSlotStep('${d}',${ntJs(k)},-1)">−</button><b>${so}/${sl}</b><button onclick="ntSlotStep('${d}',${ntJs(k)},1)">+</button>${so?'':`<button title="Hapus dari tanggal ini" onclick="ntSlotDel('${d}',${ntJs(k)})">✕</button>`}</span></div>`}).join('')}</div>`).join('')
+        const vv=ntV(k);return `<div class="nx-vl"><div>${esc(vv.short)}${vv.hidden?' <span class="pill lt" style="font-size:10.5px">🔒 khusus owner</span>':''}<div class="t">terisi ${so} · ${sl>so?'<span style="color:var(--ok)">sisa '+(sl-so)+' untuk customer</span>':'<span style="color:var(--red)">penuh</span>'}</div></div>
+          <span class="nx-mini"><button onclick="ntSlotStep('${d}',${ntJs(k)},-${vv.step})">−</button><b>${so}/${sl}</b><button onclick="ntSlotStep('${d}',${ntJs(k)},${vv.step})">+</button>${so?'':`<button title="Hapus dari tanggal ini" onclick="ntSlotDel('${d}',${ntJs(k)})">✕</button>`}</span></div>`}).join('')}</div>`).join('')
         :`<div class="muted" style="padding:10px 0">Belum ada menu di tanggal ini.</div>`}
       ${P?`<div class="nx-box" style="margin-top:12px"><b style="font-size:13.5px">＋ Tambah menu ke tanggal ini</b>
         <div class="nx-add"><select onchange="ntAddP(this.value)">${cat.map(p=>`<option value="${esc(p.id)}" ${A.p===p.id?'selected':''}>${esc(p.n)}</option>`).join('')}</select>
@@ -1977,6 +2000,7 @@ function ntRange(k,v){const D=ntDraft(),ns=k==='start'?v:D.cfg.start,ne=k==='end
   if(lost.length){toast('Tidak bisa: ada '+lost.length+' pesanan di luar rentang ('+lost.slice(0,3).map(o=>o.nama+' '+ntFds(o.date)).join(', ')+'). Pindahkan dulu pesanannya.');return render();}
   D.cfg[k]=v;const old=D.days;D.days={};for(let d=ns;d<=ne;d=ntAdd(d,1))D.days[d]=old[d]||{off:false,slot:{}};ntTouch();}
 function ntOff(d){const D=ntDraft();D.days[d].off=!D.days[d].off;if(D.days[d].off&&ntOrdersOn(d).length)toast('⚠️ Sudah ada '+ntOrdersOn(d).length+' pesanan di tanggal ini');ntTouch();}
+function ntCapDay(d,x){const D=ntDraft(),day=D.days[d];if(x===null)delete day.cap;else day.cap=Math.max(0,(typeof day.cap==='number'?day.cap:ntCapDef(d))+x);ntTouch();}
 function ntSlotStep(d,k,x){const D=ntDraft(),so=ntSold(d)[k]||0,v=(D.days[d].slot[k]||0)+x;if(v<so)return toast('Slot tidak bisa lebih kecil dari yang sudah dipesan');D.days[d].slot[k]=v;ntTouch();}
 function ntSlotDel(d,k){const D=ntDraft();delete D.days[d].slot[k];ntTouch();}
 function ntAddP(id){const A=S.owner.ntAdd,P=ntProd(id);A.p=id;A.sz=P.sizes[0][0];A.f=(P.flav||[''])[0];render();}
@@ -1988,14 +2012,45 @@ function ntCopyDay(d){const t=prompt('Salin menu & slot '+ntFds(d)+' ke tanggal 
 // katalog produk PO Natal
 function oNtCat(){const F=S.owner.ntNp,cat=NC().cat||[];
   return `<div class="card"><div class="row between"><h3 style="font-size:17px">🍰 Produk PO Natal</h3><button class="btn sm" onclick="ntNpOpen('prod')">＋ Produk baru</button></div>
-    <p class="muted" style="margin:4px 0 0">Produk yang bisa dipasang di tiap tanggal. Harga bisa langsung diubah.</p>
-    ${cat.map((p,pi)=>`<div class="nx-lc"><div class="row between" style="flex-wrap:nowrap"><b>${esc(p.n)}</b><span class="muted">dihitung per ${esc(p.unit)}</span></div>
-      ${p.sizes.map((z,zi)=>`<div class="nx-zr"><span>${esc(z[1])}</span><span class="muted">${z[3]===1?'1 '+esc(p.unit):z[3]<1?'1/'+Math.round(1/z[3])+' '+esc(p.unit):z[3]+' '+esc(p.unit)}</span><input type="number" step="1000" min="0" value="${z[2]}" onchange="ntPrice(${pi},${zi},this.value)" title="harga"></div>`).join('')}
-      ${p.flav?`<div class="nx-pills">${p.flav.map(f=>`<span>${esc(f)}</span>`).join('')}</div>`:''}
+    <p class="muted" style="margin:4px 0 0">Nama, ukuran, harga & rasa bisa diubah langsung. Yang sudah dipakai pesanan tidak bisa dihapus.</p>
+    ${cat.map((p,pi)=>{const pu=ntUsed(a=>a[0]===p.id);return `<div class="nx-lc">
+      <div class="nx-pe"><input value="${esc(p.n)}" onchange="ntCatSet(${pi},'n',this.value)" placeholder="Nama produk" style="font-weight:700">
+        <span class="muted">per</span><input value="${esc(p.unit)}" onchange="ntCatSet(${pi},'unit',this.value)" placeholder="loyang" title="dipanggang per">
+        ${pu?'':`<button class="btn sm ghost" onclick="ntPDel(${pi})" title="Hapus produk">🗑</button>`}</div>
+      <div class="nx-zh"><span>Ukuran</span><span>pcs/${esc(p.unit)}</span><span>kelipatan</span><span>Harga</span><span></span></div>
+      ${p.sizes.map((z,zi)=>{const zu=ntUsed(a=>a[0]===p.id&&a[1]===z[0]);return `<div class="nx-zr2"><input value="${esc(z[1])}" onchange="ntSzSet(${pi},${zi},'n',this.value)">
+        <span class="nx-cut"><input type="number" min="1" step="1" value="${z[3]<=1?Math.round(1/z[3]):1}" onchange="ntSzSet(${pi},${zi},'cut',this.value)"></span>
+        <span class="nx-cut"><input type="number" min="1" step="1" value="${ntV(ntKey(p.id,z[0],'')).step}" onchange="ntSzSet(${pi},${zi},'step',this.value)" title="customer wajib pesan kelipatan ini"></span>
+        <input type="number" step="1000" min="0" value="${z[2]}" onchange="ntPrice(${pi},${zi},this.value)">
+        ${zu||p.sizes.length<2?'<span></span>':`<button class="nx-x" onclick="ntSzDel(${pi},${zi})" title="Hapus ukuran">✕</button>`}</div>`;}).join('')}
+      ${p.flav&&p.flav.length?`<div class="nx-fl">${p.flav.map((f,fi)=>{const fu=ntUsed(a=>a[0]===p.id&&a[2]===f);const hd=(p.hide||[]).indexOf(f)>=0;return `<span class="${hd?'hd':''}"><button class="nx-fn" onclick="ntFlRen(${pi},${fi})" title="Ganti nama">${esc(f)} ✏️</button><button class="nx-x" style="color:var(--ink)" onclick="ntFlHide(${pi},${fi})" title="${hd?'Khusus owner (tidak tampil di customer)':'Tampil di customer'}">${hd?'🔒':'🌐'}</button>${fu?'':`<button class="nx-x" onclick="ntFlDel(${pi},${fi})" title="Hapus rasa">✕</button>`}</span>`;}).join('')}</div>`:''}
       <div class="row" style="margin-top:8px"><button class="btn sm ghost" onclick="ntNpOpen('size',${ntJs(p.id)})">＋ Ukuran</button><button class="btn sm ghost" onclick="ntNpOpen('flav',${ntJs(p.id)})">＋ Rasa</button></div>
-      ${F&&F.p===p.id?ntNpForm():''}</div>`).join('')}
-    ${F&&F.mode==='prod'?`<div class="nx-lc">${ntNpForm()}</div>`:''}</div>`;}
+      ${F&&F.p===p.id?ntNpForm():''}</div>`;}).join('')}
+    ${F&&F.mode==='prod'?`<div class="nx-lc">${ntNpForm()}</div>`:''}
+    <p class="muted" style="margin-top:8px"><b>1 loyang =</b> jadi berapa pcs dari 1 loyang (Large 1, Medium 2, Slice 6). <b>Kelipatan</b> = customer wajib pesan kelipatan ini per rasa (Medium 2, Slice 6 → selalu pas 1 loyang, tidak ada sisa). Rasa 🔒 hanya bisa diinput owner, 🌐 tampil di customer.</p></div>`;}
+function ntFlHide(pi,fi){const D=ntDraft(),P=D.cat[pi],f=P.flav[fi];P.hide=P.hide||[];const i=P.hide.indexOf(f);if(i>=0)P.hide.splice(i,1);else P.hide.push(f);ntTouch();toast(i>=0?'🌐 '+f+' tampil di customer':'🔒 '+f+' khusus owner');}
 function ntPrice(pi,zi,v){const D=ntDraft();D.cat[pi].sizes[zi][2]=Math.max(0,Math.round(+v||0));ntTouch();}
+// sudah dipakai pesanan? (cek idProduk|idUkuran|rasa)
+function ntUsed(fn){return (DB.natalOrders||[]).some(o=>Object.keys(o.items||{}).some(k=>fn(String(k).split('|'))));}
+// ubah/hapus kunci slot di semua tanggal (draft)
+function ntSlotMap(D,fn){Object.values(D.days).forEach(day=>{const ns={};Object.entries(day.slot||{}).forEach(([k,v])=>{const nk=fn(k);if(nk)ns[nk]=(ns[nk]||0)+v;});day.slot=ns;});}
+function ntCatSet(pi,k,v){v=String(v).trim();if(!v){toast('Tidak boleh kosong');return render();}const D=ntDraft();D.cat[pi][k]=v;ntTouch();}
+function ntSzSet(pi,zi,f,v){const D=ntDraft(),z=D.cat[pi].sizes[zi];
+  if(f==='n'){v=String(v).trim();if(!v){toast('Nama ukuran tidak boleh kosong');return render();}z[1]=v;}
+  else if(f==='step'){z[4]=Math.max(1,Math.floor(+v||1));}
+  else{const c=Math.max(1,Math.floor(+v||1)),old=z[3]<1?Math.round(1/z[3]):1;z[3]=1/c;if(!(z[4]>=1)||z[4]===old)z[4]=c;}ntTouch();}
+function ntSzDel(pi,zi){const D=ntDraft(),P=D.cat[pi],z=P.sizes[zi];if(!confirm('Hapus ukuran '+z[1]+'? Slotnya di semua tanggal ikut terhapus.'))return;
+  P.sizes.splice(zi,1);ntSlotMap(D,k=>{const a=k.split('|');return a[0]===P.id&&a[1]===z[0]?null:k;});ntTouch();}
+function ntFlRen(pi,fi){const D0=NC(),P0=D0.cat[pi],old=P0.flav[fi];
+  const nv=String(prompt('Ganti nama rasa',old)||'').trim();if(!nv||nv===old)return;if(P0.flav.indexOf(nv)>=0)return toast('Rasa itu sudah ada');
+  const used=(DB.natalOrders||[]).filter(o=>Object.keys(o.items||{}).some(k=>{const a=k.split('|');return a[0]===P0.id&&a[2]===old;})).length;
+  if(used){if(!confirm('Ganti "'+old+'" jadi "'+nv+'"?\n'+used+' pesanan yang memakai rasa ini ikut diganti.'))return;
+    (async()=>{if(NTDirty&&!(await ntSave()))return;if(await ownerCall('ownerNatalRenameFlavor',P0.id,old,nv))toast('✅ Rasa diganti di semua pesanan');})();return;}
+  const D=ntDraft(),P=D.cat[pi];P.flav[fi]=nv;ntSlotMap(D,k=>{const a=k.split('|');return a[0]===P.id&&a[2]===old?a[0]+'|'+a[1]+'|'+nv:k;});ntTouch();}
+function ntFlDel(pi,fi){const D=ntDraft(),P=D.cat[pi],f=P.flav[fi];if(!confirm('Hapus rasa '+f+'? Slotnya di semua tanggal ikut terhapus.'))return;
+  P.flav.splice(fi,1);ntSlotMap(D,k=>{const a=k.split('|');return a[0]===P.id&&a[2]===f?null:k;});ntTouch();}
+function ntPDel(pi){const D=ntDraft(),P=D.cat[pi];if(!confirm('Hapus produk '+P.n+'? Slotnya di semua tanggal ikut terhapus.'))return;
+  D.cat.splice(pi,1);ntSlotMap(D,k=>k.split('|')[0]===P.id?null:k);ntTouch();}
 function ntNpOpen(mode,p){S.owner.ntNp={mode,p:p||'',n:'',unit:'loyang',sz:'',price:'',cut:1,f:''};render();}
 function ntNpForm(){const F=S.owner.ntNp,P=F.p?ntProd(F.p):null;
   return `<div class="nx-box">
@@ -2114,8 +2169,8 @@ function oNtRekap(){const days=ntDates();
   if(!S.owner.ntDay||days.indexOf(S.owner.ntDay)<0)S.owner.ntDay=days.find(x=>x>=(DB.today||'')&&ntOrdersOn(x).length)||days.find(x=>ntOrdersOn(x).length)||days[0];
   const d=S.owner.ntDay,P=ntDayPlan(d),bake=ntAdd(d,-1),cap=ntCap(d),done=lsGet('gy_nt_done');
   let h=`<div class="card"><div class="row between"><h2 style="font-size:20px">📋 Rekap per tanggal</h2><span class="muted">${(DB.natalOrders||[]).length} pesanan</span></div>
-    <div class="nx-chips" style="margin-top:10px">${days.map(x=>{const n=ntOrdersOn(x).length,dt=new Date(x+'T00:00:00');
-      return `<button class="nx-dc ${x===d?'on':''}" onclick="S.owner.ntDay='${x}';render()">${dt.toLocaleDateString('id-ID',{weekday:'short'})}<b>${dt.getDate()}</b><small>${n?n+' order':'–'}</small></button>`;}).join('')}</div></div>
+    ${ntMonths((x,num)=>{if(!ntDay(x))return `<div class="nx-od out"><div class="n">${num}</div></div>`;const n=ntOrdersOn(x).length,u=n?ntDayPlan(x).tot:0;
+      return `<div class="nx-od ${x===d?'sel':''} ${n?'':'empty'} ${ntDay(x).off?'off':''}" onclick="S.owner.ntDay='${x}';render()"><div class="n">${num}</div><div class="f">${n?n+' order':'–'}</div>${n?`<div class="nx-u">🔥${u}</div>`:''}</div>`;})}</div>
   <div class="card"><div class="row between" style="align-items:flex-start;flex-wrap:nowrap"><div><h3 style="font-size:18px">🔥 Panggang ${ntFdl(bake)}</h3><div class="muted">untuk diambil <b style="color:var(--ink)">${ntFdl(d)}</b> · ${P.os.length} pesanan</div></div>
       <div style="text-align:right"><b style="font-family:'Playfair Display',serif;font-size:24px;color:${P.tot>cap?'var(--red)':'var(--brand)'}">${P.tot}</b><div class="muted">/ ${cap} kapasitas</div></div></div>
     ${ntBakeOff(d)?`<div class="nx-note r">⚠️ ${ntFdl(bake)} ditandai libur, padahal ada yang harus dipanggang.</div>`:''}
