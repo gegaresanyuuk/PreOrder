@@ -301,7 +301,7 @@ a.btn{text-decoration:none}
 .nx-save{position:fixed;left:0;right:0;bottom:0;z-index:25;background:#2f4630;color:#fff;padding:10px 0;box-shadow:0 -4px 16px rgba(0,0,0,.15)}
 .nx-save .wrap{padding-bottom:0;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .nx-save .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}.nx-save .btn{background:#fff;color:#2f4630}
-.nx-pe{display:grid;grid-template-columns:minmax(0,1fr) auto 76px auto;gap:6px;align-items:center}.nx-pe input{padding:8px 10px;border-radius:10px}
+.nx-pe{display:grid;grid-template-columns:minmax(0,1fr) auto 70px auto auto;gap:6px;align-items:center}.nx-pe input{padding:8px 10px;border-radius:10px}
 .nx-zh,.nx-zr2{display:grid;grid-template-columns:minmax(0,1fr) 44px 44px 80px 22px;gap:6px;align-items:center}.nx-zh{font-size:9.5px;color:var(--muted);margin-top:8px;line-height:1.2}.nx-zh span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nx-zr2{margin-top:5px}.nx-zr2 input{padding:7px 8px;border-radius:9px;font-size:13.5px}.nx-zr2>input[type=number]{text-align:right}
 .nx-cut{display:flex;align-items:center;gap:3px}.nx-cut input{padding:7px 4px;text-align:center}.nx-cut small{font-size:11px;color:var(--muted)}
@@ -1768,14 +1768,19 @@ const ntProd=id=>(NC().cat||[]).find(p=>p.id===id);
 const ntKey=(p,sz,f)=>p+'|'+sz+'|'+(f||'');
 function ntV(k){const a=String(k).split('|'),P=NC()&&ntProd(a[0]),Z=P&&P.sizes.find(z=>z[0]===a[1]),f=a[2]||'';
   const per=Z?+Z[3]||1:1,step=Z?(+Z[4]>=1?Math.floor(+Z[4]):(per<1?Math.round(1/per):1)):1;
-  return {P:P||{id:a[0],n:a[0],unit:'unit',sizes:[]},Z:Z||[a[1],a[1],0,1],f,ok:!!(P&&Z),price:Z?+Z[2]||0:0,per,step,hidden:!!(P&&f&&(P.hide||[]).indexOf(f)>=0),
+  return {P:P||{id:a[0],n:a[0],unit:'unit',sizes:[]},Z:Z||[a[1],a[1],0,1],f,ok:!!(P&&Z),price:Z?+Z[2]||0:0,per,step,hidden:!!(P&&(P.priv||(f&&(P.hide||[]).indexOf(f)>=0))),
     label:(P?P.n:a[0])+' '+(Z?Z[1]:a[1])+(f?' · '+f:''),short:(Z?Z[1]:a[1])+(f?' · '+f:'')};}
 function ntSold(d){const s=Object.assign({},(NT().sold||{})[d]||{});
   if(NTX&&NTX.date===d)Object.entries(NTX.items||{}).forEach(([k,q])=>s[k]=Math.max(0,(s[k]||0)-q));return s;}
 const ntDay=d=>(NC().days||{})[d];
-const ntSlot=(d,k)=>((ntDay(d)||{}).slot||{})[k]||0;
+// menu otomatis: semua rasa terbuka di semua tanggal, dibatasi kapasitas loyang per tanggal
+const ntAuto=()=>NC().cfg.auto!==false;
+const NT_INF=9999;
+function ntAllKeys(){const out=[];(NC().cat||[]).forEach(p=>(p.flav&&p.flav.length?p.flav:['']).forEach(f=>p.sizes.forEach(z=>out.push(ntKey(p.id,z[0],f)))));return out;}
+const ntSlot=(d,k)=>ntAuto()?NT_INF:((ntDay(d)||{}).slot||{})[k]||0;
 const ntLeft=(d,k)=>Math.max(0,ntSlot(d,k)-(ntSold(d)[k]||0));
-const ntKeys=d=>Object.keys((ntDay(d)||{}).slot||{});
+const ntKeys=d=>ntAuto()?[...new Set(ntAllKeys().concat(Object.keys(ntSold(d)).filter(k=>ntSold(d)[k]>0)))]:Object.keys((ntDay(d)||{}).slot||{});
+const ntCapLeft=d=>Math.max(0,ntCap(d)-ntPlan(d));
 const ntCloseD=d=>ntAdd(d,-NC().cfg.cutoff);
 const ntCapDef=d=>{const c=NC().cfg;return ntWE(ntAdd(d,-1))?+c.capWe:+c.capWd;};
 const ntCap=d=>{const x=ntDay(d);return x&&typeof x.cap==='number'&&x.cap>=0?x.cap:ntCapDef(d);};
@@ -1835,7 +1840,9 @@ function ntStep1(){const n=S.nt,d=n.date;
     <div class="nx-lg"><span><i style="background:var(--ok-soft)"></i>Tersedia</span><span><i style="background:var(--warn-soft);border-color:#e0c08e"></i>Sisa sedikit</span><span><i style="background:#e7ded3;border-style:dashed"></i>Sold out</span><span><i style="background:repeating-linear-gradient(135deg,#f3eee7 0 3px,#e3d9cb 3px 6px)"></i>Libur</span></div>
     ${d?`<div class="nx-box"><div class="row between"><b>📅 ${ntFdl(d)}</b><span class="pill low">${ntWE(d)?'Weekend':'Weekday'}</span></div>
       <div class="muted" style="margin-bottom:4px">Pesan paling lambat ${ntFdl(ntCloseD(d))}</div>
-      ${Object.entries(ntGroups(d,1)).map(([pn,ks])=>`<div class="nx-grp"><b>${esc(pn)}</b>${ks.map(k=>{const l=ntLeft(d,k);return `<div class="nx-tl"><span>${esc(ntV(k).short)}</span><b style="color:${l?'var(--ok)':'var(--red)'}">${l?'sisa '+l:'habis'}</b></div>`}).join('')}</div>`).join('')}</div>`:''}
+      ${ntAuto()?`<div class="nx-tl"><span>Sisa kapasitas</span><b style="color:${ntCapLeft(d)?'var(--ok)':'var(--red)'}">${ntCapLeft(d)} loyang</b></div>
+        ${Object.entries(ntGroups(d,1)).map(([pn,ks])=>`<div class="nx-grp"><b>${esc(pn)}</b><div class="muted">${[...new Set(ks.map(k=>ntV(k).f).filter(Boolean))].map(esc).join(' · ')||'tersedia'}</div></div>`).join('')}`
+      :Object.entries(ntGroups(d,1)).map(([pn,ks])=>`<div class="nx-grp"><b>${esc(pn)}</b>${ks.map(k=>{const l=ntLeft(d,k);return `<div class="nx-tl"><span>${esc(ntV(k).short)}</span><b style="color:${l?'var(--ok)':'var(--red)'}">${l?'sisa '+l:'habis'}</b></div>`}).join('')}</div>`).join('')}</div>`:''}
   </div>
   <div class="sticky"><div class="wrap"><span class="muted">${d?ntFds(d):'Belum pilih tanggal'}</span><button class="btn" ${d?'':'disabled'} onclick="ntGo(2)">Lanjut</button></div></div>`;}
 function ntPick(d){const st=ntStatus(d);const msg={sold:'Tanggal ini sudah sold out 🙏',off:'Tanggal ini libur ya',past:'Pemesanan tanggal ini sudah tutup',closed:'Menu tanggal ini belum dibuka',out:'Di luar periode PO'}[st];
@@ -1843,13 +1850,14 @@ function ntPick(d){const st=ntStatus(d);const msg={sold:'Tanggal ini sudah sold 
 function ntGo(s){S.nt.step=s;render();window.scrollTo(0,0);}
 const ntCartN=()=>Object.values(S.nt.qty).reduce((a,b)=>a+b,0);
 const ntCartT=()=>Object.entries(S.nt.qty).reduce((t,[k,q])=>t+q*ntV(k).price,0);
-function ntStep2(){const n=S.nt,d=n.date,g=ntGroups(d,1),rules=String(NC().cfg.rules||'').trim();let tight=false;
+function ntStep2(){const n=S.nt,d=n.date,g=ntAuto()?(()=>{const g={};ntPubKeys(d).forEach(k=>{const v=ntV(k),h=v.P.n+(v.f?' · '+v.f:'');(g[h]=g[h]||[]).push(k);});return g;})():ntGroups(d,1),rules=String(NC().cfg.rules||'').trim();let tight=false;
   const body=Object.entries(g).map(([pn,ks])=>`<div class="nx-sz"><b>${esc(pn)}</b></div>`+ks.map(k=>{const v=ntV(k),q=n.qty[k]||0,l=ntLeft(d,k),can=ntFits(d,k,n.qty);
     if(l>q&&!can)tight=true;
-    return `<div class="item"><div><b>${esc(v.short)}</b><div class="muted">${rp(v.price)}${ntStepTxt(v)?' · <b>'+ntStepTxt(v)+'</b>':''} · ${!l?'<span class="pill closed">Sold out</span>':can||q>=l?(l-q<=3?`<span class="pill low">Sisa ${l-q}</span>`:'Sisa '+(l-q)):'<span class="pill low">Kapasitas penuh</span>'}</div></div>
+    return `<div class="item"><div><b>${esc(ntAuto()?v.Z[1]:v.short)}</b><div class="muted">${rp(v.price)}${ntStepTxt(v)?' · <b>'+ntStepTxt(v)+'</b>':''}${ntAuto()?(can?'':' · <span class="pill low">Kapasitas penuh</span>'):' · '+(!l?'<span class="pill closed">Sold out</span>':can||q>=l?(l-q<=3?`<span class="pill low">Sisa ${l-q}</span>`:'Sisa '+(l-q)):'<span class="pill low">Kapasitas penuh</span>')}</div></div>
       <div class="stepper"><button ${q?'':'disabled'} onclick="ntQ(${ntJs(k)},-${v.step})">−</button><span>${q}</span><button ${can?'':'disabled'} onclick="ntQ(${ntJs(k)},${v.step})">+</button></div></div>`;}).join('')).join('');
   return `<div class="card"><div class="row between"><h2 style="font-size:20px">2. Pilih menu</h2><button class="btn sm ghost" onclick="ntGo(1)">📅 ${ntFds(d)} · ganti</button></div>
     ${rules?`<div class="nx-rules">${esc(rules).replace(/\n/g,'<br>')}</div>`:''}
+    ${ntAuto()?(()=>{const left=Math.max(0,ntCap(d)-ntPlan(d,n.qty));return `<div class="nx-tl" style="margin:6px 0 2px"><span>Sisa kapasitas ${ntFds(d)}</span><b style="color:${left?'var(--ok)':'var(--red)'}">${left} loyang</b></div>`;})():''}
     ${body||'<div class="empty">Belum ada menu di tanggal ini.</div>'}
     ${tight?`<div class="nx-note">Kapasitas dapur di tanggal ini hampir penuh, jadi beberapa menu tidak bisa ditambah lagi. Coba tanggal lain ya 🙏</div>`:''}
     ${(NC().cat||[]).some(p=>p.sizes.some(z=>z[3]<1))?`<p class="muted" style="margin-top:10px">ℹ️ 1 loyang = 1 Large = 2 Medium = 6 slice</p>`:''}</div>
@@ -1958,30 +1966,31 @@ function oNtSet(){
       <div class="nx-q"><small>Hitungan chiffon</small><div style="font-size:13px;margin-top:6px">1 loyang = 1 Large = 2 Medium = <b>6 slice</b></div><small>Kapasitas ikut hari panggang (H-1)</small></div></div>
     <label>Ketentuan order <span class="muted">(tampil di atas menu customer)</span></label>
     <textarea rows="5" onchange="ntCfgSet('rules',this.value)" placeholder="cth: Medium minimal 2 pcs per rasa (kelipatan 2)…">${esc(c.rules||'')}</textarea>
-    <div class="nx-note">💡 Menu & slot tiap tanggal awalnya diisi dari pesanan yang sudah masuk (slot = jumlah dipesan, jadi penuh). Tambah slot atau produk di tanggal yang mau dibuka untuk customer, lalu tekan <b>Simpan</b>.</div></div>
+    <label>Menu per tanggal</label><div class="nx-seg"><button class="${ntAuto()?'on':''}" onclick="ntCfgSet('auto',true)">✨ Otomatis</button><button class="${ntAuto()?'':'on'}" onclick="ntCfgSet('auto',false)">✍️ Atur manual</button></div>
+    <div class="nx-note">${ntAuto()?'✨ <b>Otomatis:</b> semua rasa 🌐 terbuka di semua tanggal. Kamu cukup atur <b>kapasitas loyang</b> (default di atas, atau per tanggal di kalender) dan tanggal <b>libur</b>. Tanggal otomatis jadi "Habis" saat kapasitasnya penuh.':'✍️ <b>Atur manual:</b> tiap tanggal hanya menjual menu & jumlah slot yang kamu isi di kalender.'}</div></div>
   <div class="card"><div class="row between"><h3 style="font-size:17px">📅 Kalender</h3><span class="muted">Ketuk tanggal untuk atur menunya</span></div>
     ${ntMonths((x,num)=>{if(!ntDay(x))return `<div class="nx-od out"><div class="n">${num}</div></div>`;
-      const ks=ntKeys(x),sold=ntSold(x),T=ks.reduce((t,k)=>t+ntSlot(x,k),0),U=ks.reduce((t,k)=>t+Math.min(sold[k]||0,ntSlot(x,k)),0),off=ntDay(x).off;
+      const au=ntAuto(),ks=au?ntPubKeys(x):ntKeys(x),sold=ntSold(x),T=au?ntCap(x):ks.reduce((t,k)=>t+ntSlot(x,k),0),U=au?ntPlan(x):ks.reduce((t,k)=>t+Math.min(sold[k]||0,ntSlot(x,k)),0),off=ntDay(x).off;
       return `<div class="nx-od ${off?'off':''} ${!ks.length&&!off?'empty':''} ${T&&U>=T?'full':''} ${d===x?'sel':''}" onclick="ntSetSel('${x}')"><div class="n">${num}</div>
         <div class="f">${off?'Libur':ks.length?U+'/'+T:'kosong'}</div>${off||!ks.length?'':`<div class="q"><i style="width:${T?U/T*100:0}%"></i></div>`}
         ${!off&&(ntPlan(x)>=ntCap(x)||ntBakeOff(x))?`<div class="w">${ntBakeOff(x)?'⚠️ H-1 libur':'🔥 penuh'}</div>`:''}</div>`;})}
-    <div class="nx-lg"><span>angka = terisi / slot</span><span>kosong = belum ada menu (customer lihat "Belum buka")</span><span>🔥 penuh = kapasitas panggang habis</span></div></div>`;
+    <div class="nx-lg">${ntAuto()?'<span>angka = loyang terisi / kapasitas</span>':'<span>angka = terisi / slot</span><span>kosong = belum ada menu (customer lihat "Belum buka")</span>'}<span>🔥 penuh = kapasitas panggang habis</span></div></div>`;
   if(d&&ntDay(d)){const g=ntGroups(d),pu=ntPlan(d),cap=ntCap(d),mx=ntMax(d),A=S.owner.ntAdd=S.owner.ntAdd||{p:'',sz:'',f:'',n:2};
     const cat=D.cat||[];if(!cat.some(p=>p.id===A.p)&&cat[0]){A.p=cat[0].id;A.sz=cat[0].sizes[0][0];A.f=(cat[0].flav||[''])[0];}const P=ntProd(A.p);
     h+=`<div class="card"><div class="row between"><div><h3 style="font-size:18px">${ntFdl(d)}</h3><div class="muted">${ntWE(d)?'Weekend':'Weekday'} · ${ntOrdersOn(d).length} pesanan</div></div>
         <button class="btn sm ${ntDay(d).off?'':'ghost'}" onclick="ntOff('${d}')">${ntDay(d).off?'✓ Libur':'Jadikan libur'}</button></div>
       <div class="nx-box"><div class="row between"><b style="font-size:13.5px">🔥 Panggang ${ntFds(ntAdd(d,-1))}</b><b>${pu} / ${cap}</b></div>
         <div class="bar" style="margin-top:6px;background:#fff"><i style="width:${Math.min(100,cap?pu/cap*100:100)}%;background:${pu>=cap?'var(--red)':'var(--ok)'}"></i></div>
-        <div class="muted" style="margin-top:4px">${ntUnitNm()} dari pesanan masuk · kalau semua slot laku: <b style="color:${mx>cap?'var(--red)':'var(--ink)'}">${mx}</b></div></div>
-      ${mx>cap?`<div class="nx-note">⚠️ Slot yang dibuka bisa jadi <b>${mx}</b>, lebih dari kapasitas ${cap}. Tidak apa-apa, sistem otomatis berhenti menerima pesanan saat kapasitas penuh.</div>`:''}
+        <div class="muted" style="margin-top:4px">${ntUnitNm()} dari pesanan masuk${ntAuto()?' · sisa '+Math.max(0,cap-pu)+' untuk customer':` · kalau semua slot laku: <b style="color:${mx>cap?'var(--red)':'var(--ink)'}">${mx}</b>`}</div></div>
+      ${!ntAuto()&&mx>cap?`<div class="nx-note">⚠️ Slot yang dibuka bisa jadi <b>${mx}</b>, lebih dari kapasitas ${cap}. Tidak apa-apa, sistem otomatis berhenti menerima pesanan saat kapasitas penuh.</div>`:''}
       <div class="nx-vl"><div>Kapasitas tanggal ini<div class="t">${typeof ntDay(d).cap==='number'?'khusus tanggal ini · <a href="#" onclick="ntCapDay(\''+d+'\',null);return false">pakai default ('+ntCapDef(d)+')</a>':'default '+(ntWE(ntAdd(d,-1))?'Sab/Min':'hari kerja')}</div></div>
         <span class="nx-mini"><button onclick="ntCapDay('${d}',-1)">−</button><b>${cap}</b><button onclick="ntCapDay('${d}',1)">+</button></span></div>
       ${ntBakeOff(d)?`<div class="nx-note r">⚠️ Hari panggangnya (${ntFdl(ntAdd(d,-1))}) ditandai <b>libur</b>. Pastikan dapur tetap bisa produksi, atau tutup tanggal ini.</div>`:''}
-      ${Object.keys(g).length?Object.entries(g).map(([pn,ks])=>`<div class="nx-grp"><b>${esc(pn)}</b>${ks.map(k=>{const so=ntSold(d)[k]||0,sl=ntSlot(d,k);
+      ${ntAuto()?(()=>{const so=ntSold(d),ks=Object.keys(so).filter(k=>so[k]>0);return ks.length?`<div class="nx-grp"><b>Sudah dipesan</b>${ks.map(k=>`<div class="nx-tl"><span>${esc(ntV(k).label)}</span><b>${so[k]}</b></div>`).join('')}</div>`:'<div class="muted" style="padding:8px 0">Belum ada pesanan di tanggal ini.</div>';})():Object.keys(g).length?Object.entries(g).map(([pn,ks])=>`<div class="nx-grp"><b>${esc(pn)}</b>${ks.map(k=>{const so=ntSold(d)[k]||0,sl=ntSlot(d,k);
         const vv=ntV(k);return `<div class="nx-vl"><div>${esc(vv.short)}${vv.hidden?' <span class="pill lt" style="font-size:10.5px">🔒 khusus owner</span>':''}<div class="t">terisi ${so} · ${sl>so?'<span style="color:var(--ok)">sisa '+(sl-so)+' untuk customer</span>':'<span style="color:var(--red)">penuh</span>'}</div></div>
           <span class="nx-mini"><button onclick="ntSlotStep('${d}',${ntJs(k)},-${vv.step})">−</button><b>${so}/${sl}</b><button onclick="ntSlotStep('${d}',${ntJs(k)},${vv.step})">+</button>${so?'':`<button title="Hapus dari tanggal ini" onclick="ntSlotDel('${d}',${ntJs(k)})">✕</button>`}</span></div>`}).join('')}</div>`).join('')
         :`<div class="muted" style="padding:10px 0">Belum ada menu di tanggal ini.</div>`}
-      ${P?`<div class="nx-box" style="margin-top:12px"><b style="font-size:13.5px">＋ Tambah menu ke tanggal ini</b>
+      ${P&&!ntAuto()?`<div class="nx-box" style="margin-top:12px"><b style="font-size:13.5px">＋ Tambah menu ke tanggal ini</b>
         <div class="nx-add"><select onchange="ntAddP(this.value)">${cat.map(p=>`<option value="${esc(p.id)}" ${A.p===p.id?'selected':''}>${esc(p.n)}</option>`).join('')}</select>
           <select onchange="S.owner.ntAdd.sz=this.value">${P.sizes.map(z=>`<option value="${esc(z[0])}" ${A.sz===z[0]?'selected':''}>${esc(z[1])}</option>`).join('')}</select>
           ${P.flav?`<select onchange="S.owner.ntAdd.f=this.value">${P.flav.map(f=>`<option ${A.f===f?'selected':''}>${esc(f)}</option>`).join('')}</select>`:'<span></span>'}
@@ -2016,7 +2025,7 @@ function oNtCat(){const F=S.owner.ntNp,cat=NC().cat||[];
     ${cat.map((p,pi)=>{const pu=ntUsed(a=>a[0]===p.id);return `<div class="nx-lc">
       <div class="nx-pe"><input value="${esc(p.n)}" onchange="ntCatSet(${pi},'n',this.value)" placeholder="Nama produk" style="font-weight:700">
         <span class="muted">per</span><input value="${esc(p.unit)}" onchange="ntCatSet(${pi},'unit',this.value)" placeholder="loyang" title="dipanggang per">
-        ${pu?'':`<button class="btn sm ghost" onclick="ntPDel(${pi})" title="Hapus produk">🗑</button>`}</div>
+        <button class="btn sm ghost" onclick="ntPPriv(${pi})" title="${p.priv?'Khusus owner':'Tampil di customer'}">${p.priv?'🔒':'🌐'}</button>${pu?'':`<button class="btn sm ghost" onclick="ntPDel(${pi})" title="Hapus produk">🗑</button>`}</div>
       <div class="nx-zh"><span>Ukuran</span><span>pcs/${esc(p.unit)}</span><span>kelipatan</span><span>Harga</span><span></span></div>
       ${p.sizes.map((z,zi)=>{const zu=ntUsed(a=>a[0]===p.id&&a[1]===z[0]);return `<div class="nx-zr2"><input value="${esc(z[1])}" onchange="ntSzSet(${pi},${zi},'n',this.value)">
         <span class="nx-cut"><input type="number" min="1" step="1" value="${z[3]<=1?Math.round(1/z[3]):1}" onchange="ntSzSet(${pi},${zi},'cut',this.value)"></span>
@@ -2028,6 +2037,7 @@ function oNtCat(){const F=S.owner.ntNp,cat=NC().cat||[];
       ${F&&F.p===p.id?ntNpForm():''}</div>`;}).join('')}
     ${F&&F.mode==='prod'?`<div class="nx-lc">${ntNpForm()}</div>`:''}
     <p class="muted" style="margin-top:8px"><b>1 loyang =</b> jadi berapa pcs dari 1 loyang (Large 1, Medium 2, Slice 6). <b>Kelipatan</b> = customer wajib pesan kelipatan ini per rasa (Medium 2, Slice 6 → selalu pas 1 loyang, tidak ada sisa). Rasa 🔒 hanya bisa diinput owner, 🌐 tampil di customer.</p></div>`;}
+function ntPPriv(pi){const D=ntDraft(),P=D.cat[pi];P.priv=!P.priv;ntTouch();toast(P.priv?'🔒 '+P.n+' khusus owner (tidak tampil di customer)':'🌐 '+P.n+' tampil di customer');}
 function ntFlHide(pi,fi){const D=ntDraft(),P=D.cat[pi],f=P.flav[fi];P.hide=P.hide||[];const i=P.hide.indexOf(f);if(i>=0)P.hide.splice(i,1);else P.hide.push(f);ntTouch();toast(i>=0?'🌐 '+f+' tampil di customer':'🔒 '+f+' khusus owner');}
 function ntPrice(pi,zi,v){const D=ntDraft();D.cat[pi].sizes[zi][2]=Math.max(0,Math.round(+v||0));ntTouch();}
 // sudah dipakai pesanan? (cek idProduk|idUkuran|rasa)
@@ -2110,14 +2120,14 @@ function ntManOpen(id){const o=id?(DB.natalOrders||[]).find(x=>x.id===id):null;
 function ntManForm(){const F=S.owner.ntm,d=F.date;NTX=F.orig;
   try{
   const locs=(NC().loc||[]).filter(l=>d&&ntWin(l,d)),cur=d&&F.lok&&ntLoc(F.lok),win=cur&&ntWin(cur,d);
-  const keys=d?[...new Set(ntKeys(d).concat(Object.keys(F.items)))]:[],A=S.owner.ntMa=S.owner.ntMa||{p:'',sz:'',f:''},cat=NC().cat||[];
+  const keys=d?[...new Set((ntAuto()?Object.keys(ntSold(d)).filter(k=>ntSold(d)[k]>0):ntKeys(d)).concat(Object.keys(F.items)))]:[],A=S.owner.ntMa=S.owner.ntMa||{p:'',sz:'',f:''},cat=NC().cat||[];
   if(!cat.some(p=>p.id===A.p)&&cat[0]){A.p=cat[0].id;A.sz=cat[0].sizes[0][0];A.f=(cat[0].flav||[''])[0];}const P=ntProd(A.p);
   const tot=Object.entries(F.items).reduce((t,[k,q])=>t+q*ntV(k).price,0),pu=d?ntPlan(d,F.items):0;
   return `<div class="card" id="ntman"><div class="row between"><h3 style="font-size:17px">🧾 ${F.id?'Edit pesanan '+esc(F.id):'Input pesanan manual'}</h3><button class="btn sm ghost" onclick="ntManClose()">✕</button></div>
     <div class="nx-g2"><div><label>Tanggal ambil</label><select onchange="ntManSet('date',this.value)"><option value="">— pilih —</option>${ntDates().map(x=>`<option value="${x}" ${d===x?'selected':''}>${ntFds(x)}${ntDay(x).off?' (libur)':''}</option>`).join('')}</select></div>
       <div><label>Nama</label><input value="${esc(F.nama)}" oninput="S.owner.ntm.nama=this.value"></div></div>
     <label>No. WhatsApp <span class="muted">(untuk tagih & pengingat)</span></label><input value="${esc(F.wa)}" oninput="S.owner.ntm.wa=this.value" inputmode="tel" placeholder="08…">
-    ${d?`<label>Menu</label>${keys.length?keys.map(k=>{const q=F.items[k]||0;return `<div class="nx-vl"><span>${esc(ntV(k).label)} <span class="muted">(sisa ${ntLeft(d,k)})</span></span><span class="nx-mini"><button onclick="ntManQ(${ntJs(k)},-1)">−</button><b>${q}</b><button onclick="ntManQ(${ntJs(k)},1)">+</button></span></div>`;}).join(''):'<div class="muted">Belum ada menu di tanggal ini, tambah di bawah.</div>'}
+    ${d?`<label>Menu</label>${keys.length?keys.map(k=>{const q=F.items[k]||0;return `<div class="nx-vl"><span>${esc(ntV(k).label)}${ntAuto()?'':` <span class="muted">(sisa ${ntLeft(d,k)})</span>`}</span><span class="nx-mini"><button onclick="ntManQ(${ntJs(k)},-1)">−</button><b>${q}</b><button onclick="ntManQ(${ntJs(k)},1)">+</button></span></div>`;}).join(''):'<div class="muted">Belum ada menu di tanggal ini, tambah di bawah.</div>'}
       ${P?`<div class="nx-add"><select onchange="ntManP(this.value)">${cat.map(p=>`<option value="${esc(p.id)}" ${A.p===p.id?'selected':''}>${esc(p.n)}</option>`).join('')}</select>
         <select onchange="S.owner.ntMa.sz=this.value">${P.sizes.map(z=>`<option value="${esc(z[0])}" ${A.sz===z[0]?'selected':''}>${esc(z[1])}</option>`).join('')}</select>
         ${P.flav?`<select onchange="S.owner.ntMa.f=this.value">${P.flav.map(f=>`<option ${A.f===f?'selected':''}>${esc(f)}</option>`).join('')}</select>`:'<span></span>'}
