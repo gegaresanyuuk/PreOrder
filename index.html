@@ -310,6 +310,13 @@ a.btn{text-decoration:none}
 .nx-fn{border:0;background:transparent;font-size:12.5px;font-weight:600;color:var(--ink);padding:4px 4px 4px 10px;cursor:pointer}
 .nx-rules{background:#fff7e0;border:1px solid #ecd9a8;border-radius:12px;padding:10px 12px;font-size:13.5px;margin:6px 0 4px;line-height:1.5}
 .nx-fl>span.hd{background:#ece6dd;opacity:.85}
+.nx-szg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0 6px}
+.nx-szg>div{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;text-align:center;padding-bottom:6px;font-size:12px;color:var(--muted)}
+.nx-szg b{display:block;font-size:13.5px;color:var(--ink);margin-top:5px}.nx-szg span,.nx-szg small{display:block}.nx-szg small{font-size:11px}
+.nx-noph{display:flex!important;align-items:center;justify-content:center;aspect-ratio:1;background:var(--brand-soft);font-size:28px}
+.nx-ph{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.nx-pht{width:76px;height:76px;border-radius:12px;overflow:hidden;border:1.5px dashed var(--line);background:var(--brand-soft);padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px}
+.nx-phs{display:flex;flex-direction:column;align-items:center;gap:3px}.nx-phs small{font-size:11.5px;color:var(--muted)}
 .nx-u{font-size:10px;color:var(--brand);font-weight:700}.nx-od .f{white-space:nowrap;font-size:10.5px;letter-spacing:-.2px}
 .bptag.nt{background:#e3ecdf;color:#3f5a3a}
 @media (max-width:420px){.nx-add{grid-template-columns:repeat(2,minmax(0,1fr))}.nx-lr{grid-template-columns:80px minmax(0,1fr) auto minmax(0,1fr)}}
@@ -1801,7 +1808,7 @@ function ntDates(){const c=NC().cfg,out=[];for(let d=c.start;d<=c.end&&out.lengt
 const ntLoc=id=>(NC().loc||[]).find(l=>l.id===id);
 function ntGroups(d,pub){const g={};ntKeys(d).forEach(k=>{const v=ntV(k);if(pub&&v.hidden)return;(g[v.P.n]=g[v.P.n]||[]).push(k);});return g;}
 const ntPubKeys=d=>ntKeys(d).filter(k=>!ntV(k).hidden);
-const ntStepTxt=v=>v.step>1?(v.per<1&&Math.abs(v.step*v.per-1)<1e-9&&v.step>2?'per box isi '+v.step:'kelipatan '+v.step):'';
+const ntStepTxt=v=>v.step>2?'min. '+v.step+', kelipatan '+v.step:v.step>1?'kelipatan '+v.step:'';
 function ntMonths(cell){const c=NC().cfg;let h='',y=+c.start.slice(0,4),m=+c.start.slice(5,7),guard=0;const ey=+c.end.slice(0,4),em=+c.end.slice(5,7);
   while((y<ey||(y===ey&&m<=em))&&guard++<6){const first=new Date(y,m-1,1),days=new Date(y,m,0).getDate(),lead=(first.getDay()+6)%7,cells=[];
     for(let i=0;i<lead;i++)cells.push(null);for(let d=1;d<=days;d++)cells.push([y+'-'+ntP2(m)+'-'+ntP2(d),d]);while(cells.length%7)cells.push(null);
@@ -1817,8 +1824,22 @@ function ntReset(){NTX=null;Object.assign(S.nt,{on:false,step:1,date:null,qty:{}
 const ntVisible=()=>{const N=NT();return !!(N&&N.cfg&&(N.cfg.live||NT_PREVIEW));};
 function ntOpen(){ntReset();S.nt.on=true;render();window.scrollTo(0,0);}
 function ntTags(){const c=NC().cfg;return `<div class="tg"><span>📅 ${ntFds(c.start)} – ${ntFds(c.end)}</span><span>⏳ Tutup H-${c.cutoff}</span><span>📍 Pickup / ojol</span><span>📱 Bayar QRIS</span></div>`;}
-function ntCard(){const c=NT().cfg;
-  return `<div class="nx-xmas" onclick="ntOpen()" style="cursor:pointer"><div class="sn">❄️</div><div style="font-size:12.5px;opacity:.85;letter-spacing:.04em">PRE ORDER SPESIAL</div>
+const ntPhoto=k=>((NT()||{}).photos||{})[k]||'';
+function ntPhotoPick(key){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+  inp.onchange=()=>{const f=inp.files&&inp.files[0];if(!f)return;if(!/^image\//.test(f.type))return toast('File harus gambar');
+    const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=async()=>{
+      const k=Math.min(1,720/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+      const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);
+      let q=0.78,url=c.toDataURL('image/jpeg',q);while(url.length>140000&&q>0.4){q-=0.08;url=c.toDataURL('image/jpeg',q);}
+      if(await ownerCall('ownerNatalPhoto',key,url))toast('✅ Foto tersimpan');};im.onerror=()=>toast('Foto tidak bisa dibaca');im.src=rd.result;};rd.readAsDataURL(f);};
+  inp.click();}
+function ntPhotoDel(key){if(confirm('Hapus foto ini?'))ownerCall('ownerNatalPhoto',key,'');}
+const ntSizeNote=(P,z)=>z[3]===1?'1 '+P.unit+' utuh':Math.abs(z[3]-0.5)<1e-9?'½ '+P.unit:'per potong';
+// panduan ukuran bergambar (customer, langkah menu)
+function ntSizeGuide(){return (NC().cat||[]).filter(P=>!P.priv&&P.sizes.some(z=>ntPhoto(P.id+'|'+z[0]))).map(P=>`<div class="nx-szg">${P.sizes.map(z=>{const ph=ntPhoto(P.id+'|'+z[0]);
+  return `<div>${ph?imgTag(ph,'width:100%;aspect-ratio:1;object-fit:cover;display:block'):'<span class="nx-noph">🍰</span>'}<b>${esc(z[1])}</b><span>${rp(z[2])}</span><small>${esc(ntSizeNote(P,z))}</small></div>`;}).join('')}</div>`).join('');}
+function ntCard(){const c=NT().cfg,hero=ntPhoto('hero');
+  return `<div class="nx-xmas" onclick="ntOpen()" style="cursor:pointer">${hero?imgTag(hero,'display:block;width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:12px;position:relative'):''}<div class="sn">❄️</div><div style="font-size:12.5px;opacity:.85;letter-spacing:.04em">PRE ORDER SPESIAL</div>
     <h2>🎄 ${esc(c.title)}</h2><div style="opacity:.9;margin-top:4px">Pilih tanggal ambil di kalender, lalu menu yang tersedia di tanggal itu.</div>${ntTags()}
     <button class="btn go">📅 Pilih tanggal</button></div>`;}
 function ntCust(){
@@ -1856,6 +1877,7 @@ function ntStep2(){const n=S.nt,d=n.date,g=ntAuto()?(()=>{const g={};ntPubKeys(d
     return `<div class="item"><div><b>${esc(ntAuto()?v.Z[1]:v.short)}</b><div class="muted">${rp(v.price)}${ntStepTxt(v)?' · <b>'+ntStepTxt(v)+'</b>':''}${ntAuto()?(can?'':' · <span class="pill low">Kapasitas penuh</span>'):' · '+(!l?'<span class="pill closed">Sold out</span>':can||q>=l?(l-q<=3?`<span class="pill low">Sisa ${l-q}</span>`:'Sisa '+(l-q)):'<span class="pill low">Kapasitas penuh</span>')}</div></div>
       <div class="stepper"><button ${q?'':'disabled'} onclick="ntQ(${ntJs(k)},-${v.step})">−</button><span>${q}</span><button ${can?'':'disabled'} onclick="ntQ(${ntJs(k)},${v.step})">+</button></div></div>`;}).join('')).join('');
   return `<div class="card"><div class="row between"><h2 style="font-size:20px">2. Pilih menu</h2><button class="btn sm ghost" onclick="ntGo(1)">📅 ${ntFds(d)} · ganti</button></div>
+    ${ntSizeGuide()}
     ${rules?`<div class="nx-rules">${esc(rules).replace(/\n/g,'<br>')}</div>`:''}
     ${ntAuto()?(()=>{const left=Math.max(0,ntCap(d)-ntPlan(d,n.qty));return `<div class="nx-tl" style="margin:6px 0 2px"><span>Sisa kapasitas ${ntFds(d)}</span><b style="color:${left?'var(--ok)':'var(--red)'}">${left} loyang</b></div>`;})():''}
     ${body||'<div class="empty">Belum ada menu di tanggal ini.</div>'}
@@ -1958,6 +1980,9 @@ function oNtSet(){
     <div class="muted" style="margin-top:6px">${c.live?'Customer bisa pesan & <b>wajib bayar QRIS</b>. Bayar nanti hanya lewat input owner.':'Customer belum bisa lihat. Cek tampilannya dulu lewat pratinjau.'}</div>
     <div style="margin-top:8px">${linkTag(location.origin+location.pathname+'?natal=preview','btn sm ghost','👀 Pratinjau halaman customer')}</div>
     <label>Nama PO</label><input value="${esc(c.title)}" onchange="ntCfgSet('title',this.value)">
+    <label>Foto utama <span class="muted">(tampil di kartu PO Natal)</span></label>
+    <div class="nx-ph">${ntPhoto('hero')?`<div class="nx-pht">${imgTag(ntPhoto('hero'),'width:100%;height:100%;object-fit:cover;display:block')}</div>`:''}
+      <button class="btn sm ghost" onclick="ntPhotoPick('hero')">📷 ${ntPhoto('hero')?'Ganti':'Upload'} foto</button>${ntPhoto('hero')?`<button class="btn sm ghost" onclick="ntPhotoDel('hero')">Hapus</button>`:''}</div>
     <div class="nx-g2"><div><label>Tanggal mulai</label><input type="date" value="${c.start}" onchange="ntRange('start',this.value)"></div><div><label>Sampai</label><input type="date" value="${c.end}" onchange="ntRange('end',this.value)"></div></div>
     <div class="nx-g2"><div><label>Tutup pemesanan</label><div class="nx-seg">${[1,2,3].map(n=>`<button class="${+c.cutoff===n?'on':''}" onclick="ntCfgSet('cutoff',${n})">H-${n}</button>`).join('')}</div></div>
       <div><label>Customer bisa ubah sampai</label><div class="nx-seg">${[2,3,4].map(n=>`<button class="${+c.editH===n?'on':''}" onclick="ntCfgSet('editH',${n})">H-${n}</button>`).join('')}</div></div></div>
@@ -2032,6 +2057,8 @@ function oNtCat(){const F=S.owner.ntNp,cat=NC().cat||[];
         <span class="nx-cut"><input type="number" min="1" step="1" value="${ntV(ntKey(p.id,z[0],'')).step}" onchange="ntSzSet(${pi},${zi},'step',this.value)" title="customer wajib pesan kelipatan ini"></span>
         <input type="number" step="1000" min="0" value="${z[2]}" onchange="ntPrice(${pi},${zi},this.value)">
         ${zu||p.sizes.length<2?'<span></span>':`<button class="nx-x" onclick="ntSzDel(${pi},${zi})" title="Hapus ukuran">✕</button>`}</div>`;}).join('')}
+      <div class="nx-zh" style="grid-template-columns:1fr;margin-top:10px"><span>Foto per ukuran (tampil di menu customer)</span></div>
+      <div class="nx-ph">${p.sizes.map(z=>{const k=p.id+'|'+z[0],ph=ntPhoto(k);return `<div class="nx-phs"><button class="nx-pht" onclick="ntPhotoPick(${ntJs(k)})" title="Upload foto ${esc(z[1])}">${ph?imgTag(ph,'width:100%;height:100%;object-fit:cover;display:block'):'<span>📷</span>'}</button><small>${esc(z[1])}${ph?` · <a href="#" onclick="ntPhotoDel(${ntJs(k)});return false">hapus</a>`:''}</small></div>`;}).join('')}</div>
       ${p.flav&&p.flav.length?`<div class="nx-fl">${p.flav.map((f,fi)=>{const fu=ntUsed(a=>a[0]===p.id&&a[2]===f);const hd=(p.hide||[]).indexOf(f)>=0;return `<span class="${hd?'hd':''}"><button class="nx-fn" onclick="ntFlRen(${pi},${fi})" title="Ganti nama">${esc(f)} ✏️</button><button class="nx-x" style="color:var(--ink)" onclick="ntFlHide(${pi},${fi})" title="${hd?'Khusus owner (tidak tampil di customer)':'Tampil di customer'}">${hd?'🔒':'🌐'}</button>${fu?'':`<button class="nx-x" onclick="ntFlDel(${pi},${fi})" title="Hapus rasa">✕</button>`}</span>`;}).join('')}</div>`:''}
       <div class="row" style="margin-top:8px"><button class="btn sm ghost" onclick="ntNpOpen('size',${ntJs(p.id)})">＋ Ukuran</button><button class="btn sm ghost" onclick="ntNpOpen('flav',${ntJs(p.id)})">＋ Rasa</button></div>
       ${F&&F.p===p.id?ntNpForm():''}</div>`;}).join('')}
