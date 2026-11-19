@@ -658,7 +658,7 @@ function renderOwner(){
   if(o.tab==='pay')h+=oPay();
   if(o.tab==='exp')h+=oExp();
   if(o.tab==='po')h+=oPO();
-  if(o.tab==='produk')h+=oMenuMaster()+oProduk()+oWilayah()+oSettings();
+  if(o.tab==='produk')h+=oMenuMaster()+oProduk()+oWilayah()+oSettings()+oCalCard();
   if(o.tab==='rekap')h+=oRekap();
   return h;
 }
@@ -1472,6 +1472,15 @@ async function mmSave(){const F=MMF;
   if(F.type==='size'&&F.mode==='potong'&&(!F.unit||!(+F.n>0)))return toast('Pilih asalnya & isi jumlah potongnya');
   if(await ownerCall('ownerAddMenu',{type:F.type,cat:F.cat,produk:String(F.produk).trim(),nama:String(F.nama).trim(),harga:+F.harga||0,mode:F.mode,unit:F.unit,n:+F.n||0,satuan:F.satuan})){mmClose();toast('✅ Ditambahkan ke menu');}}
 
+function oCalCard(){
+  const c=DB.calendar;if(!c)return '';
+  return `<div class="card"><div class="row between"><h2 style="font-size:20px">📅 Google Calendar</h2><span class="pill ${c.on&&!c.err?'open':'low'}">${c.on?(c.err?'Ada kendala':'Aktif'):'Belum aktif'}</span></div>
+    ${c.on?`<p class="muted" style="margin:6px 0">Pesanan langsung & ringkasan PO otomatis masuk ke Google Calendar (pengingat jam 08.00 H-1). Sinkron tiap 30 menit dan setiap kamu menyimpan pesanan langsung / PO.${c.last?'<br>Sinkron terakhir: <b style="color:var(--ink)">'+esc(c.last)+'</b>':''}</p>
+      ${c.err?`<div class="hint" style="background:#f6e0db">⚠️ ${esc(c.err)}<br>Coba jalankan lagi <b>pasangKalender</b> di Apps Script lalu klik Izinkan.</div>`:''}
+      <button class="btn sm ghost" onclick="ownerCall('ownerSyncKalender')">🔄 Sinkron sekarang</button>`
+    :`<p class="muted" style="margin:6px 0 0">Aktifkan sekali saja: buka <b>Apps Script</b> → pilih fungsi <b>pasangKalender</b> di menu atas → <b>Run / Jalankan</b> → <b>Izinkan</b> akses Calendar.</p>`}
+  </div>`;
+}
 function oSettings(){
   const demo=DB.qrisPayload?qrImage(10000):'';
   return `<div class="card"><h2 style="font-size:20px">Pengaturan Pembayaran & WhatsApp</h2>
