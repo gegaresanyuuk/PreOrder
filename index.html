@@ -302,7 +302,7 @@ a.btn{text-decoration:none}
 .nx-save .wrap{padding-bottom:0;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .nx-save .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}.nx-save .btn{background:#fff;color:#2f4630}
 .nx-pe{display:grid;grid-template-columns:minmax(0,1fr) auto 70px auto auto;gap:6px;align-items:center}.nx-pe input{padding:8px 10px;border-radius:10px}
-.nx-zh,.nx-zr2{display:grid;grid-template-columns:minmax(0,1fr) 44px 44px 80px 22px;gap:6px;align-items:center}.nx-zh{font-size:9.5px;color:var(--muted);margin-top:8px;line-height:1.2}.nx-zh span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nx-zh,.nx-zr2{display:grid;grid-template-columns:minmax(0,1fr) 40px 40px 74px 74px 22px;gap:6px;align-items:center}.nx-zh{font-size:9.5px;color:var(--muted);margin-top:8px;line-height:1.2}.nx-zh span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nx-zr2{margin-top:5px}.nx-zr2 input{padding:7px 8px;border-radius:9px;font-size:13.5px}.nx-zr2>input[type=number]{text-align:right}
 .nx-cut{display:flex;align-items:center;gap:3px}.nx-cut input{padding:7px 4px;text-align:center}.nx-cut small{font-size:11px;color:var(--muted)}
 .nx-x{border:0;background:transparent;color:var(--red);font-size:14px;cursor:pointer;padding:4px}
@@ -317,6 +317,7 @@ a.btn{text-decoration:none}
 .nx-ph{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}
 .nx-pht{width:76px;height:76px;border-radius:12px;overflow:hidden;border:1.5px dashed var(--line);background:var(--brand-soft);padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px}
 .nx-phs{display:flex;flex-direction:column;align-items:center;gap:3px}.nx-phs small{font-size:11.5px;color:var(--muted)}
+.nx-eb{background:#FBE9E7;border:1px solid #EFC3BC;color:#7E1F24;border-radius:12px;padding:9px 12px;font-size:13.5px;margin:6px 0}
 .nx-u{font-size:10px;color:var(--brand);font-weight:700}.nx-od .f{white-space:nowrap;font-size:10.5px;letter-spacing:-.2px}
 .bptag.nt{background:#e3ecdf;color:#3f5a3a}
 @media (max-width:420px){.nx-add{grid-template-columns:repeat(2,minmax(0,1fr))}.nx-lr{grid-template-columns:80px minmax(0,1fr) auto minmax(0,1fr)}}
@@ -1773,9 +1774,13 @@ const ntFmt=x=>(Math.round(x*10)/10).toString().replace('.',',');
 const ntJs=v=>esc(JSON.stringify(v));
 const ntProd=id=>(NC().cat||[]).find(p=>p.id===id);
 const ntKey=(p,sz,f)=>p+'|'+sz+'|'+(f||'');
-function ntV(k){const a=String(k).split('|'),P=NC()&&ntProd(a[0]),Z=P&&P.sizes.find(z=>z[0]===a[1]),f=a[2]||'';
+// early bird: harga khusus untuk pesanan yang dibuat sampai cfg.ebUntil (pesanan lama tetap dapat harga early bird)
+const ntEBFor=createdAt=>{const u=NC()&&NC().cfg.ebUntil;return !!(u&&String(createdAt||DB.today||'').slice(0,10)<=u);};
+const ntEBNow=()=>ntEBFor(NTX&&NTX.createdAt?NTX.createdAt:'');
+function ntV(k,ebArg){const a=String(k).split('|'),P=NC()&&ntProd(a[0]),Z=P&&P.sizes.find(z=>z[0]===a[1]),f=a[2]||'';
   const per=Z?+Z[3]||1:1,step=Z?(+Z[4]>=1?Math.floor(+Z[4]):(per<1?Math.round(1/per):1)):1;
-  return {P:P||{id:a[0],n:a[0],unit:'unit',sizes:[]},Z:Z||[a[1],a[1],0,1],f,ok:!!(P&&Z),price:Z?+Z[2]||0:0,per,step,hidden:!!(P&&(P.priv||(f&&(P.hide||[]).indexOf(f)>=0))),
+  const eb=ebArg===undefined?ntEBNow():ebArg,normal=Z?+Z[2]||0:0,ebp=Z?+Z[5]||0:0,isEB=!!(eb&&ebp>0);
+  return {P:P||{id:a[0],n:a[0],unit:'unit',sizes:[]},Z:Z||[a[1],a[1],0,1],f,ok:!!(P&&Z),price:isEB?ebp:normal,normal,isEB,per,step,hidden:!!(P&&(P.priv||(f&&(P.hide||[]).indexOf(f)>=0))),
     label:(P?P.n:a[0])+' '+(Z?Z[1]:a[1])+(f?' · '+f:''),short:(Z?Z[1]:a[1])+(f?' · '+f:'')};}
 function ntSold(d){const s=Object.assign({},(NT().sold||{})[d]||{});
   if(NTX&&NTX.date===d)Object.entries(NTX.items||{}).forEach(([k,q])=>s[k]=Math.max(0,(s[k]||0)-q));return s;}
@@ -1808,6 +1813,8 @@ function ntDates(){const c=NC().cfg,out=[];for(let d=c.start;d<=c.end&&out.lengt
 const ntLoc=id=>(NC().loc||[]).find(l=>l.id===id);
 function ntGroups(d,pub){const g={};ntKeys(d).forEach(k=>{const v=ntV(k);if(pub&&v.hidden)return;(g[v.P.n]=g[v.P.n]||[]).push(k);});return g;}
 const ntPubKeys=d=>ntKeys(d).filter(k=>!ntV(k).hidden);
+const ntPriceTxt=v=>v.isEB?`<s>${rp(v.normal)}</s> <b style="color:var(--red)">${rp(v.price)}</b>`:rp(v.price);
+const ntEBBadge=()=>{const u=NC().cfg.ebUntil;return u&&(DB.today||'')<=u?`<div class="nx-eb">🎁 <b>Early bird</b> untuk pesanan sampai ${ntFdl(u)}. Harga sudah otomatis terpotong.</div>`:'';};
 const ntStepTxt=v=>v.step>2?'min. '+v.step+', kelipatan '+v.step:v.step>1?'kelipatan '+v.step:'';
 function ntMonths(cell){const c=NC().cfg;let h='',y=+c.start.slice(0,4),m=+c.start.slice(5,7),guard=0;const ey=+c.end.slice(0,4),em=+c.end.slice(5,7);
   while((y<ey||(y===ey&&m<=em))&&guard++<6){const first=new Date(y,m-1,1),days=new Date(y,m,0).getDate(),lead=(first.getDay()+6)%7,cells=[];
@@ -1823,7 +1830,7 @@ S.nt={on:false,step:1,date:null,qty:{},lok:'',jam:'',conf:false,form:{},editingI
 function ntReset(){NTX=null;Object.assign(S.nt,{on:false,step:1,date:null,qty:{},lok:'',jam:'',conf:false,form:{},editingId:null,done:null,reqId:null});}
 const ntVisible=()=>{const N=NT();return !!(N&&N.cfg&&(N.cfg.live||NT_PREVIEW));};
 function ntOpen(){ntReset();S.nt.on=true;render();window.scrollTo(0,0);}
-function ntTags(){const c=NC().cfg;return `<div class="tg"><span>📅 ${ntFds(c.start)} – ${ntFds(c.end)}</span><span>⏳ Tutup H-${c.cutoff}</span><span>📍 Pickup / ojol</span><span>📱 Bayar QRIS</span></div>`;}
+function ntTags(){const c=NC().cfg;return `<div class="tg">${c.ebUntil&&(DB.today||'')<=c.ebUntil?`<span>🎁 Early bird s/d ${ntFds(c.ebUntil)}</span>`:''}<span>📅 ${ntFds(c.start)} – ${ntFds(c.end)}</span><span>⏳ Tutup H-${c.cutoff}</span><span>📍 Pickup / ojol</span><span>📱 Bayar QRIS</span></div>`;}
 const ntPhoto=k=>((NT()||{}).photos||{})[k]||'';
 function ntPhotoPick(key){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
   inp.onchange=()=>{const f=inp.files&&inp.files[0];if(!f)return;if(!/^image\//.test(f.type))return toast('File harus gambar');
@@ -1837,7 +1844,7 @@ function ntPhotoDel(key){if(confirm('Hapus foto ini?'))ownerCall('ownerNatalPhot
 const ntSizeNote=(P,z)=>z[3]===1?'1 '+P.unit+' utuh':Math.abs(z[3]-0.5)<1e-9?'½ '+P.unit:'per potong';
 // panduan ukuran bergambar (customer, langkah menu)
 function ntSizeGuide(){return (NC().cat||[]).filter(P=>!P.priv&&P.sizes.some(z=>ntPhoto(P.id+'|'+z[0]))).map(P=>`<div class="nx-szg">${P.sizes.map(z=>{const ph=ntPhoto(P.id+'|'+z[0]);
-  return `<div>${ph?imgTag(ph,'width:100%;aspect-ratio:1;object-fit:cover;display:block'):'<span class="nx-noph">🍰</span>'}<b>${esc(z[1])}</b><span>${rp(z[2])}</span><small>${esc(ntSizeNote(P,z))}</small></div>`;}).join('')}</div>`).join('');}
+  return `<div>${ph?imgTag(ph,'width:100%;aspect-ratio:1;object-fit:cover;display:block'):'<span class="nx-noph">🍰</span>'}<b>${esc(z[1])}</b><span>${ntPriceTxt(ntV(ntKey(P.id,z[0],(P.flav||[''])[0])))}</span><small>${esc(ntSizeNote(P,z))}</small></div>`;}).join('')}</div>`).join('');}
 function ntCard(){const c=NT().cfg,hero=ntPhoto('hero');
   return `<div class="nx-xmas" onclick="ntOpen()" style="cursor:pointer">${hero?imgTag(hero,'display:block;width:100%;aspect-ratio:16/10;max-height:340px;object-fit:cover;border-radius:12px;margin-bottom:12px;position:relative;z-index:1'):''}<div class="sn">❄️</div><div style="font-size:12.5px;opacity:.85;letter-spacing:.04em">PRE ORDER SPESIAL</div>
     <h2>🎄 ${esc(c.title)}</h2><div style="opacity:.9;margin-top:4px">Pilih tanggal ambil di kalender, lalu menu yang tersedia di tanggal itu.</div>${ntTags()}
@@ -1874,9 +1881,10 @@ const ntCartT=()=>Object.entries(S.nt.qty).reduce((t,[k,q])=>t+q*ntV(k).price,0)
 function ntStep2(){const n=S.nt,d=n.date,g=ntAuto()?(()=>{const g={};ntPubKeys(d).forEach(k=>{const v=ntV(k),h=v.P.n+(v.f?' · '+v.f:'');(g[h]=g[h]||[]).push(k);});return g;})():ntGroups(d,1),rules=String(NC().cfg.rules||'').trim();let tight=false;
   const body=Object.entries(g).map(([pn,ks])=>`<div class="nx-sz"><b>${esc(pn)}</b></div>`+ks.map(k=>{const v=ntV(k),q=n.qty[k]||0,l=ntLeft(d,k),can=ntFits(d,k,n.qty);
     if(l>q&&!can)tight=true;
-    return `<div class="item"><div><b>${esc(ntAuto()?v.Z[1]:v.short)}</b><div class="muted">${rp(v.price)}${ntStepTxt(v)?' · <b>'+ntStepTxt(v)+'</b>':''}${ntAuto()?(can?'':' · <span class="pill low">Kapasitas penuh</span>'):' · '+(!l?'<span class="pill closed">Sold out</span>':can||q>=l?(l-q<=3?`<span class="pill low">Sisa ${l-q}</span>`:'Sisa '+(l-q)):'<span class="pill low">Kapasitas penuh</span>')}</div></div>
+    return `<div class="item"><div><b>${esc(ntAuto()?v.Z[1]:v.short)}</b><div class="muted">${ntPriceTxt(v)}${ntStepTxt(v)?' · <b>'+ntStepTxt(v)+'</b>':''}${ntAuto()?(can?'':' · <span class="pill low">Kapasitas penuh</span>'):' · '+(!l?'<span class="pill closed">Sold out</span>':can||q>=l?(l-q<=3?`<span class="pill low">Sisa ${l-q}</span>`:'Sisa '+(l-q)):'<span class="pill low">Kapasitas penuh</span>')}</div></div>
       <div class="stepper"><button ${q?'':'disabled'} onclick="ntQ(${ntJs(k)},-${v.step})">−</button><span>${q}</span><button ${can?'':'disabled'} onclick="ntQ(${ntJs(k)},${v.step})">+</button></div></div>`;}).join('')).join('');
   return `<div class="card"><div class="row between"><h2 style="font-size:20px">2. Pilih menu</h2><button class="btn sm ghost" onclick="ntGo(1)">📅 ${ntFds(d)} · ganti</button></div>
+    ${ntEBBadge()}
     ${ntSizeGuide()}
     ${rules?`<div class="nx-rules">${esc(rules).replace(/\n/g,'<br>')}</div>`:''}
     ${ntAuto()?(()=>{const left=Math.max(0,ntCap(d)-ntPlan(d,n.qty));return `<div class="nx-tl" style="margin:6px 0 2px"><span>Sisa kapasitas ${ntFds(d)}</span><b style="color:${left?'var(--ok)':'var(--red)'}">${left} loyang</b></div>`;})():''}
@@ -1927,7 +1935,7 @@ async function ntSubmit(){const n=S.nt;
 function ntWaText(o,edited){const l=ntLoc(o.lok);
   return ['Halo GegaresanYuuk! 🎄',edited?'Saya mau konfirmasi *PERUBAHAN* pesanan PO Natal:':'Saya mau konfirmasi pesanan PO Natal:','',
     'Kode: *'+o.id+'*','Nama: '+o.nama,'No. WA: '+o.wa,'Ambil: '+fd(o.date)+(o.jam?' jam '+o.jam:'')+(l?' · '+l.n:''),'','Pesanan:']
-    .concat(Object.entries(o.items||{}).map(([k,q])=>'- '+ntV(k).label+' x'+q+' = '+rp(ntV(k).price*q)))
+    .concat(Object.entries(o.items||{}).map(([k,q])=>'- '+ntV(k).label+' x'+q+' = '+rp(ntV(k,ntEBFor(o.createdAt)).price*q)))
     .concat(['','*Total: '+rp(o.total)+'*','Pembayaran: QRIS – bukti bayar saya kirim di chat ini'])
     .concat(l&&l.confirm?['Saya akan konfirmasi dulu ke admin sebelum pesan ojol 🛵']:[]).concat(o.note?['Catatan: '+o.note]:[]).join(String.fromCharCode(10));}
 function ntDone(){const o=S.nt.done,edited=!!S.nt.edited,l=ntLoc(o.lok);
@@ -1949,7 +1957,7 @@ function ntLookupCards(list){if(!list||!list.length||!NT())return '';const c=NT(
       <div class="row between" style="margin-top:10px"><span class="pill ${o.paid?'open':'low'}">${o.bayar==='qris'?'QRIS':'Bayar nanti'} · ${o.paid?'Lunas ✅':'Belum dibayar'}</span>
       ${linkTag(waLink(DB.ownerWA,ntWaText(o,false)),'btn sm ghost','💬 Kirim ulang konfirmasi WA')}</div></div>`;}).join('');}
 function ntEdit(id){const o=(S.cust.myNatal||[]).find(x=>x.id===id);if(!o)return;
-  NTX={date:o.date,items:o.items,lok:o.lok,jam:o.jam};
+  NTX={date:o.date,items:o.items,lok:o.lok,jam:o.jam,createdAt:o.createdAt};
   Object.assign(S.nt,{on:true,step:2,date:o.date,qty:Object.assign({},o.items),lok:o.lok,jam:o.jam,conf:true,form:{nama:o.nama,wa:o.wa,catatan:o.note||''},editingId:id,done:null});
   S.cust.tab='pesan';render();window.scrollTo(0,0);}
 
@@ -1980,6 +1988,9 @@ function oNtSet(){
     <div class="muted" style="margin-top:6px">${c.live?'Customer bisa pesan & <b>wajib bayar QRIS</b>. Bayar nanti hanya lewat input owner.':'Customer belum bisa lihat. Cek tampilannya dulu lewat pratinjau.'}</div>
     <div style="margin-top:8px">${linkTag(location.origin+location.pathname+'?natal=preview','btn sm ghost','👀 Pratinjau halaman customer')}</div>
     <label>Nama PO</label><input value="${esc(c.title)}" onchange="ntCfgSet('title',this.value)">
+    <label>🎁 Early bird berlaku untuk pesanan sampai <span class="muted">(kosongkan = tidak ada early bird)</span></label>
+    <input type="date" value="${c.ebUntil||''}" onchange="ntCfgSet('ebUntil',this.value)">
+    <div class="muted" style="margin-top:4px">Harga early bird diisi per ukuran di 🍰 Produk (kolom <b>Early</b>). Pesanan yang masuk sampai tanggal ini tetap dapat harga early bird walau diubah nanti.</div>
     <label>Foto utama <span class="muted">(tampil di kartu PO Natal)</span></label>
     <div class="nx-ph">${ntPhoto('hero')?`<div class="nx-pht">${imgTag(ntPhoto('hero'),'width:100%;height:100%;object-fit:cover;display:block')}</div>`:''}
       <button class="btn sm ghost" onclick="ntPhotoPick('hero')">📷 ${ntPhoto('hero')?'Ganti':'Upload'} foto</button>${ntPhoto('hero')?`<button class="btn sm ghost" onclick="ntPhotoDel('hero')">Hapus</button>`:''}</div>
@@ -1993,7 +2004,7 @@ function oNtSet(){
     <textarea rows="5" onchange="ntCfgSet('rules',this.value)" placeholder="cth: Medium minimal 2 pcs per rasa (kelipatan 2)…">${esc(c.rules||'')}</textarea>
     <label>Menu per tanggal</label><div class="nx-seg"><button class="${ntAuto()?'on':''}" onclick="ntCfgSet('auto',true)">✨ Otomatis</button><button class="${ntAuto()?'':'on'}" onclick="ntCfgSet('auto',false)">✍️ Atur manual</button></div>
     <div class="nx-note">${ntAuto()?'✨ <b>Otomatis:</b> semua rasa 🌐 terbuka di semua tanggal. Kamu cukup atur <b>kapasitas loyang</b> (default di atas, atau per tanggal di kalender) dan tanggal <b>libur</b>. Tanggal otomatis jadi "Habis" saat kapasitasnya penuh.':'✍️ <b>Atur manual:</b> tiap tanggal hanya menjual menu & jumlah slot yang kamu isi di kalender.'}</div></div>
-  <div class="card"><div class="row between"><h3 style="font-size:17px">📅 Kalender</h3><span class="muted">Ketuk tanggal untuk atur menunya</span></div>
+  <div class="card"><div class="row between"><h3 style="font-size:17px">📅 Kalender</h3><span class="muted">Ketuk tanggal untuk lihat pesanan & atur kapasitas</span></div>
     ${ntMonths((x,num)=>{if(!ntDay(x))return `<div class="nx-od out"><div class="n">${num}</div></div>`;
       const au=ntAuto(),ks=au?ntPubKeys(x):ntKeys(x),sold=ntSold(x),T=au?ntCap(x):ks.reduce((t,k)=>t+ntSlot(x,k),0),U=au?ntPlan(x):ks.reduce((t,k)=>t+Math.min(sold[k]||0,ntSlot(x,k)),0),off=ntDay(x).off;
       return `<div class="nx-od ${off?'off':''} ${!ks.length&&!off?'empty':''} ${T&&U>=T?'full':''} ${d===x?'sel':''}" onclick="ntSetSel('${x}')"><div class="n">${num}</div>
@@ -2022,9 +2033,24 @@ function oNtSet(){
           <input type="number" min="1" value="${A.n}" oninput="S.owner.ntAdd.n=+this.value" title="jumlah slot"></div>
         <div class="row" style="margin-top:8px"><button class="btn sm" onclick="ntSlotAdd('${d}')">Tambah</button><button class="btn sm ghost" onclick="ntCopyDay('${d}')">📋 Salin menu ini ke tanggal lain…</button></div>
         <div class="muted" style="margin-top:6px">Angka terakhir = jumlah slot.</div></div>`:''}</div>`;}
+  if(d&&ntDay(d))h+=ntDayOrdCard(d);
   h+=oNtCat()+oNtLoc();
   return h;
 }
+// daftar pesanan untuk satu tanggal (tampil saat tanggal di kalender diketuk)
+function ntDayOrdCard(d){const os=ntOrdersOn(d).sort((a,b)=>(a.jam||'99').localeCompare(b.jam||'99')||a.nama.localeCompare(b.nama));
+  const tot=os.reduce((t,o)=>t+(+o.total||0),0),bl=os.filter(o=>!o.paid).length;
+  return `<div class="card"><div class="row between"><div><h3 style="font-size:17px">🧾 Pesanan ${ntFds(d)}</h3><div class="muted">${os.length} pesanan · ${rp(tot)}${bl?' · <b style="color:var(--red)">'+bl+' belum bayar</b>':''}</div></div>
+      <button class="btn sm" onclick="ntManOpen()">＋ Input</button></div>
+    ${os.length?os.map(o=>{const l=ntLoc(o.lok);return `<div class="nx-ord"><div class="row between" style="align-items:flex-start;flex-wrap:nowrap"><div><b>${esc(o.nama)}</b> <span class="ocode">${esc(o.id)}</span>
+        <div class="muted">${o.jam?'⏰ '+esc(o.jam):'<b style="color:var(--warn)">⏰ jam?</b>'} · ${l?esc(l.ic+' '+l.n):'<b style="color:var(--warn)">📍 lokasi?</b>'}${o.wa?' · '+esc(o.wa):' · <b style="color:var(--warn)">WA?</b>'}</div></div>
+        <div style="text-align:right;flex-shrink:0"><b>${rp(o.total)}</b><div><span class="pill ${o.paid?'open':'red'}">${o.paid?'Lunas':'Belum bayar'}</span></div></div></div>
+      <div style="font-size:13.5px;margin-top:6px">${Object.entries(o.items||{}).map(([k,q])=>esc(ntV(k).label)+' ×'+q).join('<br>')}</div>
+      ${o.note?`<div class="note">📝 ${esc(o.note)}</div>`:''}
+      <div class="a"><span class="pill ${o.src==='web'?'qr':'lt'}">${o.src==='web'?'🌐 web':'✍️ manual'}</span>
+        <button class="btn sm ghost" onclick="ntManOpen(${ntJs(o.id)})">✏️ Edit</button>
+        <button class="btn sm ghost" onclick="ntPaid(${ntJs(o.id)},${!o.paid})">${o.paid?'Batal lunas':'✓ Lunas'}</button>
+        <button class="btn sm ghost" onclick="ntRemind(${ntJs(o.id)})">📨 Ingatkan</button></div></div>`;}).join(''):`<div class="empty">Belum ada pesanan untuk tanggal ini.</div>`}</div>`;}
 function ntCfgSet(k,v){const D=ntDraft();if(k==='title')v=String(v).trim()||D.cfg.title;
   if(k==='live'&&v&&!confirm('Go live? PO Natal akan tampil di halaman customer dan customer wajib bayar QRIS.'))return;D.cfg[k]=v;ntTouch();}
 function ntCfgStep(k,x){const D=ntDraft();D.cfg[k]=Math.max(k==='perJam'?1:0,(+D.cfg[k]||0)+x);ntTouch();}
@@ -2051,11 +2077,12 @@ function oNtCat(){const F=S.owner.ntNp,cat=NC().cat||[];
       <div class="nx-pe"><input value="${esc(p.n)}" onchange="ntCatSet(${pi},'n',this.value)" placeholder="Nama produk" style="font-weight:700">
         <span class="muted">per</span><input value="${esc(p.unit)}" onchange="ntCatSet(${pi},'unit',this.value)" placeholder="loyang" title="dipanggang per">
         <button class="btn sm ghost" onclick="ntPPriv(${pi})" title="${p.priv?'Khusus owner':'Tampil di customer'}">${p.priv?'🔒':'🌐'}</button>${pu?'':`<button class="btn sm ghost" onclick="ntPDel(${pi})" title="Hapus produk">🗑</button>`}</div>
-      <div class="nx-zh"><span>Ukuran</span><span>pcs/${esc(p.unit)}</span><span>kelipatan</span><span>Harga</span><span></span></div>
+      <div class="nx-zh"><span>Ukuran</span><span>pcs/${esc(p.unit)}</span><span>kelipatan</span><span>Harga</span><span>Early</span><span></span></div>
       ${p.sizes.map((z,zi)=>{const zu=ntUsed(a=>a[0]===p.id&&a[1]===z[0]);return `<div class="nx-zr2"><input value="${esc(z[1])}" onchange="ntSzSet(${pi},${zi},'n',this.value)">
         <span class="nx-cut"><input type="number" min="1" step="1" value="${z[3]<=1?Math.round(1/z[3]):1}" onchange="ntSzSet(${pi},${zi},'cut',this.value)"></span>
         <span class="nx-cut"><input type="number" min="1" step="1" value="${ntV(ntKey(p.id,z[0],'')).step}" onchange="ntSzSet(${pi},${zi},'step',this.value)" title="customer wajib pesan kelipatan ini"></span>
         <input type="number" step="1000" min="0" value="${z[2]}" onchange="ntPrice(${pi},${zi},this.value)">
+        <input type="number" step="1000" min="0" value="${z[5]||''}" placeholder="—" onchange="ntPriceEB(${pi},${zi},this.value)" title="harga early bird (kosong = tidak ada)">
         ${zu||p.sizes.length<2?'<span></span>':`<button class="nx-x" onclick="ntSzDel(${pi},${zi})" title="Hapus ukuran">✕</button>`}</div>`;}).join('')}
       <div class="nx-zh" style="grid-template-columns:1fr;margin-top:10px"><span>Foto per ukuran (tampil di menu customer)</span></div>
       <div class="nx-ph">${p.sizes.map(z=>{const k=p.id+'|'+z[0],ph=ntPhoto(k);return `<div class="nx-phs"><button class="nx-pht" onclick="ntPhotoPick(${ntJs(k)})" title="Upload foto ${esc(z[1])}">${ph?imgTag(ph,'width:100%;height:100%;object-fit:cover;display:block'):'<span>📷</span>'}</button><small>${esc(z[1])}${ph?` · <a href="#" onclick="ntPhotoDel(${ntJs(k)});return false">hapus</a>`:''}</small></div>`;}).join('')}</div>
@@ -2066,6 +2093,7 @@ function oNtCat(){const F=S.owner.ntNp,cat=NC().cat||[];
     <p class="muted" style="margin-top:8px"><b>1 loyang =</b> jadi berapa pcs dari 1 loyang (Large 1, Medium 2, Slice 6). <b>Kelipatan</b> = customer wajib pesan kelipatan ini per rasa (Medium 2, Slice 6 → selalu pas 1 loyang, tidak ada sisa). Rasa 🔒 hanya bisa diinput owner, 🌐 tampil di customer.</p></div>`;}
 function ntPPriv(pi){const D=ntDraft(),P=D.cat[pi];P.priv=!P.priv;ntTouch();toast(P.priv?'🔒 '+P.n+' khusus owner (tidak tampil di customer)':'🌐 '+P.n+' tampil di customer');}
 function ntFlHide(pi,fi){const D=ntDraft(),P=D.cat[pi],f=P.flav[fi];P.hide=P.hide||[];const i=P.hide.indexOf(f);if(i>=0)P.hide.splice(i,1);else P.hide.push(f);ntTouch();toast(i>=0?'🌐 '+f+' tampil di customer':'🔒 '+f+' khusus owner');}
+function ntPriceEB(pi,zi,v){const D=ntDraft(),z=D.cat[pi].sizes[zi];while(z.length<5)z.push(z.length===3?1:(z[3]<1?Math.round(1/z[3]):1));z[5]=Math.max(0,Math.round(+v||0));ntTouch();}
 function ntPrice(pi,zi,v){const D=ntDraft();D.cat[pi].sizes[zi][2]=Math.max(0,Math.round(+v||0));ntTouch();}
 // sudah dipakai pesanan? (cek idProduk|idUkuran|rasa)
 function ntUsed(fn){return (DB.natalOrders||[]).some(o=>Object.keys(o.items||{}).some(k=>fn(String(k).split('|'))));}
@@ -2141,7 +2169,7 @@ function oNtOrd(){const F=S.owner.ntm,os=DB.natalOrders||[],fl=S.owner.ntF||'all
         <button class="btn sm danger" onclick="ntDel(${ntJs(o.id)})">🗑</button></div></div>`;}).join(''):`<div class="empty">Tidak ada pesanan.</div>`}</div>`;
   return h;}
 function ntManOpen(id){const o=id?(DB.natalOrders||[]).find(x=>x.id===id):null;
-  S.owner.ntm=o?{id:o.id,date:o.date,nama:o.nama,wa:o.wa||'',items:Object.assign({},o.items),lok:o.lok||'',jam:o.jam||'',paid:!!o.paid,bayar:o.bayar||'nanti',note:o.note||'',orig:{date:o.date,items:Object.assign({},o.items),lok:o.lok,jam:o.jam}}
+  S.owner.ntm=o?{id:o.id,date:o.date,nama:o.nama,wa:o.wa||'',items:Object.assign({},o.items),lok:o.lok||'',jam:o.jam||'',paid:!!o.paid,bayar:o.bayar||'nanti',note:o.note||'',orig:{date:o.date,items:Object.assign({},o.items),lok:o.lok,jam:o.jam,createdAt:o.createdAt}}
     :{id:'',date:S.owner.ntSel||'',nama:'',wa:'',items:{},lok:'',jam:'',paid:false,bayar:'nanti',note:'',orig:null};
   S.owner.ntView='ord';render();window.scrollTo(0,0);}
 function ntManForm(){const F=S.owner.ntm,d=F.date;NTX=F.orig;
@@ -2149,7 +2177,7 @@ function ntManForm(){const F=S.owner.ntm,d=F.date;NTX=F.orig;
   const locs=(NC().loc||[]).filter(l=>d&&ntWin(l,d)),cur=d&&F.lok&&ntLoc(F.lok),win=cur&&ntWin(cur,d);
   const keys=d?[...new Set((ntAuto()?Object.keys(ntSold(d)).filter(k=>ntSold(d)[k]>0):ntKeys(d)).concat(Object.keys(F.items)))]:[],A=S.owner.ntMa=S.owner.ntMa||{p:'',sz:'',f:''},cat=NC().cat||[];
   if(!cat.some(p=>p.id===A.p)&&cat[0]){A.p=cat[0].id;A.sz=cat[0].sizes[0][0];A.f=(cat[0].flav||[''])[0];}const P=ntProd(A.p);
-  const tot=Object.entries(F.items).reduce((t,[k,q])=>t+q*ntV(k).price,0),pu=d?ntPlan(d,F.items):0;
+  const tot=Object.entries(F.items).reduce((t,[k,q])=>t+q*ntV(k,ntEBFor(F.orig&&F.orig.createdAt)).price,0),pu=d?ntPlan(d,F.items):0;
   return `<div class="card" id="ntman"><div class="row between"><h3 style="font-size:17px">🧾 ${F.id?'Edit pesanan '+esc(F.id):'Input pesanan manual'}</h3><button class="btn sm ghost" onclick="ntManClose()">✕</button></div>
     <div class="nx-g2"><div><label>Tanggal ambil</label><select onchange="ntManSet('date',this.value)"><option value="">— pilih —</option>${ntDates().map(x=>`<option value="${x}" ${d===x?'selected':''}>${ntFds(x)}${ntDay(x).off?' (libur)':''}</option>`).join('')}</select></div>
       <div><label>Nama</label><input value="${esc(F.nama)}" oninput="S.owner.ntm.nama=this.value"></div></div>
@@ -2221,7 +2249,7 @@ function oNtRekap(){const days=ntDates();
         return `<div class="nx-lh"><b>${l?esc(l.ic+' '+l.n):'❓ Lokasi belum diisi'}</b><span class="muted">${by[id].length} pesanan</span></div>`+by[id].sort((a,b)=>(a.jam||'99').localeCompare(b.jam||'99')).map(o=>`<div class="nx-po"><span class="t">${esc(o.jam||'—')}</span><div class="w"><b>${esc(o.nama)}</b>
           <span class="pill ${o.paid?'open':'red'}" style="font-size:10.5px">${o.paid?'Lunas':'Belum bayar'}</span> ${o.src==='manual'?'<span class="pill lt" style="font-size:10.5px">manual</span>':''}
           <div class="muted">${Object.entries(o.items||{}).map(([k,q])=>esc(ntV(k).label)+' ×'+q).join(', ')}</div>${o.note?`<div class="muted">📝 ${esc(o.note)}</div>`:''}</div>
-          <div class="a"><button class="btn sm ghost" onclick="ntRemind(${ntJs(o.id)})" title="Kirim pengingat via WA">📨</button></div></div>`).join('');}).join('')}</div>`;}
+          <div class="a"><b style="font-size:13px">${rp(o.total)}</b><button class="btn sm ghost" onclick="ntManOpen(${ntJs(o.id)})" title="Edit pesanan">✏️</button><button class="btn sm ghost" onclick="ntRemind(${ntJs(o.id)})" title="Kirim pengingat via WA">📨</button></div></div>`).join('');}).join('')}</div>`;}
   return h;}
 
 /* --- integrasi: Bayar, Ringkasan, notif & Baking Plan --- */
